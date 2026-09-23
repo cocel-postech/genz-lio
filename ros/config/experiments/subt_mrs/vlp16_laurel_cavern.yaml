@@ -1,0 +1,83 @@
+# GenZ-LIO benchmark configuration: SM_Laurel-Cavern.
+# Load this complete YAML without a sensor overlay.
+# See ros/README.md and ros/config/parameter_tuning_guide.md.
+
+common:
+    lidar_topic: "/velodyne_points"
+    imu_topic: "/imu/data"
+    qos_depth: 1000
+
+runtime:
+    max_threads: 0
+
+preprocess:
+    lidar_type: velodyne
+    scan_line: 16
+    scan_rate: 10
+    blind_min: 0.5
+    blind_max: 120.0
+    point_filter_num: 1
+
+mapping:
+    max_iteration: 4
+    down_sample_size: 0.25
+
+    voxel_size: 1.0
+    max_layer: 4
+    layer_point_size: [5, 5, 5, 5, 5]
+    planar_threshold: 0.001
+    sigma_num: 3.0
+    max_points_size: 100
+    max_mature_points_size: 100
+    map_range: -1.0
+
+    extrinsic_est_en: false
+    extrinsic_t: [0, 0, 0.15]
+    extrinsic_r: [1, 0, 0,
+                  0, 1, 0,
+                  0, 0, 1]
+
+adaptive_voxelization:
+    enable: true
+    window_size: 5
+    scale_threshold: 30.0
+    setpoint_exponent: 2
+    min_points: 1000
+    max_points: 4000
+    error_sensitivity: 0.1
+    error_rate_sensitivity: 0.2
+    p_gain_min: 5.0e-06
+    p_gain_max: 5.0e-05
+    d_gain_min: 5.0e-08
+    d_gain_max: 5.0e-07
+
+hybrid_metric:
+    enable: true
+    lambda_po: 0.05
+    sigma_num: 3.0
+    max_points_per_voxel: 64
+    reduction_ratio: 4
+    adaptive_threshold:
+        initial_threshold: 0.5
+        max_range_motion: 100.0
+
+noise_model:
+    ranging_cov: 0.04
+    angle_cov: 0.1
+    acc_cov: 0.2
+    gyr_cov: 0.05
+    b_acc_cov: 0.0043
+    b_gyr_cov: 0.000266
+
+publish:
+    path_en: true
+    scan_publish_en: true
+    dense_publish_en: false
+    scan_bodyframe_pub_en: false
+    scan_semantic_publish_en: true
+    voxel_map_en: false
+    voxel_map_max_layer: 1
+
+pcd_save:
+    enable: false
+    interval: -1

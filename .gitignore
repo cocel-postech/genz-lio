@@ -1,0 +1,36 @@
+# Build
+build/
+devel/
+install/
+log/
+logs/
+.catkin_tools/
+*.so
+*.o
+*.a
+compile_commands.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+wheelhouse/
+.venv/
+venv/
+_skbuild/
+.pytest_cache/
+python/build/
+
+# Runtime output
+*.pcd
+*.bag
+*.db3
+Log/*.txt
+results/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp

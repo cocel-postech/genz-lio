@@ -1,0 +1,142 @@
+# Builds every target the project ships. Nothing is published here: the wheels
+# are built and tested, and uploading waits until the paper is accepted.
+name: build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  core:
+    name: core (${{ matrix.build_type }})
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [Release, Debug]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libeigen3-dev libboost-dev libyaml-cpp-dev ninja-build
+      - name: Configure
+        run: cmake -S cpp/genz_lio -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+      - name: Build
+        run: cmake --build build
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+  ros1:
+    name: ROS 1 Noetic
+    runs-on: ubuntu-latest
+    container: ros:noetic-ros-base
+    steps:
+      - uses: actions/checkout@v4
+        with: { path: src/genz-lio }
+      - name: Install dependencies
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            git build-essential cmake libeigen3-dev libboost-dev libyaml-cpp-dev \
+            ros-noetic-pcl-ros ros-noetic-pcl-conversions ros-noetic-tf
+      - name: Build
+        shell: bash
+        run: |
+          source /opt/ros/noetic/setup.bash
+          catkin_make -DCMAKE_BUILD_TYPE=Release
+      - name: Test
+        shell: bash
+        run: |
+          source /opt/ros/noetic/setup.bash
+          source devel/setup.bash
+          cd build/genz-lio/ros
+          test -f CTestTestfile.cmake
+          ctest --output-on-failure
+
+  ros2:
+    name: ROS 2 ${{ matrix.distro }}
+    runs-on: ubuntu-latest
+    container: ros:${{ matrix.distro }}-ros-base
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [humble, jazzy]
+    steps:
+      - uses: actions/checkout@v4
+        with: { path: src/genz-lio }
+      - name: Install dependencies
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            git build-essential cmake libeigen3-dev libboost-dev libyaml-cpp-dev libpcl-dev \
+            ros-${{ matrix.distro }}-pcl-conversions \
+            ros-${{ matrix.distro }}-tf2-ros \
+            ros-${{ matrix.distro }}-visualization-msgs \
+            python3-colcon-common-extensions
+      - name: Build
+        shell: bash
+        run: |
+          source /opt/ros/${{ matrix.distro }}/setup.bash
+          colcon build --packages-select genz_lio --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+      - name: Test
+        shell: bash
+        run: |
+          source /opt/ros/${{ matrix.distro }}/setup.bash
+          source install/setup.bash
+          ctest --test-dir build/genz_lio --output-on-failure
+
+  wheels:
+    name: wheel (${{ matrix.python }})
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "${{ matrix.python }}" }
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libeigen3-dev libboost-dev libgl1
+          python -m pip install --upgrade pip pytest Pillow rosbags build twine
+      - name: Build and install
+        run: |
+          python -m build
+          python -m twine check dist/*
+          python -m pip install dist/*.whl
+      - name: Test
+        run: python -m pytest python/tests -q
+
+      - name: Install and test all extras
+        if: matrix.python == '3.8' || matrix.python == '3.12'
+        run: |
+          wheels=(dist/*.whl)
+          python -m pip install "${wheels[0]}[all]"
+          python -m pip check
+          python -m pytest python/tests -q
+
+  manylinux:
+    name: manylinux wheels
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12" }
+      - name: Build wheels
+        run: |
+          python -m pip install cibuildwheel==2.23.3
+          python -m cibuildwheel --output-dir wheelhouse .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels
+          path: wheelhouse/*.whl
+      # Publishing is deliberately absent. When the paper is accepted, add a
+      # release job that runs twine upload against these artifacts.

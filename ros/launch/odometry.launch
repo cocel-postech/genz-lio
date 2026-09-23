@@ -1,0 +1,23 @@
+<launch>
+  <!--
+    GenZ-LIO. Load one complete YAML, without any sensor overlay.
+    Relative config paths are resolved under the package config/ directory;
+    absolute paths are used directly. Empty topic arguments keep YAML topics.
+
+      roslaunch genz_lio odometry.launch config:=default/ouster.yaml
+  -->
+  <arg name="config" default="default/velodyne.yaml"
+       doc="Complete YAML: package config/ relative path or absolute path"/>
+  <arg name="rviz" default="true"/>
+  <arg name="lidar_topic" default="" doc="Override YAML LiDAR topic; empty keeps YAML"/>
+  <arg name="imu_topic" default="" doc="Override YAML IMU topic; empty keeps YAML"/>
+
+  <node pkg="genz_lio" type="genz_lio_node" name="genz_lio" output="screen">
+    <param name="config_path" value="$(eval arg('config') if arg('config').startswith('/') else find('genz_lio') + '/config/' + arg('config'))"/>
+    <param name="lidar_topic" value="$(arg lidar_topic)" unless="$(eval arg('lidar_topic') == '')"/>
+    <param name="imu_topic" value="$(arg imu_topic)" unless="$(eval arg('imu_topic') == '')"/>
+  </node>
+
+  <node if="$(arg rviz)" pkg="rviz" type="rviz" name="rviz" launch-prefix="nice"
+        args="-d $(find genz_lio)/rviz/genz_lio.rviz"/>
+</launch>

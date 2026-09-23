@@ -1,0 +1,11 @@
+GenZ-LIO is distributed under GPL-2.0-only; see LICENSE.
+
+The source archive includes the vendored robin-map and IKFoM/MTK sources.
+Their copyright notices and license terms are reproduced in vendored-notices.txt.
+Eigen headers are used under MPL-2.0; see Eigen-MPL-2.0.txt. Eigen source:
+https://gitlab.com/libeigen/eigen/-/tree/3.4.0
+Boost headers are used under the Boost Software License; see Boost-1.0.txt.
+Portable Linux wheels bundle GCC's libgomp OpenMP runtime, licensed under
+GPL-3.0 with the GCC Runtime Library Exception 3.1; both texts are included.
+GCC source: https://gcc.gnu.org/releases.html
+Python packages installed as dependencies retain their own distributions and licenses.

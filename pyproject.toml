@@ -1,0 +1,72 @@
+[build-system]
+requires = ["scikit-build-core>=0.11,<0.12", "pybind11>=2.13,<3"]
+build-backend = "scikit_build_core.build"
+
+[project]
+name = "genz-lio"
+version = "0.1.0"
+description = "Generalizable LiDAR-inertial odometry across confined and open environments"
+readme = "python/README.md"
+requires-python = ">=3.8,<3.13"
+license = "GPL-2.0-only"
+license-files = ["LICENSE", "LICENSES/*"]
+maintainers = [{ name = "GenZ-LIO maintainers" }]
+keywords = ["lidar", "odometry", "slam", "robotics", "lio"]
+classifiers = [
+    "Intended Audience :: Science/Research",
+    "Programming Language :: C++",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "numpy>=1.20",
+    "PyYAML>=5.4",
+    "typer>=0.9",
+    "rich>=12.0",
+]
+
+[project.optional-dependencies]
+# Readers for the formats the benchmark sequences come in. Each is optional so
+# that installing the package does not drag in every one of them.
+rosbag = ["rosbags>=0.9.16,<0.10"]
+ouster = ["ouster-sdk==0.13.1"]
+viz = ["polyscope>=2.5", "Pillow>=9"]
+all = ["rosbags>=0.9.16,<0.10", "ouster-sdk==0.13.1", "polyscope>=2.5", "Pillow>=9"]
+
+[project.scripts]
+genz_lio_pipeline = "genz_lio.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/cocel-postech/genz-lio"
+Repository = "https://github.com/cocel-postech/genz-lio"
+
+[tool.scikit-build]
+minimum-version = "build-system.requires"
+cmake.source-dir = "python"
+cmake.version = ">=3.16"
+cmake.build-type = "Release"
+build-dir = "build/{wheel_tag}"
+wheel.packages = ["python/genz_lio"]
+sdist.exclude = [".github", "docker", "pictures", "build", "python/build", ".pytest_cache", "python/.pytest_cache"]
+
+[tool.scikit-build.cmake.define]
+GENZ_LIO_BUILD_TESTS = "OFF"
+GENZ_LIO_WITH_YAML = "OFF"
+
+[tool.pytest.ini_options]
+# Run from the repository root so the installed extension is imported rather
+# than the source directory, which carries no compiled module.
+testpaths = ["python/tests"]
+
+[tool.cibuildwheel]
+# Build and test artifacts only. Publishing is a separate, manual release step.
+build = "cp38-* cp39-* cp310-* cp311-* cp312-*"
+skip = "*-musllinux_* *_i686"
+archs = ["x86_64"]
+test-requires = ["pytest", "Pillow>=9,<12", "rosbags>=0.9.16,<0.10"]
+test-command = "python -m pytest {project}/python/tests -q"
+
+[tool.cibuildwheel.linux]
+manylinux-x86_64-image = "manylinux2014"
+before-all = "yum install -y eigen3-devel boost-devel"
+environment = { CMAKE_BUILD_PARALLEL_LEVEL = "2", PIP_ONLY_BINARY = ":all:" }

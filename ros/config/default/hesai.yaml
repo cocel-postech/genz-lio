@@ -1,0 +1,134 @@
+# GenZ-LIO complete default configuration: hesai.
+# Common algorithm defaults and sensor settings are included in this file.
+# Load this file alone; no base YAML or sensor overlay is required.
+# Verify topics, scan geometry, timing, extrinsics and noise for your platform.
+# Zero/identity extrinsics are placeholders, not a factory calibration.
+# See ros/README.md and ros/config/parameter_tuning_guide.md.
+
+common:
+    lidar_topic: "/hesai/pandar"
+    imu_topic: "/imu/data"
+    # Added to every LiDAR stamp before processing, in seconds.
+    time_offset: 0.0
+    # ROS 2 only. Reliable transport still has a finite KEEP_LAST history:
+    # delayed callbacks can lose samples when qos_depth is exceeded. Size the
+    # queue for the IMU rate and replay speed. 1000 provides headroom for bursts,
+    # not a cure for sustained overload. This depth applies to BOTH LiDAR and
+    # IMU: queued large clouds can consume substantial memory. Reduce on small
+    # systems. DDS transport buffers are separate (see ../dds/fastdds_local.xml).
+    # Use best_effort if the driver publishes that way and will not connect to
+    # a reliable subscriber.
+    qos_reliability: reliable
+    qos_depth: 1000
+
+runtime:
+    # Worker count for correspondence search and map updates. 0 uses the
+    # detected physical-core count; a positive value sets an explicit limit.
+    # This does not set CPU affinity. More workers are not always faster.
+    max_threads: 0
+
+preprocess:
+    # livox | livox_pcl | velodyne | ouster | hesai | robosense
+    lidar_type: hesai
+    scan_line: 32
+    scan_rate: 10        # [Hz], spinning LiDARs only
+    blind_min: 0.5       # [m] drop returns closer than this
+    blind_max: 100.0     # [m] drop returns farther than this
+    point_filter_num: 1  # keep every n-th point
+
+mapping:
+    max_iteration: 4  # ESIKF iterations per scan
+    down_sample_size: 0.25
+
+    # Root voxel edge length, d_root. Sets the octree root cell and feeds the
+    # discretization variance of the point-to-point covariance.
+    voxel_size: 1.0
+    max_layer: 4
+    layer_point_size: [5, 5, 5, 5, 5]
+    planar_threshold: 0.001  # [m^2] upper bound on the smallest covariance eigenvalue
+    sigma_num: 3.0    # point-to-plane residual gate
+    max_points_size: 100
+    max_mature_points_size: 100
+    # Unlimited retention preserves revisited geometry but memory can grow with
+    # the route. For long-running deployments, validate a finite radius above
+    # the useful sensing range; pruning changes revisit behaviour.
+    map_range: -1.0   # [m] drop voxels farther than this; <= 0 keeps all
+
+    # LiDAR pose in the IMU body frame. Consult the sensor's datasheet; a wrong
+    # extrinsic shows up as a rotation-dependent bias, not as noise.
+    extrinsic_est_en: false
+    extrinsic_t: [0.0, 0.0, 0.0]
+    extrinsic_r: [1.0, 0.0, 0.0,
+                  0.0, 1.0, 0.0,
+                  0.0, 0.0, 1.0]
+
+# Scale-aware adaptive voxelization (paper Sec. IV).
+adaptive_voxelization:
+    enable: true
+    window_size: 5          # N_w, scans the scale indicator averages over
+    scale_threshold: 30.0   # tau_m [m], scale at which the setpoint saturates
+    setpoint_exponent: 2    # p, must exceed 1 for a smooth approach to N_max
+    min_points: 1000        # N_min, setpoint in the most confined scenes
+    max_points: 4000        # N_max, setpoint once the scene is open
+    error_sensitivity: 0.1  # lambda_p, normalizes the tracking error
+    error_rate_sensitivity: 0.2
+    p_gain_min: 5.0e-6
+    p_gain_max: 5.0e-5
+    d_gain_min: 5.0e-8
+    d_gain_max: 5.0e-7
+
+# Hybrid-metric state update (paper Sec. V-E).
+hybrid_metric:
+    enable: true
+    # lambda_po in eq. (30): R_comb = lambda_po * (R_norm + R_disc). Balances the
+    # point-to-point covariance, which comes from a single correspondence,
+    # against the point-to-plane one, fitted from many points. The single most
+    # sensitive parameter in the system.
+    lambda_po: 0.05
+    sigma_num: 3.0  # point-to-point residual gate
+    # How many points a root voxel keeps as candidates for the point-to-point
+    # search. More candidates means a better match and a slower search.
+    max_points_per_voxel: 128
+    # Each time a voxel subdivides, a child keeps its parent's budget divided by
+    # this, so the candidates thin out as the cells get smaller.
+    reduction_ratio: 4
+    # The point-to-point gate is scaled by each point's own range and widened by
+    # the motion the filter has had to correct, so a distant return is judged
+    # against a looser bound than a near one.
+    adaptive_threshold:
+        initial_threshold: 0.5
+        max_range_motion: 100.0
+
+noise_model:
+    # Generic starting values, NOT calibration for any named LiDAR/IMU.
+    # Set these here for the actual sensor pair. The LiDAR
+    # range/angle values are squared internally; IMU values enter the process
+    # covariance directly. Do not copy datasheet noise densities without
+    # checking their units and the estimator's convention.
+    ranging_cov: 0.04  # [m] LiDAR range noise
+    angle_cov: 0.1     # [deg] LiDAR bearing noise
+    acc_cov: 0.2
+    gyr_cov: 0.05
+    b_acc_cov: 0.0043
+    b_gyr_cov: 0.000266
+
+publish:
+    # Refresh Odometry information every valid frame in an interactive terminal.
+    # Redirected output is plain text. No one-second throttle is applied.
+    terminal_status_en: false
+    path_en: true
+    scan_publish_en: true
+    dense_publish_en: false  # false: voxelized scan; true: dense scan
+    scan_bodyframe_pub_en: false
+    # Split the scan into the points matched to a plane and those that fell
+    # through to the point-to-point metric. Free unless something subscribes.
+    scan_semantic_publish_en: true
+    voxel_map_en: false      # publish the fitted planes; costly
+    voxel_map_max_layer: 1
+
+pcd_save:
+    enable: false
+    # Frames per file; -1 accumulates everything into one, which can exhaust
+    # memory on a long sequence.
+    interval: -1
+    directory: ""  # defaults to <package>/PCD

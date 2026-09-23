@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Local ROS2 playback: a complete Hesai cloud exceeds the default 512 KiB
+     Fast DDS shared-memory segment. Give simultaneous LiDAR/IMU delivery room
+     without changing message contents, bag timestamps, reliability or queues. -->
+<profiles xmlns="http://www.eprosima.com/XMLSchemas/fastRTPS_Profiles">
+  <transport_descriptors>
+    <transport_descriptor>
+      <transport_id>genz_udp</transport_id>
+      <type>UDPv4</type>
+    </transport_descriptor>
+    <transport_descriptor>
+      <transport_id>genz_shm</transport_id>
+      <type>SHM</type>
+      <segment_size>8388608</segment_size>
+      <port_queue_capacity>4096</port_queue_capacity>
+    </transport_descriptor>
+  </transport_descriptors>
+  <participant profile_name="genz_local_full_cloud" is_default_profile="true">
+    <rtps>
+      <userTransports>
+        <transport_id>genz_udp</transport_id>
+        <transport_id>genz_shm</transport_id>
+      </userTransports>
+      <useBuiltinTransports>false</useBuiltinTransports>
+    </rtps>
+  </participant>
+</profiles>

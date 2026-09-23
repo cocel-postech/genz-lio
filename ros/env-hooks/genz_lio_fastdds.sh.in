@@ -1,0 +1,12 @@
+# Source with the ROS2 workspace so the node, drivers and bag player share
+# the same local Fast DDS transport defaults. Preserve explicit profiles.
+if [ -z "${FASTRTPS_DEFAULT_PROFILES_FILE:-}" ] && [ -z "${FASTDDS_DEFAULT_PROFILES_FILE:-}" ]; then
+  # colcon's .dsv path sources this hook directly; package local_setup uses
+  # AMENT_CURRENT_PREFIX instead. During .dsv evaluation AMENT_CURRENT_PREFIX
+  # can still name an underlay, so the active colcon package takes precedence.
+  _genz_lio_dds_prefix="${COLCON_CURRENT_PREFIX:-${AMENT_CURRENT_PREFIX:-}}"
+  if [ -n "$_genz_lio_dds_prefix" ]; then
+    export FASTRTPS_DEFAULT_PROFILES_FILE="$_genz_lio_dds_prefix/share/@PROJECT_NAME@/config/dds/fastdds_local.xml"
+  fi
+  unset _genz_lio_dds_prefix
+fi

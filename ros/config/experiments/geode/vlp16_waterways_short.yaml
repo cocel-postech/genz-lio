@@ -1,0 +1,83 @@
+# GenZ-LIO benchmark configuration: GD_Waterways-Short.
+# Load this complete YAML without a sensor overlay.
+# See ros/README.md and ros/config/parameter_tuning_guide.md.
+
+common:
+    lidar_topic: "/velodyne_points"
+    imu_topic: "/imu/data"
+    qos_depth: 1000
+
+runtime:
+    max_threads: 0
+
+preprocess:
+    lidar_type: velodyne
+    scan_line: 16
+    scan_rate: 10
+    blind_min: 15.0
+    blind_max: 200.0
+    point_filter_num: 1
+
+mapping:
+    max_iteration: 4
+    down_sample_size: 0.4
+
+    voxel_size: 2.0
+    max_layer: 3
+    layer_point_size: [5, 5, 5, 5, 5]
+    planar_threshold: 0.0005
+    sigma_num: 3.0
+    max_points_size: 100
+    max_mature_points_size: 100
+    map_range: 400.0
+
+    extrinsic_est_en: false
+    extrinsic_t: [0.010965, -0.086864, 0.060426]
+    extrinsic_r: [0.9989892, 0.044487, -0.0064406,
+                  -0.0446353, 0.9986885, -0.0250789,
+                  0.0053164, 0.025341, 0.9996647]
+
+adaptive_voxelization:
+    enable: true
+    window_size: 5
+    scale_threshold: 30.0
+    setpoint_exponent: 2
+    min_points: 1000
+    max_points: 4000
+    error_sensitivity: 0.1
+    error_rate_sensitivity: 0.2
+    p_gain_min: 5.0e-06
+    p_gain_max: 5.0e-05
+    d_gain_min: 5.0e-08
+    d_gain_max: 5.0e-07
+
+hybrid_metric:
+    enable: true
+    lambda_po: 0.05
+    sigma_num: 3
+    max_points_per_voxel: 128
+    reduction_ratio: 2
+    adaptive_threshold:
+        initial_threshold: 2.0
+        max_range_motion: 200.0
+
+noise_model:
+    ranging_cov: 0.05
+    angle_cov: 0.01
+    acc_cov: 0.5
+    gyr_cov: 0.6
+    b_acc_cov: 0.0001
+    b_gyr_cov: 0.0001
+
+publish:
+    path_en: true
+    scan_publish_en: true
+    dense_publish_en: false
+    scan_bodyframe_pub_en: false
+    scan_semantic_publish_en: true
+    voxel_map_en: false
+    voxel_map_max_layer: 0
+
+pcd_save:
+    enable: false
+    interval: -1
