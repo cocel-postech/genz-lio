@@ -18,7 +18,7 @@
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 [Install](#installation)
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-[Python](python/README.md) 
+[Python](python/README.md)
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 [ROS](ros/README.md)
 
@@ -30,104 +30,72 @@
 
 ## About GenZ-LIO
 
-1. [GenZ-LIO][arXivlink] is designed for robust and computationally efficient LiDAR-inertial odometry across confined spaces, open environments, and transitions between them.
-2. The roles of the core GenZ-LIO modules are as follows:
-    - **Scale-aware adaptive voxelization** adjusts scan downsampling as the spatial scale changes.
-    - **Hybrid-metric state update** incorporates point-to-plane and point-to-point constraints with uncertainty-aware weighting.
-    - **Voxel-pruned correspondence search** reduces the search cost for point-to-point matching.
-3. GenZ-LIO was benchmarked on 42 challenging sequences from nine public datasets and our [NarrowWide dataset](https://github.com/cocel-postech/NarrowWide).
-4. Sequence-specific configurations and their mapping are listed in the [ROS guide](ros/README.md#benchmark-configurations).
-5. A shared C++ estimator supports ROS 1, ROS 2, and Python interfaces.
+[GenZ-LIO](https://arxiv.org/abs/2603.16273) estimates LiDAR-inertial odometry
+across confined spaces, open environments, and transitions between them.
+It supports **Python, ROS 1, and ROS 2**, and was evaluated on 42 sequences
+from nine public datasets and our [NarrowWide dataset](https://github.com/cocel-postech/NarrowWide).
 
-[arXivlink]: https://arxiv.org/abs/2603.16273
+<details>
+<summary>Algorithm overview</summary>
+
+- **Scale-aware adaptive voxelization** adjusts scan downsampling to the environment.
+- **Hybrid-metric state update** combines point-to-plane and point-to-point constraints.
+- **Voxel-pruned correspondence search** reduces the cost of point-to-point matching.
+
+</details>
 
 ## Installation
 
 ### Python
 
-Install from a complete source checkout on Linux. The Python pipeline can read
-rosbags without a ROS installation. Building its C++ extension requires a C++17
-compiler, CMake 3.16+, OpenMP, Eigen 3.4+, and Boost headers. The interactive
-visualizer uses Polyscope and requires an OpenGL-capable display.
+Follow the [Python installation guide](python/README.md#installation) for dependencies
+and virtual environment setup. From the repository root:
 
 ```bash
-sudo apt-get update
-sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
-    python3-dev python3-venv libgl1
-git clone https://github.com/cocel-postech/genz-lio.git
-cd genz-lio
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
 python -m pip install '.[rosbag,viz]'
+genz_lio_pipeline --help
 ```
 
-If the system Eigen is older than 3.4, CMake downloads Eigen 3.4 during the build;
-this requires network access. Source installation is the documented distribution
-method; a PyPI release is not required by these instructions.
+See [python/README.md](python/README.md) for input formats, visualization,
+and saving trajectories.
 
-Inspect an input bag, then run with a calibrated configuration:
+## ROS support
 
-```bash
-genz_lio_pipeline inspect /data/sequence.bag
-genz_lio_pipeline run /data/sequence.bag \
-    --config ros/config/default/velodyne.yaml --visualize --output results/my_run
-```
+Build instructions, dependencies, and dataset playback are in
+[ros/README.md](ros/README.md#installation).
 
-Press **SPACE** to start. A TUM trajectory is saved when processing finishes or
-you quit the visualizer normally. See the [Python guide](python/README.md) for
-camera previews, output formats, controls, and the Python API.
+<details>
+<summary>ROS 1 Noetic</summary>
 
-### ROS 1 / ROS 2
-
-Follow the [ROS build instructions](ros/README.md#installation) to install
-dependencies and build with catkin or colcon. Each interface has one launch file:
+After building and sourcing the catkin workspace:
 
 ```bash
-# ROS 1: source the catkin workspace first.
 roslaunch genz_lio odometry.launch config:=default/velodyne.yaml
+```
 
-# ROS 2: source the colcon workspace first, in a separate ROS 2 shell.
+</details>
+
+<details>
+<summary>ROS 2 Humble / Jazzy</summary>
+
+After building and sourcing the colcon workspace:
+
+```bash
 ros2 launch genz_lio odometry.launch.py config:=default/velodyne.yaml
 ```
 
-Both open RViz by default. Start the sensor drivers or bag player separately.
-Select one complete YAML using `config`; set LiDAR/IMU topics, timing, noise, and
-extrinsics for your platform. Livox `CustomMsg` input additionally requires the
-corresponding Livox ROS driver at build time. See the
-[ROS guide](ros/README.md) for playback, DDS setup, and recording outputs.
+</details>
 
-### Docker build check
-
-From the repository root, with Docker installed:
-
-```bash
-bash docker/build_ros2.sh humble
-# Alternative build target:
-bash docker/build_ros2.sh jazzy
-```
-
-The script installs dependencies in a disposable ROS container, builds the
-package, runs its tests, and checks that the node starts. It downloads packages
-and requires network access. This checks the build and an idle node; RViz,
-GPU access, and dataset replay are not part of this script.
-
-## Configuration and reproducibility
-
-The same complete YAML can be used by all three interfaces. ROS resolves a
-relative `config` path under the package's `config/` directory; Python resolves
-`--config` relative to the current working directory. No sensor overlay is
-needed. See the [parameter guide](ros/config/parameter_tuning_guide.md).
-
-`runtime.max_threads: 0` selects the detected physical-core count without CPU
-pinning. Accuracy and throughput should be checked on the intended machine;
-different compilers, SIMD targets, or Eigen versions can change floating-point
-results. Keep the input data, YAML, build revision, and evaluation convention
-with any reported score.
+Both launch RViz by default. Select a calibrated sensor or experiment YAML.
+See [benchmark configurations](ros/README.md#benchmark-configurations) and the
+[parameter guide](ros/config/parameter_tuning_guide.md).
 
 ## Citation
 
-If you use GenZ-LIO, please cite our [paper](https://arxiv.org/abs/2603.16273):
+If you use GenZ-LIO, please cite our [paper](https://arxiv.org/abs/2603.16273).
+
+<details>
+<summary>GenZ-LIO — BibTeX</summary>
 
 ```bibtex
 @article{lee2026genzlio,
@@ -137,6 +105,38 @@ If you use GenZ-LIO, please cite our [paper](https://arxiv.org/abs/2603.16273):
   year={2026}
 }
 ```
+
+</details>
+
+For LiDAR-only odometry, see [GenZ-ICP](https://github.com/cocel-postech/genz-icp)
+([paper](https://arxiv.org/abs/2411.06766), [IEEE Xplore](https://ieeexplore.ieee.org/document/10753079)).
+
+<details>
+<summary>GenZ-ICP — BibTeX</summary>
+
+```bibtex
+@article{lee2024genzicp,
+  author={Lee, Daehan and Lim, Hyungtae and Han, Soohee},
+  title={{GenZ-ICP: Generalizable and Degeneracy-Robust LiDAR Odometry Using an Adaptive Weighting}},
+  journal={IEEE Robotics and Automation Letters (RA-L)},
+  year={2025},
+  volume={10},
+  number={1},
+  pages={152--159},
+  doi={10.1109/LRA.2024.3498779}
+}
+```
+
+</details>
+
+## Contributors
+
+Bug reports, documentation improvements, and pull requests are welcome.
+See [all contributors](https://github.com/cocel-postech/genz-lio/graphs/contributors).
+
+<a href="https://github.com/Daehan2Lee">
+  <img src="https://github.com/Daehan2Lee.png?size=80" width="64" height="64" alt="Daehan Lee" />
+</a>
 
 ## Acknowledgments and license
 

@@ -5,18 +5,29 @@ interactive Polyscope visualizer. ROS is not required for offline rosbag reading
 
 ## Installation
 
-The Python package targets Python 3.8–3.12 on Linux x86-64.
+The Python package targets Python 3.8–3.12 on Linux x86-64. Build dependencies
+are a C++17 compiler, CMake 3.16+, OpenMP, Eigen 3.4+, and Boost headers.
+The visualizer also needs an OpenGL-capable display.
 
-Use the [source installation instructions](https://github.com/cocel-postech/genz-lio/blob/master/README.md#python), keeping the
-complete checkout. Packaging is configured by the repository-root `pyproject.toml`;
-run pip from that root so C++ sources, configuration files, and licenses are included.
-Run the following from the repository root, in your virtual environment:
+Install from a complete checkout in a virtual environment:
 
 ```bash
+sudo apt-get update
+sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
+    python3-dev python3-venv libgl1
+git clone https://github.com/cocel-postech/genz-lio.git
+cd genz-lio
+python3 -m venv .venv
+source .venv/bin/activate
 python -m pip install --upgrade pip
 python -m pip install '.[all]'
 genz_lio_pipeline run --help
 ```
+
+CMake downloads Eigen 3.4 if the system version is older; this needs network
+access during the build. Packaging is configured by the repository-root
+`pyproject.toml`. Run pip from that root so C++ sources, YAMLs, and licenses
+are included. Installation is currently from source; no PyPI release is required.
 
 Install `.` for the core and CLI only, `.[rosbag]` to read bags,
 or `.[rosbag,viz]` for bag playback with visualization. The `all` extra includes rosbag, visualization, and Ouster SDK dependencies;

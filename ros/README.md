@@ -67,9 +67,28 @@ colcon build --packages-select genz_lio --cmake-args -DCMAKE_BUILD_TYPE=Release
 source install/setup.bash
 ```
 
-Humble and Jazzy use the same ROS 2 launch and playback commands below. The optional
-[Docker build script](../docker/build_ros2.sh) provides a disposable build/test
-check for either ROS 2 target; it does not launch RViz or replay a dataset.
+Humble and Jazzy use the same ROS 2 launch and playback commands below.
+
+<details>
+<summary>Optional: check a ROS 2 build with Docker</summary>
+
+Docker is not required to build or run GenZ-LIO. The
+[build script](../docker/build_ros2.sh) installs dependencies in a disposable
+container, builds the package, runs its tests, and checks that the node starts.
+Use it to check a clean build without installing ROS dependencies on the host.
+
+From the repository root, with Docker installed:
+
+```bash
+bash docker/build_ros2.sh humble
+# Or:
+bash docker/build_ros2.sh jazzy
+```
+
+The check requires network access for the image and dependency downloads.
+It does not launch RViz, configure GPU access, or replay a dataset.
+
+</details>
 
 ### Livox input
 
