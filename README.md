@@ -5,38 +5,41 @@
 **Generalizable LiDAR-Inertial Odometry Beyond Confined–Open Boundaries**
 
 [![C++](https://img.shields.io/badge/C%2B%2B-17-blue)](cpp/genz_lio)
-[![Python](https://img.shields.io/badge/Python-3.8--3.12-blue)](python/README.md)
-[![ROS 1](https://img.shields.io/badge/ROS%201-Noetic-blue)](ros/README.md)
-[![ROS 2](https://img.shields.io/badge/ROS%202-Humble%20%7C%20Jazzy-blue)](ros/README.md)
-[![License](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.8--3.12-yellow)](python/README.md)
+[![ROS 1](https://img.shields.io/badge/ROS%201-Noetic-green)](ros/README.md)
+[![ROS 2](https://img.shields.io/badge/ROS%202-Humble%20%7C%20Jazzy-orange)](ros/README.md)
+[![License](https://img.shields.io/badge/License-GPL%20v2-red.svg)](LICENSE)
 
-[Paper](https://arxiv.org/abs/2603.16273) ·
-[Install](#installation) ·
-[Python](python/README.md) ·
-[ROS / ROS 2](ros/README.md) ·
-[Parameter guide](ros/config/parameter_tuning_guide.md) ·
-[NarrowWide](https://github.com/cocel-postech/NarrowWide)
+[Demo](https://www.youtube.com/watch?v=EyTJbdC_AA4)
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+[Paper](https://arxiv.org/abs/2603.16273)
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+[Dataset](https://github.com/cocel-postech/NarrowWide)
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+[Install](#installation)
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+[Python](python/README.md) 
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+[ROS](ros/README.md)
 
-<img src="pictures/GenZ-ICP.gif" width="600" alt="Temporary illustration from GenZ-ICP" />
-
-*Temporary illustration from [GenZ-ICP](https://github.com/cocel-postech/genz-icp),
-to be replaced with a GenZ-LIO demonstration before release.*
+<img src="pictures/GenZ-ICP.gif" width="500" alt="Temporary illustration from GenZ-ICP" />
+<br />
+<br />
 
 </div>
 
-GenZ-LIO estimates motion from LiDAR and IMU measurements across confined spaces,
-open terrain, and transitions between them. A shared C++ estimator provides
-ROS 1, ROS 2, and Python interfaces.
+## About GenZ-LIO
 
-- **Scale-aware adaptive voxelization** adjusts scan downsampling as the spatial scale changes.
-- **Hybrid-metric state update** combines point-to-plane and point-to-point constraints.
-- **Voxel-pruned correspondence search** reduces the search work for point-to-point matching.
+1. [GenZ-LIO][arXivlink] provides robust and computationally efficient LiDAR-inertial odometry across confined spaces, open environments, and transitions between them.
+2. The roles of the core GenZ-LIO modules are as follows:
+    - **Scale-aware adaptive voxelization** adjusts scan downsampling as the spatial scale changes.
+    - **Hybrid-metric state update** combines point-to-plane and point-to-point constraints.
+    - **Voxel-pruned correspondence search** reduces the search cost for point-to-point matching.
+3. GenZ-LIO was benchmarked on 42 challenging sequences from nine public datasets and our [NarrowWide dataset](https://github.com/cocel-postech/NarrowWide).
+4. Sequence-specific configurations and their mapping are listed in the [ROS guide](ros/README.md#benchmark-configurations).
+5. A shared C++ estimator supports ROS 1, ROS 2, and Python interfaces.
 
-The [paper](https://arxiv.org/abs/2603.16273) evaluates 42 sequences from nine
-public datasets and our [NarrowWide dataset](https://github.com/cocel-postech/NarrowWide).
-Sequence-specific configurations and their mapping are listed in the
-[ROS guide](ros/README.md#benchmark-configurations). Sensor defaults are starting
-points for a new platform; use the experiment configurations for benchmark runs.
+[arXivlink]: https://arxiv.org/abs/2603.16273
 
 ## Installation
 
