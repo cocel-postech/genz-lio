@@ -45,19 +45,15 @@ from nine public datasets and our [NarrowWide dataset](https://github.com/cocel-
 </details>
 
 ## Installation
-
-### Python
-
-Follow the [Python installation guide](python/README.md#installation) for dependencies
-and virtual environment setup. From the repository root:
-
 ```bash
-python -m pip install '.[rosbag,viz]'
+pip install genz-lio
+```
+Next, follow the instructions on how to run the system by typing:
+```bash
 genz_lio_pipeline --help
 ```
 
-See [python/README.md](python/README.md) for input formats, visualization,
-and saving trajectories.
+See [python/README.md](python/README.md) for input formats, visualization, and saving trajectories.
 
 ## ROS support
 
@@ -90,12 +86,9 @@ Both launch RViz by default. Select a calibrated sensor or experiment YAML.
 See [benchmark configurations](ros/README.md#benchmark-configurations) and the
 [parameter guide](ros/config/parameter_tuning_guide.md).
 
-## Citation
+## :pencil: Citation
 
 If you use GenZ-LIO, please cite our [paper](https://arxiv.org/abs/2603.16273).
-
-<details>
-<summary>GenZ-LIO — BibTeX</summary>
 
 ```bibtex
 @article{lee2026genzlio,
@@ -106,13 +99,8 @@ If you use GenZ-LIO, please cite our [paper](https://arxiv.org/abs/2603.16273).
 }
 ```
 
-</details>
-
 For LiDAR-only odometry, see [GenZ-ICP](https://github.com/cocel-postech/genz-icp)
-([paper](https://arxiv.org/abs/2411.06766), [IEEE Xplore](https://ieeexplore.ieee.org/document/10753079)).
-
-<details>
-<summary>GenZ-ICP — BibTeX</summary>
+([arXiv](https://arxiv.org/abs/2411.06766), [IEEE *Xplore*](https://ieeexplore.ieee.org/document/10753079)).
 
 ```bibtex
 @article{lee2024genzicp,
@@ -127,33 +115,29 @@ For LiDAR-only odometry, see [GenZ-ICP](https://github.com/cocel-postech/genz-ic
 }
 ```
 
-</details>
+## :sparkles: Contributors
 
-## Contributors
+Bug reports, documentation improvements, and pull requests are always welcome.  
+Contributions are greatly appreciated, and we would be happy to see your profile appear below!
 
-Bug reports, documentation improvements, and pull requests are welcome.
-See [all contributors](https://github.com/cocel-postech/genz-lio/graphs/contributors).
-
-<a href="https://github.com/Daehan2Lee">
-  <img src="https://github.com/Daehan2Lee.png?size=80" width="64" height="64" alt="Daehan Lee" />
+<a href="https://github.com/cocel-postech/genz-lio/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=cocel-postech/genz-lio" />
 </a>
 
-## Acknowledgments and license
+## :pray: Acknowledgments and license
+
+Many thanks to the [HKU-MARS Lab](https://github.com/hku-mars) and the KISS-ICP team at [PRBonn](https://github.com/PRBonn) for their open-source contributions to the robotics community.
 
 GenZ-LIO builds on [PV-LIO](https://github.com/HViktorTsoi/PV-LIO),
 [VoxelMap](https://github.com/hku-mars/VoxelMap),
 [FAST-LIO](https://github.com/hku-mars/FAST_LIO), and
 [IKFoM](https://github.com/hku-mars/IKFoM). We also thank the
-[KISS-ICP](https://github.com/PRBonn/kiss-icp) and
-[GenZ-ICP](https://github.com/cocel-postech/genz-icp) projects.
+[KISS-ICP](https://github.com/PRBonn/kiss-icp) project.
 
-GenZ-LIO is distributed under [GPL-2.0](LICENSE). Notices in vendored code are
-preserved; local dependency modifications are documented in
-[PATCHES.md](cpp/genz_lio/3rdparty/PATCHES.md). The temporary GenZ-ICP illustration
-retains its [upstream license](pictures/GenZ-ICP.LICENSE).
+GenZ-LIO is distributed under [GPL-2.0](https://github.com/cocel-postech/genz-lio/blob/master/LICENSE); dependency modifications are listed in [PATCHES.md](https://github.com/cocel-postech/genz-lio/blob/master/cpp/genz_lio/3rdparty/PATCHES.md).
 
-## Contact
+## :mailbox: Contact
 
 For questions and bug reports, open an
 [issue](https://github.com/cocel-postech/genz-lio/issues) or contact
-[Daehan Lee](https://github.com/Daehan2Lee) at daehanlee@postech.ac.kr.
+[Daehan Lee](https://github.com/Daehan2Lee) ( :envelope: daehanlee `at` postech `dot` ac `dot` kr)
