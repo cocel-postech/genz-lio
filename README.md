@@ -30,10 +30,10 @@
 
 ## About GenZ-LIO
 
-1. [GenZ-LIO][arXivlink] provides robust and computationally efficient LiDAR-inertial odometry across confined spaces, open environments, and transitions between them.
+1. [GenZ-LIO][arXivlink] is designed for robust and computationally efficient LiDAR-inertial odometry across confined spaces, open environments, and transitions between them.
 2. The roles of the core GenZ-LIO modules are as follows:
     - **Scale-aware adaptive voxelization** adjusts scan downsampling as the spatial scale changes.
-    - **Hybrid-metric state update** combines point-to-plane and point-to-point constraints.
+    - **Hybrid-metric state update** incorporates point-to-plane and point-to-point constraints with uncertainty-aware weighting.
     - **Voxel-pruned correspondence search** reduces the search cost for point-to-point matching.
 3. GenZ-LIO was benchmarked on 42 challenging sequences from nine public datasets and our [NarrowWide dataset](https://github.com/cocel-postech/NarrowWide).
 4. Sequence-specific configurations and their mapping are listed in the [ROS guide](ros/README.md#benchmark-configurations).
