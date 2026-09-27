@@ -32,8 +32,8 @@
 
 [GenZ-LIO](https://arxiv.org/abs/2603.16273) estimates LiDAR-inertial odometry
 across confined spaces, open environments, and transitions between them.
-It supports **Python, ROS 1, and ROS 2**, and was evaluated on 42 sequences
-from nine public datasets and our [NarrowWide dataset](https://github.com/cocel-postech/NarrowWide).
+It was evaluated on 42 sequences
+from nine public datasets and our [NarrowWide dataset](https://github.com/cocel-postech/NarrowWide) and supports **Python, ROS 1, and ROS 2**.
 
 <details>
 <summary>Algorithm overview</summary>
