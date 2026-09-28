@@ -1,7 +1,7 @@
 # GenZ-LIO for ROS 1 and ROS 2
 
 Both interfaces use the same C++ estimator and YAML configuration format.
-Follow the four steps for your ROS version below. Use a separate shell and
+Follow the three steps for your ROS version below. Use a separate shell and
 workspace for ROS 1 Noetic, ROS 2 Humble, and ROS 2 Jazzy.
 
 <a id="ros-1-noetic"></a>
@@ -62,25 +62,12 @@ If using Livox CustomMsg, check that CMake reports
 `Livox CustomMsg support enabled`. If the driver was added after GenZ-LIO was
 built, source it and rebuild GenZ-LIO.
 
-### 3. Prepare configurations
+### 3. Run
 
-The package includes `config/experiments/` YAMLs for reproducing the paper's
-benchmarks and `config/default/` templates for your own sensor. `config:=` accepts
-a path relative to the package's `config/` directory, or an absolute YAML path.
-ROS does not require the Python configuration export step.
-
-For benchmark runs, use the matching [experiment YAML](#benchmark-configurations).
-For your own sensor, copy a template; for example, with a Velodyne LiDAR:
-
-```bash
-cp ~/catkin_ws/src/genz-lio/ros/config/default/velodyne.yaml ~/my_robot.yaml
-```
-
-Edit `my_robot.yaml` for your topics, sensor type, per-point timing, noise, and
-LiDAR-to-IMU calibration. The default extrinsics are placeholders.
-Parameter tuning guidance is available in the [parameter guide](config/parameter_tuning_guide.md).
-
-### 4. Run
+Use the package's `config/experiments/` YAMLs for the paper's benchmark sequences,
+or a calibrated `config/default/` template for your own sensor. No configuration
+export is needed. `config:=` accepts a path relative to the package's `config/`
+directory, or an absolute YAML path.
 
 **1) For reproducing benchmark experiments (e.g., NarrowWide Handheld-A-01)**
 
@@ -100,22 +87,565 @@ rosbag play "{path_to_bag}/{NW_Handheld-A-01}.bag"
 ```
 
 Replace the bag placeholders with the actual downloaded or prepared file.
-Dataset downloads and input preparation notes are listed in the
-[benchmark sequence guide](../python/README.md#4-run).
 GenZ-LIO consumes PointCloud2 or supported Livox CustomMsg plus IMU messages;
 raw Velodyne packets must first be decoded to PointCloud2 with point timing.
 
-**2) For your own sensor**
+<details>
+<summary>▶️ All benchmark sequences: downloads and ROS 1 commands (42 sequences)</summary>
 
-Launch with the calibrated file from step 3:
+These commands use the package's `config/experiments/` YAMLs directly and start
+RViz. No configuration export is needed. In **both terminals**, source the
+workspace before running any commands:
 
 ```bash
-roslaunch genz_lio odometry.launch config:="$HOME/my_robot.yaml"
+source ~/catkin_ws/devel/setup.bash
+```
+
+For each sequence, run the **first block in terminal 1** to start GenZ-LIO and
+RViz. Wait for the node to start, then run the **second block in terminal 2** to
+play the recording. Stop the previous node before starting another sequence.
+
+Bag filename labels in braces identify the sequence, not the official download
+filename. Substitute the actual downloaded or prepared path; no file renaming
+is required. `_pointcloud` and `_merged` identify prepared inputs described below.
+
+<details>
+<summary>GEODE (7 sequences)</summary>
+
+[Dataset](https://thisparticle.github.io/geode/) · [Download](https://drive.google.com/drive/folders/1hEn3sBAvQhSdUFnGMZCCv-W0Ynj2rWBs).
+
+Use the Alpha (Velodyne) recordings for these YAMLs.
+
+**Stairs**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_stairs.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{GD_Stairs}.bag"
+```
+
+**Waterways-Short**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_waterways_short.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{GD_Waterways-Short}.bag"
+```
+
+**Waterways-Medium**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_waterways_medium.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{GD_Waterways-Medium}.bag"
+```
+
+**Waterways-Long**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_waterways_long.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{GD_Waterways-Long}.bag"
+```
+
+**Offroad-02**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_offroad.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{GD_Offroad-02}.bag"
+```
+
+**Offroad-04**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_offroad.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{GD_Offroad-04}.bag"
+```
+
+**Offroad-07**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_offroad.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{GD_Offroad-07}.bag"
+```
+
+</details>
+
+<details>
+<summary>ENWIDE (4 sequences)</summary>
+
+[Dataset](https://projects.asl.ethz.ch/datasets/) · [Download](https://doi.org/10.3929/ethz-b-000702477).
+
+**Katzensee-S**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/enwide/os128_enwide.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{EW_Katzensee-S}.bag"
+```
+
+**Katzensee-D**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/enwide/os128_enwide.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{EW_Katzensee-D}.bag"
+```
+
+**Intersection-S**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/enwide/os128_enwide.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{EW_Intersection-S}.bag"
+```
+
+**Intersection-D**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/enwide/os128_enwide.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{EW_Intersection-D}.bag"
+```
+
+</details>
+
+<details>
+<summary>NTU VIRAL (3 sequences)</summary>
+
+[Dataset and downloads](https://ntu-aris.github.io/ntu_viral_dataset/).
+
+**SPMS-01**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/ntu_viral/os16_spms_01.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{NV_SPMS-01}.bag"
+```
+
+**SPMS-02**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/ntu_viral/os16_spms_02.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{NV_SPMS-02}.bag"
+```
+
+**SPMS-03**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/ntu_viral/os16_spms_03.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{NV_SPMS-03}.bag"
+```
+
+</details>
+
+<details>
+<summary>SuperLoc (4 sequences)</summary>
+
+[Dataset and downloads](https://superodometry.com/superloc).
+
+Download Cave01, Cave02, Cave04, and Corridor02 from the SuperLoc dataset table.
+
+**Cave-01**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/superloc/vlp16_cave.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{SL_Cave-01}.bag"
+```
+
+**Cave-02**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/superloc/vlp16_cave.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{SL_Cave-02}.bag"
+```
+
+**Cave-04**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/superloc/vlp16_cave.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{SL_Cave-04}.bag"
+```
+
+**Corridor-02**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/superloc/vlp16_corridor_02.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{SL_Corridor-02}.bag"
+```
+
+</details>
+
+<details>
+<summary>NarrowWide (6 sequences)</summary>
+
+[Dataset and downloads](https://github.com/cocel-postech/NarrowWide).
+
+Dataset information and download instructions are maintained in the NarrowWide repository.
+
+**Tracked-01**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/narrowwide/mid70_tracked_01.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{NW_Tracked-01}.bag"
+```
+
+**Tracked-02**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/narrowwide/mid70_tracked_02.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{NW_Tracked-02}.bag"
+```
+
+**Handheld-A-01**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/narrowwide/vlp16_handheld_a_01.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{NW_Handheld-A-01}.bag"
+```
+
+**Handheld-A-02**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/narrowwide/vlp16_handheld_a_02.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{NW_Handheld-A-02}.bag"
+```
+
+**Handheld-B-01**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/narrowwide/avia_handheld_b.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{NW_Handheld-B-01}.bag"
+```
+
+**Handheld-B-02**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/narrowwide/avia_handheld_b.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{NW_Handheld-B-02}.bag"
+```
+
+</details>
+
+<details>
+<summary>SubT-MRS (3 sequences)</summary>
+
+[Dataset and downloads](https://superodometry.com/datasets).
+
+**Prepare PointCloud2 input first.** Decode `/velodyne_packets` with a
+Velodyne VLP-16 driver to `/velodyne_points` (`sensor_msgs/PointCloud2`) with
+per-point timing, preserving `/imu/data` and original timestamps. GenZ-LIO
+does not consume raw packets directly.
+
+Multi-Floor spans `0.bag`–`2.bag`; Laurel-Cavern spans `0.bag`–`10.bag`.
+Process all parts in timestamp order into one continuous prepared recording.
+The examples expect one prepared `.bag` per sequence.
+
+**Long-Corridor**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/subt_mrs/vlp16_long_corridor.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{SM_Long-Corridor_pointcloud}.bag"
+```
+
+**Multi-Floor**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/subt_mrs/vlp16_multi_floor.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{SM_Multi-Floor_pointcloud}.bag"
+```
+
+**Laurel-Cavern**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/subt_mrs/vlp16_laurel_cavern.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{SM_Laurel-Cavern_pointcloud}.bag"
+```
+
+</details>
+
+<details>
+<summary>HILTI 2021 (2 sequences)</summary>
+
+[Dataset and downloads](https://hilti-challenge.com/dataset-2021).
+
+Use the MID-70 recordings with these experiment configurations.
+
+**Basement-04**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/hilti21/mid70_hilti21_basement04.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{H21_Basement-04}.bag"
+```
+
+**Drone-Arena**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/hilti21/mid70_hilti21_drone_arena.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{H21_Drone-Arena}.bag"
+```
+
+</details>
+
+<details>
+<summary>HILTI 2022 (3 sequences)</summary>
+
+[Dataset and downloads](https://hilti-challenge.com/dataset-2022).
+
+Use the Pandar32 recordings with these experiment configurations.
+
+**Exp-10**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/hilti22/pandar32_hilti22_exp10.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{H22_Exp-10}.bag"
+```
+
+**Exp-16**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/hilti22/pandar32_hilti22_exp16.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{H22_Exp-16}.bag"
+```
+
+**Exp-18**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/hilti22/pandar32_hilti22_exp18.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{H22_Exp-18}.bag"
+```
+
+</details>
+
+<details>
+<summary>M3DGR (4 sequences)</summary>
+
+[Dataset and downloads](https://github.com/sjtuyinjie/M3DGR).
+
+**Corridor-01**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/m3dgr/avia_corridor_01.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{M3D_Corridor-01}.bag"
+```
+
+**Corridor-02**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/m3dgr/avia_corridor_02.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{M3D_Corridor-02}.bag"
+```
+
+**GNSS-denial-01**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/m3dgr/avia_gnss_denial.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{M3D_GNSS-denial-01}.bag"
+```
+
+**GNSS-denial-02**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/m3dgr/avia_gnss_denial.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{M3D_GNSS-denial-02}.bag"
+```
+
+</details>
+
+<details>
+<summary>Oxford Spires (6 sequences)</summary>
+
+[Dataset](https://ori-drs.github.io/datasets/oxford-spires/) · [Download](https://huggingface.co/datasets/ori-drs/oxford_spires_dataset).
+
+**Split recordings:** christ_church-01 and christ_church-02 each contain two
+bag parts (`..._0.bag` and `..._1.bag`). Include both in timestamp order,
+preserving topics, message contents, and timestamps. Using only the first part
+runs an incomplete sequence. The other four sequences have one source bag each.
+The `_merged` placeholders refer to one merged `.bag` per sequence.
+
+**christ_church-01**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/oxford_spires/hesai64_christ_church.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{OS_christ_church-01_merged}.bag"
+```
+
+**christ_church-02**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/oxford_spires/hesai64_christ_church.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{OS_christ_church-02_merged}.bag"
+```
+
+**christ_church-05**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/oxford_spires/hesai64_christ_church.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{OS_christ_church-05}.bag"
+```
+
+**blenheim_palace-01**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/oxford_spires/hesai64_blenheim_palace.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{OS_blenheim_palace-01}.bag"
+```
+
+**blenheim_palace-02**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/oxford_spires/hesai64_blenheim_palace.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{OS_blenheim_palace-02}.bag"
+```
+
+**blenheim_palace-05**
+
+```bash
+roslaunch genz_lio odometry.launch config:=experiments/oxford_spires/hesai64_blenheim_palace.yaml
+```
+
+```bash
+rosbag play "{path_to_bag}/{OS_blenheim_palace-05}.bag"
+```
+
+</details>
+
+</details>
+
+**2) For your own sensor, copy a template, calibrate it, then open RViz:**
+
+If you use a Velodyne LiDAR, start with the following template:
+
+```bash
+cp ~/catkin_ws/src/genz-lio/ros/config/default/velodyne.yaml ~/catkin_ws/src/genz-lio/ros/config/my_robot.yaml
+```
+
+Edit `my_robot.yaml` for your topics, sensor type, per-point timing, noise, and
+LiDAR-to-IMU calibration. The default extrinsics are placeholders. Then launch:
+
+```bash
+roslaunch genz_lio odometry.launch config:=my_robot.yaml
 ```
 
 In the second terminal, play your own recording instead of the benchmark above.
 For live input, start your LiDAR/IMU drivers instead of the bag player.
 The ROS node publishes `/Odometry`; it does not automatically save a trajectory.
+
+Parameter tuning guidance is available in the [parameter guide](config/parameter_tuning_guide.md).
 
 <a id="ros-2-humble--jazzy"></a>
 
@@ -183,25 +713,12 @@ If using Livox CustomMsg, check that CMake reports
 `Livox CustomMsg support enabled`. If the driver was added after GenZ-LIO was
 built, source it and rebuild GenZ-LIO.
 
-### 3. Prepare configurations
+### 3. Run
 
-The package includes `config/experiments/` YAMLs for reproducing the paper's
-benchmarks and `config/default/` templates for your own sensor. `config:=` accepts
-a path relative to the package's `config/` directory, or an absolute YAML path.
-ROS does not require the Python configuration export step.
-
-For benchmark runs, use the matching [experiment YAML](#benchmark-configurations).
-For your own sensor, copy a template; for example, with a Velodyne LiDAR:
-
-```bash
-cp ~/ros2_ws/src/genz-lio/ros/config/default/velodyne.yaml ~/my_robot.yaml
-```
-
-Edit `my_robot.yaml` for your topics, sensor type, per-point timing, noise, and
-LiDAR-to-IMU calibration. The default extrinsics are placeholders.
-Parameter tuning guidance is available in the [parameter guide](config/parameter_tuning_guide.md).
-
-### 4. Run
+Use the package's `config/experiments/` YAMLs for the paper's benchmark sequences,
+or a calibrated `config/default/` template for your own sensor. No configuration
+export is needed. `config:=` accepts a path relative to the package's `config/`
+directory, or an absolute YAML path.
 
 **1) For reproducing benchmark experiments (e.g., NarrowWide Handheld-A-01)**
 
@@ -226,14 +743,563 @@ not a ROS 1 `.bag`; prepare the recording in ROS 2 format first if needed.
 Source `install/setup.bash` in every terminal, including the bag player and
 drivers. With Fast DDS, this also applies the package's default transport profile
 unless you have already selected your own profile.
-Dataset downloads and input preparation notes are listed in the
-[benchmark sequence guide](../python/README.md#4-run).
 GenZ-LIO consumes PointCloud2 or supported Livox CustomMsg plus IMU messages;
 raw Velodyne packets must first be decoded to PointCloud2 with point timing.
 
-**2) For your own sensor**
+<details>
+<summary>▶️ All benchmark sequences: downloads and ROS 2 commands (42 sequences)</summary>
 
-Launch with the calibrated file from step 3:
+These commands use the package's `config/experiments/` YAMLs directly and start
+RViz. No configuration export is needed. In **both terminals**, source the
+workspace before running any commands:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+```
+
+For each sequence, run the **first block in terminal 1** to start GenZ-LIO and
+RViz. Wait for the node to start, then run the **second block in terminal 2** to
+play the recording. Stop the previous node before starting another sequence.
+
+The download links may provide ROS 1 bags. The playback commands below require
+**rosbag2 recordings prepared from those sequences**, preserving sensor topics,
+timestamps, per-point timing, and IMU data. They cannot play ROS 1 `.bag` files
+directly. For Livox CustomMsg, the recording must use
+`livox_ros_driver2/msg/CustomMsg`; changing the topic name alone does not convert
+the message type. Build and source the Livox driver before using these recordings.
+
+Directory labels in braces identify the sequence, not an official download
+name. Replace `{path_to_rosbag2}` and the sequence label with the actual path
+to its rosbag2 recording. `_pointcloud` and `_merged` identify the preparation
+requirements below, not a required directory naming convention.
+
+<details>
+<summary>GEODE (7 sequences)</summary>
+
+[Dataset](https://thisparticle.github.io/geode/) · [Download](https://drive.google.com/drive/folders/1hEn3sBAvQhSdUFnGMZCCv-W0Ynj2rWBs).
+
+Use the Alpha (Velodyne) recordings for these YAMLs.
+
+**Stairs**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_stairs.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{GD_Stairs}"
+```
+
+**Waterways-Short**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_waterways_short.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{GD_Waterways-Short}"
+```
+
+**Waterways-Medium**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_waterways_medium.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{GD_Waterways-Medium}"
+```
+
+**Waterways-Long**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_waterways_long.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{GD_Waterways-Long}"
+```
+
+**Offroad-02**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_offroad.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{GD_Offroad-02}"
+```
+
+**Offroad-04**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_offroad.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{GD_Offroad-04}"
+```
+
+**Offroad-07**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_offroad.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{GD_Offroad-07}"
+```
+
+</details>
+
+<details>
+<summary>ENWIDE (4 sequences)</summary>
+
+[Dataset](https://projects.asl.ethz.ch/datasets/) · [Download](https://doi.org/10.3929/ethz-b-000702477).
+
+**Katzensee-S**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/enwide/os128_enwide.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{EW_Katzensee-S}"
+```
+
+**Katzensee-D**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/enwide/os128_enwide.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{EW_Katzensee-D}"
+```
+
+**Intersection-S**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/enwide/os128_enwide.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{EW_Intersection-S}"
+```
+
+**Intersection-D**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/enwide/os128_enwide.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{EW_Intersection-D}"
+```
+
+</details>
+
+<details>
+<summary>NTU VIRAL (3 sequences)</summary>
+
+[Dataset and downloads](https://ntu-aris.github.io/ntu_viral_dataset/).
+
+**SPMS-01**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/ntu_viral/os16_spms_01.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{NV_SPMS-01}"
+```
+
+**SPMS-02**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/ntu_viral/os16_spms_02.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{NV_SPMS-02}"
+```
+
+**SPMS-03**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/ntu_viral/os16_spms_03.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{NV_SPMS-03}"
+```
+
+</details>
+
+<details>
+<summary>SuperLoc (4 sequences)</summary>
+
+[Dataset and downloads](https://superodometry.com/superloc).
+
+Download Cave01, Cave02, Cave04, and Corridor02 from the SuperLoc dataset table.
+
+**Cave-01**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/superloc/vlp16_cave.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{SL_Cave-01}"
+```
+
+**Cave-02**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/superloc/vlp16_cave.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{SL_Cave-02}"
+```
+
+**Cave-04**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/superloc/vlp16_cave.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{SL_Cave-04}"
+```
+
+**Corridor-02**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/superloc/vlp16_corridor_02.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{SL_Corridor-02}"
+```
+
+</details>
+
+<details>
+<summary>NarrowWide (6 sequences)</summary>
+
+[Dataset and downloads](https://github.com/cocel-postech/NarrowWide).
+
+Dataset information and download instructions are maintained in the NarrowWide repository.
+
+**Tracked-01**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/narrowwide/mid70_tracked_01.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{NW_Tracked-01}"
+```
+
+**Tracked-02**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/narrowwide/mid70_tracked_02.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{NW_Tracked-02}"
+```
+
+**Handheld-A-01**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/narrowwide/vlp16_handheld_a_01.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{NW_Handheld-A-01}"
+```
+
+**Handheld-A-02**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/narrowwide/vlp16_handheld_a_02.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{NW_Handheld-A-02}"
+```
+
+**Handheld-B-01**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/narrowwide/avia_handheld_b.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{NW_Handheld-B-01}"
+```
+
+**Handheld-B-02**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/narrowwide/avia_handheld_b.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{NW_Handheld-B-02}"
+```
+
+</details>
+
+<details>
+<summary>SubT-MRS (3 sequences)</summary>
+
+[Dataset and downloads](https://superodometry.com/datasets).
+
+**Prepare PointCloud2 input first.** Decode `/velodyne_packets` with a
+Velodyne VLP-16 driver to `/velodyne_points` (`sensor_msgs/PointCloud2`) with
+per-point timing, preserving `/imu/data` and original timestamps. GenZ-LIO
+does not consume raw packets directly.
+
+Multi-Floor spans `0.bag`–`2.bag`; Laurel-Cavern spans `0.bag`–`10.bag`.
+Process all parts in timestamp order into one continuous prepared recording.
+Record or convert the prepared data to one rosbag2 recording per sequence.
+
+**Long-Corridor**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/subt_mrs/vlp16_long_corridor.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{SM_Long-Corridor_pointcloud}"
+```
+
+**Multi-Floor**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/subt_mrs/vlp16_multi_floor.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{SM_Multi-Floor_pointcloud}"
+```
+
+**Laurel-Cavern**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/subt_mrs/vlp16_laurel_cavern.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{SM_Laurel-Cavern_pointcloud}"
+```
+
+</details>
+
+<details>
+<summary>HILTI 2021 (2 sequences)</summary>
+
+[Dataset and downloads](https://hilti-challenge.com/dataset-2021).
+
+Use the MID-70 recordings with these experiment configurations.
+
+**Basement-04**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/hilti21/mid70_hilti21_basement04.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{H21_Basement-04}"
+```
+
+**Drone-Arena**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/hilti21/mid70_hilti21_drone_arena.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{H21_Drone-Arena}"
+```
+
+</details>
+
+<details>
+<summary>HILTI 2022 (3 sequences)</summary>
+
+[Dataset and downloads](https://hilti-challenge.com/dataset-2022).
+
+Use the Pandar32 recordings with these experiment configurations.
+
+**Exp-10**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/hilti22/pandar32_hilti22_exp10.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{H22_Exp-10}"
+```
+
+**Exp-16**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/hilti22/pandar32_hilti22_exp16.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{H22_Exp-16}"
+```
+
+**Exp-18**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/hilti22/pandar32_hilti22_exp18.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{H22_Exp-18}"
+```
+
+</details>
+
+<details>
+<summary>M3DGR (4 sequences)</summary>
+
+[Dataset and downloads](https://github.com/sjtuyinjie/M3DGR).
+
+**Corridor-01**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/m3dgr/avia_corridor_01.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{M3D_Corridor-01}"
+```
+
+**Corridor-02**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/m3dgr/avia_corridor_02.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{M3D_Corridor-02}"
+```
+
+**GNSS-denial-01**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/m3dgr/avia_gnss_denial.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{M3D_GNSS-denial-01}"
+```
+
+**GNSS-denial-02**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/m3dgr/avia_gnss_denial.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{M3D_GNSS-denial-02}"
+```
+
+</details>
+
+<details>
+<summary>Oxford Spires (6 sequences)</summary>
+
+[Dataset](https://ori-drs.github.io/datasets/oxford-spires/) · [Download](https://huggingface.co/datasets/ori-drs/oxford_spires_dataset).
+
+**Split recordings:** christ_church-01 and christ_church-02 each contain two
+bag parts (`..._0.bag` and `..._1.bag`). Include both in timestamp order,
+preserving topics, message contents, and timestamps. Using only the first part
+runs an incomplete sequence. The other four sequences have one source bag each.
+The `_merged` placeholders refer to one continuous rosbag2 recording containing both parts.
+
+**christ_church-01**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/oxford_spires/hesai64_christ_church.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{OS_christ_church-01_merged}"
+```
+
+**christ_church-02**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/oxford_spires/hesai64_christ_church.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{OS_christ_church-02_merged}"
+```
+
+**christ_church-05**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/oxford_spires/hesai64_christ_church.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{OS_christ_church-05}"
+```
+
+**blenheim_palace-01**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/oxford_spires/hesai64_blenheim_palace.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{OS_blenheim_palace-01}"
+```
+
+**blenheim_palace-02**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/oxford_spires/hesai64_blenheim_palace.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{OS_blenheim_palace-02}"
+```
+
+**blenheim_palace-05**
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:=experiments/oxford_spires/hesai64_blenheim_palace.yaml
+```
+
+```bash
+ros2 bag play "{path_to_rosbag2}/{OS_blenheim_palace-05}"
+```
+
+</details>
+
+</details>
+
+**2) For your own sensor, copy a template, calibrate it, then open RViz:**
+
+If you use a Velodyne LiDAR, start with the following template:
+
+```bash
+cp ~/ros2_ws/src/genz-lio/ros/config/default/velodyne.yaml ~/my_robot.yaml
+```
+
+Edit `my_robot.yaml` for your topics, sensor type, per-point timing, noise, and
+LiDAR-to-IMU calibration. The default extrinsics are placeholders. Then launch:
 
 ```bash
 ros2 launch genz_lio odometry.launch.py config:="$HOME/my_robot.yaml"
@@ -242,6 +1308,8 @@ ros2 launch genz_lio odometry.launch.py config:="$HOME/my_robot.yaml"
 In the second terminal, play your own recording instead of the benchmark above.
 For live input, start your LiDAR/IMU drivers instead of the bag player.
 The ROS node publishes `/Odometry`; it does not automatically save a trajectory.
+
+Parameter tuning guidance is available in the [parameter guide](config/parameter_tuning_guide.md).
 
 <a id="additional-options"></a>
 
