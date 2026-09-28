@@ -104,14 +104,15 @@ Use the experiment YAML prepared above with the
 [NarrowWide](https://github.com/cocel-postech/NarrowWide) Handheld-A-01 recording:
 
 ```bash
-genz_lio_pipeline run /data/Handheld-A-01.bag \
+genz_lio_pipeline run "{path_to_bag}/Handheld-A-01.bag" \
     --config configs/experiments/narrowwide/vlp16_handheld_a_01.yaml \
     --visualize --image-topic /camera/color/image_raw/compressed \
     --output results/narrowwide_handheld_a_01
 ```
 
-Replace `/data/Handheld-A-01.bag` with your bag path. The experiment YAML already
-contains the benchmark sensor topics and calibration. Obtain the dataset separately.
+Replace `{path_to_bag}` (including the braces) with the directory containing
+`Handheld-A-01.bag`. The experiment YAML already contains the benchmark sensor
+topics and calibration. Obtain the dataset separately.
 The optional `--image-topic` displays the camera images recorded in this bag;
 omit it to run without the camera panel. See [camera preview](python/README.md#camera-preview).
 

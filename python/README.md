@@ -68,14 +68,15 @@ recording, use the supplied
 benchmark configuration from the `configs/` folder prepared above:
 
 ```bash
-genz_lio_pipeline run /data/Handheld-A-01.bag \
+genz_lio_pipeline run "{path_to_bag}/Handheld-A-01.bag" \
     --config configs/experiments/narrowwide/vlp16_handheld_a_01.yaml \
     --visualize --image-topic /camera/color/image_raw/compressed \
     --output results/narrowwide_handheld_a_01
 ```
 
-Replace `/data/Handheld-A-01.bag` with the path to your NarrowWide Handheld-A-01 recording. The
-exported YAML is an unchanged copy of the experiment configuration, including
+Replace `{path_to_bag}` (including the braces) with the directory containing
+your NarrowWide `Handheld-A-01.bag` recording. The exported YAML is an unchanged
+copy of the experiment configuration, including
 its sensor topics and calibration. You do not need to create a configuration
 from a default sensor template for this benchmark. The bag must be obtained
 separately; it is not bundled with the Python package.
@@ -83,7 +84,7 @@ separately; it is not bundled with the Python package.
 With a source checkout, the equivalent command from the repository root is:
 
 ```bash
-genz_lio_pipeline run /data/Handheld-A-01.bag \
+genz_lio_pipeline run "{path_to_bag}/Handheld-A-01.bag" \
     --config ros/config/experiments/narrowwide/vlp16_handheld_a_01.yaml \
     --visualize --image-topic /camera/color/image_raw/compressed \
     --output results/narrowwide_handheld_a_01
@@ -125,7 +126,7 @@ Omitting `--config` uses compiled core defaults, not a sensor YAML.
 For example, the Handheld-A-01 bag contains this compressed image topic:
 
 ```bash
-genz_lio_pipeline run /data/Handheld-A-01.bag \
+genz_lio_pipeline run "{path_to_bag}/Handheld-A-01.bag" \
     --config configs/experiments/narrowwide/vlp16_handheld_a_01.yaml --visualize \
     --image-topic /camera/color/image_raw/compressed --output results/narrowwide_handheld_a_01
 ```
