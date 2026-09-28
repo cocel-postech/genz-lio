@@ -123,7 +123,8 @@ Press **SPACE** to start. For rosbag2, pass the recording directory instead of a
 
 Bag filename labels in braces identify the sequence, not the official download
 filename. Substitute the actual downloaded or prepared filename; no file renaming
-is required. The `prepared/` paths are output files created by the preparation commands below.
+is required. Labels ending in `_pointcloud` or `_merged` refer to the prepared
+inputs described below.
 
 The commands use `configs/experiments/` exported in the preparation step and
 write each sequence's trajectory to a separate output directory. All enable
@@ -395,24 +396,23 @@ genz_lio_pipeline run "{path_to_bag}/{NW_Handheld-B-02}.bag" \
 
 [Dataset and downloads](https://superodometry.com/datasets).
 
-**Prepare the bags once.** Complete the [tool setup](python/README.md#prepare-raw-or-split-ros-1-bags), then run
-these commands from the repository root. The offline tool merges bag parts by
-recorded timestamp and converts VLP-16 packets to `/velodyne_points`. It preserves
-all other topics, including IMU and camera messages, without changing their
-contents or timestamps. The `prepared/` filenames below are created by these commands.
+**Prepare PointCloud2 input first.** The downloaded bags contain
+`/velodyne_packets`, which the Python pipeline cannot decode directly. Convert
+those packets with a Velodyne VLP-16 driver to `/velodyne_points`
+(`sensor_msgs/PointCloud2`) with per-point timing, while preserving `/imu/data`,
+original timestamps, and the image topics shown below. Record the prepared
+sequence as one `.bag`; use its filename in the corresponding command below.
+
+Multi-Floor spans `0.bag`–`2.bag`; Laurel-Cavern spans `0.bag`–`10.bag`.
+Process all parts in timestamp order into one continuous prepared recording.
+The CLI accepts one `.bag` or one rosbag2 recording, not a directory of ROS 1
+bag parts. Laurel-Cavern has no image topic; the other two commands require
+retaining their camera streams during preparation.
 
 **Long-Corridor**
 
 ```bash
-bash tools/rosbag/prepare.sh --decode-vlp16 \
-    --output prepared/SM_Long-Corridor.bag \
-    "{path_to_bag}/{SM_Long-Corridor}.bag"
-```
-
-Then run:
-
-```bash
-genz_lio_pipeline run prepared/SM_Long-Corridor.bag \
+genz_lio_pipeline run "{path_to_bag}/{SM_Long-Corridor_pointcloud}.bag" \
     --config configs/experiments/subt_mrs/vlp16_long_corridor.yaml \
     --visualize --image-topic /camera_1/image_raw \
     --output results/sm_long_corridor
@@ -420,19 +420,8 @@ genz_lio_pipeline run prepared/SM_Long-Corridor.bag \
 
 **Multi-Floor**
 
-Replace only `{path_to_parts}` with the bag directory. Keep `{0..2}` unchanged;
-Bash expands it to `0.bag`, `1.bag`, and `2.bag`.
-
 ```bash
-bash tools/rosbag/prepare.sh --decode-vlp16 \
-    --output prepared/SM_Multi-Floor.bag \
-    "{path_to_parts}"/{0..2}.bag
-```
-
-Then run:
-
-```bash
-genz_lio_pipeline run prepared/SM_Multi-Floor.bag \
+genz_lio_pipeline run "{path_to_bag}/{SM_Multi-Floor_pointcloud}.bag" \
     --config configs/experiments/subt_mrs/vlp16_multi_floor.yaml \
     --visualize --image-topic /cmu_sp1/camera_1/image_raw \
     --output results/sm_multi_floor
@@ -440,19 +429,8 @@ genz_lio_pipeline run prepared/SM_Multi-Floor.bag \
 
 **Laurel-Cavern**
 
-Replace only `{path_to_parts}` with the bag directory. Keep `{0..10}` unchanged;
-Bash expands it to all eleven parts, `0.bag` through `10.bag`. This sequence has no camera topic.
-
 ```bash
-bash tools/rosbag/prepare.sh --decode-vlp16 \
-    --output prepared/SM_Laurel-Cavern.bag \
-    "{path_to_parts}"/{0..10}.bag
-```
-
-Then run:
-
-```bash
-genz_lio_pipeline run prepared/SM_Laurel-Cavern.bag \
+genz_lio_pipeline run "{path_to_bag}/{SM_Laurel-Cavern_pointcloud}.bag" \
     --config configs/experiments/subt_mrs/vlp16_laurel_cavern.yaml \
     --visualize \
     --output results/sm_laurel_cavern
@@ -576,25 +554,17 @@ genz_lio_pipeline run "{path_to_bag}/{M3D_GNSS-denial-02}.bag" \
 Download the ROS bags including the camera streams. The examples select
 `cam0/debayered/image/compressed`.
 
-**Merge split recordings once.** Complete the [tool setup](python/README.md#prepare-raw-or-split-ros-1-bags).
-For christ_church-01 and christ_church-02, pass both downloaded parts to the
-commands below. Merging preserves all topics, serialized message contents, and
-timestamps; it does not decode or modify the LiDAR points. The other four
-sequences use their original single bags.
+**Split recordings:** christ_church-01 and christ_church-02 each contain two
+bag parts (`..._0.bag` and `..._1.bag`). Merge both parts in timestamp order,
+without changing topics, message contents, or timestamps, into
+one merged `.bag` per sequence. The `_merged` placeholders below refer to those files.
+The commands below use those prepared files; passing only the first part would
+run an incomplete sequence. The other four commands use the original single bags.
 
 **christ_church-01**
 
 ```bash
-bash tools/rosbag/prepare.sh \
-    --output prepared/OS_christ_church-01.bag \
-    "{path_to_bag}/{christ_church-01_part_0}.bag" \
-    "{path_to_bag}/{christ_church-01_part_1}.bag"
-```
-
-Then run:
-
-```bash
-genz_lio_pipeline run prepared/OS_christ_church-01.bag \
+genz_lio_pipeline run "{path_to_bag}/{OS_christ_church-01_merged}.bag" \
     --config configs/experiments/oxford_spires/hesai64_christ_church.yaml \
     --visualize --image-topic /alphasense_driver_ros/cam0/debayered/image/compressed \
     --output results/os_christ_church_01
@@ -603,16 +573,7 @@ genz_lio_pipeline run prepared/OS_christ_church-01.bag \
 **christ_church-02**
 
 ```bash
-bash tools/rosbag/prepare.sh \
-    --output prepared/OS_christ_church-02.bag \
-    "{path_to_bag}/{christ_church-02_part_0}.bag" \
-    "{path_to_bag}/{christ_church-02_part_1}.bag"
-```
-
-Then run:
-
-```bash
-genz_lio_pipeline run prepared/OS_christ_church-02.bag \
+genz_lio_pipeline run "{path_to_bag}/{OS_christ_church-02_merged}.bag" \
     --config configs/experiments/oxford_spires/hesai64_christ_church.yaml \
     --visualize --image-topic /alphasense_driver_ros/cam0/debayered/image/compressed \
     --output results/os_christ_church_02
