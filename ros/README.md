@@ -16,7 +16,7 @@ Start with [ROS 1 Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) insta
 source /opt/ros/noetic/setup.bash
 sudo apt-get update
 sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
-    libyaml-cpp-dev ros-noetic-roscpp ros-noetic-roslib \
+    libyaml-cpp-dev ros-noetic-roscpp ros-noetic-rospy ros-noetic-roslib \
     ros-noetic-pcl-ros ros-noetic-pcl-conversions ros-noetic-tf \
     ros-noetic-tf2-ros ros-noetic-visualization-msgs ros-noetic-rviz \
     ros-noetic-rosbag
@@ -88,6 +88,8 @@ rosbag play "{path_to_bag}/{NW_Handheld-A-01}.bag"
 Replace the bag placeholders with the actual downloaded or prepared file.
 GenZ-LIO consumes PointCloud2 or supported Livox CustomMsg plus IMU messages;
 raw Velodyne packets must first be decoded to PointCloud2 with point timing.
+
+<a id="benchmark-configurations"></a>
 
 <details>
 <summary>▶️ All benchmark sequences: downloads and ROS 1 configurations (42 sequences)</summary>
@@ -301,7 +303,7 @@ source /opt/ros/humble/setup.bash
 sudo apt-get update
 sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
     libyaml-cpp-dev libpcl-dev python3-colcon-common-extensions \
-    ros-${ROS_DISTRO}-rclcpp ros-${ROS_DISTRO}-pcl-conversions \
+    ros-${ROS_DISTRO}-rclcpp ros-${ROS_DISTRO}-rclpy ros-${ROS_DISTRO}-pcl-conversions \
     ros-${ROS_DISTRO}-tf2-ros ros-${ROS_DISTRO}-visualization-msgs \
     ros-${ROS_DISTRO}-launch-ros ros-${ROS_DISTRO}-rosbag2 ros-${ROS_DISTRO}-rviz2
 ```
@@ -376,7 +378,7 @@ ros2 bag play "{path_to_rosbag2_recording}"
 
 Use a rosbag2 recording of Handheld-A-01 with the original sensor topics,
 timestamps, and message fields. The command above expects a rosbag2 directory,
-not a ROS 1 `.bag`; prepare the recording in ROS 2 format first if needed.
+not a ROS 1 `.bag`; follow the [bag conversion guide](#convert-ros-1-bags-to-ros-2) if needed.
 Source `install/setup.bash` in every terminal, including the bag player and
 drivers. With Fast DDS, this also applies the package's default transport profile
 unless you have already selected your own profile.
@@ -588,73 +590,112 @@ Parameter tuning guidance is available in the [parameter guide](config/parameter
 
 ## + Additional options
 
-### Development: rebuild after C++ changes
+### Convert ROS 1 bags to ROS 2
 
-Rebuild the ROS workspace after changing the C++ core or ROS wrapper, then
-source its setup file again. Stop and restart the running node to load the new
-binary. These commands do not rebuild the Python extension.
-
-```bash
-# ROS 1, in a Noetic shell:
-cd ~/catkin_ws
-catkin_make -DCMAKE_BUILD_TYPE=Release
-source devel/setup.bash
-```
+Use [rosbags-convert](https://ternaris.gitlab.io/rosbags/topics/convert.html)
+for recordings with standard messages such as PointCloud2 and IMU. The converter
+does not require a ROS installation. Install it in a separate environment
+(Python 3.8 or newer); these commands use the tested `rosbags` 0.9.23 CLI:
 
 ```bash
-# ROS 2, in the matching Humble or Jazzy shell:
-cd ~/ros2_ws
-colcon build --packages-select genz_lio --cmake-args -DCMAKE_BUILD_TYPE=Release
-source install/setup.bash
+python3 -m venv ~/.venvs/genz-bag-convert
+source ~/.venvs/genz-bag-convert/bin/activate
+python -m pip install 'rosbags==0.9.23'
+rosbags-convert "{path_to_bag}/{sequence}.bag" \
+    --dst "{path_to_output}/{sequence}_ros2"
+deactivate
 ```
 
-For newly added Livox CustomMsg support, source the driver workspace before
-rebuilding. Set `lidar_type: livox` for CustomMsg or `lidar_type: livox_pcl`
-for Livox PointCloud2. The message type must match the selected ROS wrapper.
+Replace the braced paths and sequence name. The destination must not already
+exist. The result is a rosbag2 directory containing `metadata.yaml` and an SQLite
+`.db3` file; the original bag is unchanged. Bag timestamps, sensor header
+stamps, topics, point fields, and IMU values are preserved. ROS 1 Header's `seq`
+field has no ROS 2 counterpart and is omitted.
+
+In a terminal sourced for your ROS 2 workspace, inspect and play the result:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 bag info "{path_to_output}/{sequence}_ros2"
+# Start GenZ-LIO in another terminal before playback.
+ros2 bag play "{path_to_output}/{sequence}_ros2"
+```
+
+- **Raw packets:** conversion changes the bag format; it does not decode
+  `/velodyne_packets`. Prepare timed PointCloud2 scans first, as described for
+  SubT-MRS in the benchmark tables above.
+- **Split recordings:** prepare one continuous bag containing every part before
+  conversion. This includes both parts of Oxford christ_church-01/02 and all
+  parts of the SubT-MRS sequences described above.
+- **Livox CustomMsg:** this command preserves the original custom type's package
+  name. A ROS 1 `livox_ros_driver/CustomMsg` becomes
+  `livox_ros_driver/msg/CustomMsg`, which the ROS 2 GenZ-LIO subscriber does not
+  accept. It requires `livox_ros_driver2/msg/CustomMsg`. Use a type-aware
+  conversion to that schema, or prepare PointCloud2 with per-point timing and
+  configure `lidar_type: livox_pcl`. Renaming the topic is insufficient.
 
 ---
 
-### Save odometry and point clouds
+### Save odometry
 
-Start the recorder before playing the input, and stop it normally after processing.
+The [save_odometry.py](scripts/save_odometry.py) script subscribes to
+`/Odometry` and writes poses as they arrive. Start it in a separate terminal
+before playing the input bag; stop it with **Ctrl+C** after processing finishes.
+Use the system Python in a terminal sourced for the matching ROS workspace.
+The GenZ-LIO Python package is not required.
 
-The ROS node does not automatically write a TUM trajectory. Record its output:
+**ROS 1 — TUM example:**
 
 ```bash
-# ROS 1, in a separate sourced terminal:
+source ~/catkin_ws/devel/setup.bash
+/usr/bin/python3 ~/catkin_ws/src/genz-lio/ros/scripts/save_odometry.py \
+    --format tum --output ~/results/handheld_a_01_tum.txt
+```
+
+**ROS 2 — KITTI example:**
+
+```bash
+source ~/ros2_ws/install/setup.bash
+/usr/bin/python3 ~/ros2_ws/src/genz-lio/ros/scripts/save_odometry.py \
+    --format kitti --output ~/results/handheld_a_01_kitti.txt
+```
+
+Both formats work with either ROS version. After building the updated package,
+you can also use `rosrun genz_lio save_odometry.py ...` or
+`ros2 run genz_lio save_odometry.py ...` with the same options.
+
+| Option | Meaning |
+|---|---|
+| `--format tum` or `--format kitti` | Trajectory format; TUM is the default |
+| `--output PATH` | Required output file path, including your chosen filename; parent directories are created |
+| `--topic TOPIC` | Odometry topic; defaults to `/Odometry` |
+| `--ros-version 1` or `--ros-version 2` | Override detection from the sourced workspace's `ROS_VERSION` |
+| `--overwrite` | Explicitly allow replacing an existing file |
+| `--queue-size N` | Subscriber backlog; defaults to 10000 messages |
+
+TUM rows contain `timestamp tx ty tz qx qy qz qw`, using the message header's
+timestamp in seconds with nanosecond precision. KITTI rows contain the 12
+row-major values of the 3×4 pose matrix, without timestamps. Both represent
+the message's child/body frame in its header/odometry frame, with translation
+in meters. No TF transform, trajectory alignment, or first-pose normalization
+is applied; selecting KITTI changes the file format, not the coordinate system.
+
+The script writes each received pose immediately and reports saved/skipped
+counts on exit. Invalid poses or changed frame names are skipped. It records
+only messages received while running, so start a fresh recorder for each
+sequence. ROS 2 subscription uses reliable QoS, matching GenZ-LIO's publisher.
+
+To retain ROS messages as well, record them separately:
+
+```bash
+# ROS 1:
 rosbag record -O genz_output.bag /Odometry /tf /tf_static
-# ROS 2, in a separate sourced terminal:
+# ROS 2:
 ros2 bag record -o genz_output /Odometry /tf /tf_static
 ```
 
-These commands save ROS messages. For direct TUM/KITTI text output, use the
-[Python pipeline](../python/README.md#save-odometry). `pcd_save.enable` saves
-point clouds, not odometry: use a writable `pcd_save.directory` and a positive
-`pcd_save.interval` to split output. Accumulating an entire run with interval
-`-1` can use substantial memory.
-
----
-
-### Launch and input options
-
-| Launch argument | Default | Meaning |
-|---|---|---|
-| `config` | `default/velodyne.yaml` | Complete YAML, relative to package `config/` or absolute |
-| `rviz` | `true` | Start RViz with the supplied display configuration |
-| `lidar_topic` | empty | Override the YAML topic; empty keeps its value |
-| `imu_topic` | empty | Override the YAML topic; empty keeps its value |
-
-For example, a calibrated file outside the package:
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=/data/my_robot.yaml \
-    lidar_topic:=/points imu_topic:=/imu/data rviz:=true
-```
-
-Add `rviz:=false` to either launch command to run without RViz. Use a fresh
-shell when switching ROS distributions or workspaces. Available templates are
-`avia.yaml`, `hesai.yaml`, `mid360.yaml`, `ouster.yaml`, `robosense.yaml`, and
-`velodyne.yaml` under the package configuration directory.
+`pcd_save.enable` saves point clouds, not odometry. Use a writable
+`pcd_save.directory` and a positive `pcd_save.interval` to split cloud output.
 
 ---
 
@@ -680,54 +721,6 @@ Cyclone DDS. Transport buffers are separate from `common.qos_depth`, which limit
 subscriber history. An incompatible reliability setting or sustained overload
 still needs to be fixed. A larger queue can consume more memory, particularly
 for high-resolution clouds.
-
----
-
-### Benchmark configurations
-
-Paths below are relative to `ros/config/`. Each file is complete and can also
-be passed to Python with its repository-relative or absolute path. Without a
-checkout, use [configuration export](../python/README.md#3-prepare-configurations). A shared row
-means those sequences use the same YAML. Dataset information for
-[NarrowWide is maintained here](https://github.com/cocel-postech/NarrowWide).
-
-| Sequence(s) | Configuration |
-|---|---|
-| GD Stairs | [experiments/geode/vlp16_stairs.yaml](config/experiments/geode/vlp16_stairs.yaml) |
-| GD Waterways-Short | [experiments/geode/vlp16_waterways_short.yaml](config/experiments/geode/vlp16_waterways_short.yaml) |
-| GD Waterways-Medium | [experiments/geode/vlp16_waterways_medium.yaml](config/experiments/geode/vlp16_waterways_medium.yaml) |
-| GD Waterways-Long | [experiments/geode/vlp16_waterways_long.yaml](config/experiments/geode/vlp16_waterways_long.yaml) |
-| GD Offroad-02, GD Offroad-04, GD Offroad-07 | [experiments/geode/vlp16_offroad.yaml](config/experiments/geode/vlp16_offroad.yaml) |
-| EW Katzensee-S, EW Katzensee-D, EW Intersection-S, EW Intersection-D | [experiments/enwide/os128_enwide.yaml](config/experiments/enwide/os128_enwide.yaml) |
-| NV SPMS-01 | [experiments/ntu_viral/os16_spms_01.yaml](config/experiments/ntu_viral/os16_spms_01.yaml) |
-| NV SPMS-02 | [experiments/ntu_viral/os16_spms_02.yaml](config/experiments/ntu_viral/os16_spms_02.yaml) |
-| NV SPMS-03 | [experiments/ntu_viral/os16_spms_03.yaml](config/experiments/ntu_viral/os16_spms_03.yaml) |
-| SL Cave-01, SL Cave-02, SL Cave-04 | [experiments/superloc/vlp16_cave.yaml](config/experiments/superloc/vlp16_cave.yaml) |
-| SL Corridor-02 | [experiments/superloc/vlp16_corridor_02.yaml](config/experiments/superloc/vlp16_corridor_02.yaml) |
-| NW Tracked-01 | [experiments/narrowwide/mid70_tracked_01.yaml](config/experiments/narrowwide/mid70_tracked_01.yaml) |
-| NW Tracked-02 | [experiments/narrowwide/mid70_tracked_02.yaml](config/experiments/narrowwide/mid70_tracked_02.yaml) |
-| NW Handheld-A-01 | [experiments/narrowwide/vlp16_handheld_a_01.yaml](config/experiments/narrowwide/vlp16_handheld_a_01.yaml) |
-| NW Handheld-A-02 | [experiments/narrowwide/vlp16_handheld_a_02.yaml](config/experiments/narrowwide/vlp16_handheld_a_02.yaml) |
-| NW Handheld-B-01, NW Handheld-B-02 | [experiments/narrowwide/avia_handheld_b.yaml](config/experiments/narrowwide/avia_handheld_b.yaml) |
-| SM Long-Corridor | [experiments/subt_mrs/vlp16_long_corridor.yaml](config/experiments/subt_mrs/vlp16_long_corridor.yaml) |
-| SM Multi-Floor | [experiments/subt_mrs/vlp16_multi_floor.yaml](config/experiments/subt_mrs/vlp16_multi_floor.yaml) |
-| SM Laurel-Cavern | [experiments/subt_mrs/vlp16_laurel_cavern.yaml](config/experiments/subt_mrs/vlp16_laurel_cavern.yaml) |
-| H21 Basement-04 | [experiments/hilti21/mid70_hilti21_basement04.yaml](config/experiments/hilti21/mid70_hilti21_basement04.yaml) |
-| H22 Exp-10 | [experiments/hilti22/pandar32_hilti22_exp10.yaml](config/experiments/hilti22/pandar32_hilti22_exp10.yaml) |
-| H22 Exp-16 | [experiments/hilti22/pandar32_hilti22_exp16.yaml](config/experiments/hilti22/pandar32_hilti22_exp16.yaml) |
-| H22 Exp-18 | [experiments/hilti22/pandar32_hilti22_exp18.yaml](config/experiments/hilti22/pandar32_hilti22_exp18.yaml) |
-| M3D Corridor-01 | [experiments/m3dgr/avia_corridor_01.yaml](config/experiments/m3dgr/avia_corridor_01.yaml) |
-| M3D Corridor-02 | [experiments/m3dgr/avia_corridor_02.yaml](config/experiments/m3dgr/avia_corridor_02.yaml) |
-| M3D GNSS-denial-01, M3D GNSS-denial-02 | [experiments/m3dgr/avia_gnss_denial.yaml](config/experiments/m3dgr/avia_gnss_denial.yaml) |
-| H21 Drone-Arena | [experiments/hilti21/mid70_hilti21_drone_arena.yaml](config/experiments/hilti21/mid70_hilti21_drone_arena.yaml) |
-| OS christ_church-01, OS christ_church-02, OS christ_church-05 | [experiments/oxford_spires/hesai64_christ_church.yaml](config/experiments/oxford_spires/hesai64_christ_church.yaml) |
-| OS blenheim_palace-01, OS blenheim_palace-02, OS blenheim_palace-05 | [experiments/oxford_spires/hesai64_blenheim_palace.yaml](config/experiments/oxford_spires/hesai64_blenheim_palace.yaml) |
-
-Use the evaluation convention associated with the dataset. Dense ground-truth
-trajectory alignment, surveyed position-control errors, and M3DGR marker-based
-endpoint errors are different metrics; they should not all be labeled ATE RMSE.
-The supplied YAMLs identify benchmark inputs, not a guarantee of exact scores
-on every build or machine. See the [parameter guide](config/parameter_tuning_guide.md).
 
 ---
 

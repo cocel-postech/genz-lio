@@ -21,6 +21,7 @@
   <depend>yaml-cpp</depend>
 
   <depend condition="$ROS_VERSION == 1">roscpp</depend>
+  <exec_depend condition="$ROS_VERSION == 1">rospy</exec_depend>
   <depend condition="$ROS_VERSION == 1">roslib</depend>
   <depend condition="$ROS_VERSION == 1">tf</depend>
   <depend condition="$ROS_VERSION == 1">tf2_ros</depend>
@@ -28,6 +29,7 @@
   <depend condition="$ROS_VERSION == 1">pcl_conversions</depend>
 
   <depend condition="$ROS_VERSION == 2">rclcpp</depend>
+  <exec_depend condition="$ROS_VERSION == 2">rclpy</exec_depend>
   <depend condition="$ROS_VERSION == 2">tf2_ros</depend>
   <depend condition="$ROS_VERSION == 2">pcl_conversions</depend>
 

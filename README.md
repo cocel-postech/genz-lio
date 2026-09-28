@@ -658,7 +658,7 @@ Start with [ROS 1 Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) insta
 source /opt/ros/noetic/setup.bash
 sudo apt-get update
 sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
-    libyaml-cpp-dev ros-noetic-roscpp ros-noetic-roslib \
+    libyaml-cpp-dev ros-noetic-roscpp ros-noetic-rospy ros-noetic-roslib \
     ros-noetic-pcl-ros ros-noetic-pcl-conversions ros-noetic-tf \
     ros-noetic-tf2-ros ros-noetic-visualization-msgs ros-noetic-rviz \
     ros-noetic-rosbag
@@ -927,8 +927,8 @@ The ROS node publishes `/Odometry`; it does not automatically save a trajectory.
 
 Parameter tuning guidance is available in the [parameter guide](ros/config/parameter_tuning_guide.md).
 
-See [ros/README.md](ros/README.md#additional-options) for rebuilding after C++ changes,
-recording outputs, launch options, benchmark configurations, and troubleshooting.
+See [ros/README.md](ros/README.md#additional-options) for ROS 1-to-ROS 2 bag conversion,
+TUM/KITTI odometry saving, published topics, and troubleshooting.
 
 </details>
 
@@ -949,7 +949,7 @@ source /opt/ros/humble/setup.bash
 sudo apt-get update
 sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
     libyaml-cpp-dev libpcl-dev python3-colcon-common-extensions \
-    ros-${ROS_DISTRO}-rclcpp ros-${ROS_DISTRO}-pcl-conversions \
+    ros-${ROS_DISTRO}-rclcpp ros-${ROS_DISTRO}-rclpy ros-${ROS_DISTRO}-pcl-conversions \
     ros-${ROS_DISTRO}-tf2-ros ros-${ROS_DISTRO}-visualization-msgs \
     ros-${ROS_DISTRO}-launch-ros ros-${ROS_DISTRO}-rosbag2 ros-${ROS_DISTRO}-rviz2
 ```
@@ -1024,7 +1024,7 @@ ros2 bag play "{path_to_rosbag2_recording}"
 
 Use a rosbag2 recording of Handheld-A-01 with the original sensor topics,
 timestamps, and message fields. The command above expects a rosbag2 directory,
-not a ROS 1 `.bag`; prepare the recording in ROS 2 format first if needed.
+not a ROS 1 `.bag`; follow the [bag conversion guide](ros/README.md#convert-ros-1-bags-to-ros-2) if needed.
 Source `install/setup.bash` in every terminal, including the bag player and
 drivers. With Fast DDS, this also applies the package's default transport profile
 unless you have already selected your own profile.
@@ -1232,8 +1232,8 @@ The ROS node publishes `/Odometry`; it does not automatically save a trajectory.
 
 Parameter tuning guidance is available in the [parameter guide](ros/config/parameter_tuning_guide.md).
 
-See [ros/README.md](ros/README.md#additional-options) for rebuilding after C++ changes,
-recording outputs, launch options, DDS settings, benchmark configurations, and troubleshooting.
+See [ros/README.md](ros/README.md#additional-options) for ROS 1-to-ROS 2 bag conversion,
+TUM/KITTI odometry saving, DDS settings, and troubleshooting.
 
 </details>
 

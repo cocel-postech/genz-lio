@@ -60,6 +60,7 @@ if(GENZ_LIO_ROS_VERSION EQUAL 2)
   endif()
 
   install(TARGETS genz_lio_node DESTINATION lib/${PROJECT_NAME})
+  install(PROGRAMS scripts/save_odometry.py DESTINATION lib/${PROJECT_NAME})
   install(DIRECTORY config launch rviz DESTINATION share/${PROJECT_NAME})
   ament_environment_hooks("${CMAKE_CURRENT_SOURCE_DIR}/env-hooks/genz_lio_fastdds.sh.in")
   ament_package()
@@ -93,6 +94,8 @@ else()
   endif()
 
   install(TARGETS genz_lio_node RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+  catkin_install_python(PROGRAMS scripts/save_odometry.py
+    DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
   install(DIRECTORY config launch rviz DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 endif()
 
@@ -105,6 +108,9 @@ target_include_directories(genz_lio_node SYSTEM BEFORE PRIVATE ${_genz_eigen_inc
 
 if(GENZ_LIO_BUILD_TESTS)
   enable_testing()
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
+  add_test(NAME save_odometry
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_save_odometry.py)
   add_executable(test_terminal_status tests/test_terminal_status.cpp)
   target_include_directories(test_terminal_status PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
   target_link_libraries(test_terminal_status genz_lio::core)
@@ -122,7 +128,6 @@ if(GENZ_LIO_BUILD_TESTS)
   endif()
   add_test(NAME input_timing COMMAND test_input_timing)
   if(GENZ_LIO_ROS_VERSION EQUAL 2)
-    find_package(Python3 REQUIRED COMPONENTS Interpreter)
     add_test(NAME fastdds_environment
       COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_fastdds_environment.py)
     add_executable(test_ros2_topics tests/test_ros2_topics.cpp ${GENZ_LIO_SHARED_SOURCES})
