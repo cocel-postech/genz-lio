@@ -638,7 +638,7 @@ the source build above. A compatible wheel needs no local C++ build; plain
 </details>
 
 See [python/README.md](python/README.md) for installation options, input formats,
-configuration export, visualization controls, and saved trajectories.
+configuration export, and saved trajectories.
 
 ## ROS 1 support
 
