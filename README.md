@@ -28,21 +28,7 @@
 
 </div>
 
-## About GenZ-LIO
-
-[GenZ-LIO](https://arxiv.org/abs/2603.16273) estimates LiDAR-inertial odometry
-across confined spaces, open environments, and transitions between them.
-It was evaluated on 42 sequences
-from nine public datasets and our [NarrowWide dataset](https://github.com/cocel-postech/NarrowWide) and supports **Python, ROS 1, and ROS 2**.
-
-<details>
-<summary>Algorithm overview</summary>
-
-- **Scale-aware adaptive voxelization** adjusts scan downsampling to the environment.
-- **Hybrid-metric state update** combines point-to-plane and point-to-point constraints.
-- **Voxel-pruned correspondence search** reduces the cost of point-to-point matching.
-
-</details>
+[GenZ-LIO](https://arxiv.org/abs/2603.16273) is designed for robust and computationally efficient LiDAR-inertial odometry across confined spaces, open environments, and transitions between them.
 
 ## Python support
 
