@@ -55,7 +55,8 @@ done
 Run this in the directory where you will run the examples below. This copies all
 35 YAMLs unchanged and works with both source and wheel installations. Keep this
 folder for subsequent runs; there is no need to export again per sequence.
-Existing files are never overwritten.
+Exported YAMLs are editable. Re-running the export will not overwrite existing
+files or your changes.
 
 ## Run a sequence
 
