@@ -606,10 +606,7 @@ before playing the input bag; stop it with **Ctrl+C** after processing finishes.
 Use a terminal sourced for the matching ROS workspace. The GenZ-LIO Python
 package is not required.
 
-Choose TUM or KITTI below. To save both during the same run, start each command
-in a separate terminal before playback.
-
-**ROS 1 — TUM:**
+**ROS 1:**
 
 ```bash
 source ~/catkin_ws/devel/setup.bash
@@ -617,15 +614,7 @@ rosrun genz_lio save_odometry.py \
     --format tum --output ~/results/handheld_a_01_tum.txt
 ```
 
-**ROS 1 — KITTI:**
-
-```bash
-source ~/catkin_ws/devel/setup.bash
-rosrun genz_lio save_odometry.py \
-    --format kitti --output ~/results/handheld_a_01_kitti.txt
-```
-
-**ROS 2 — TUM:**
+**ROS 2:**
 
 ```bash
 source ~/ros2_ws/install/setup.bash
@@ -633,16 +622,9 @@ ros2 run genz_lio save_odometry.py \
     --format tum --output ~/results/handheld_a_01_tum.txt
 ```
 
-**ROS 2 — KITTI:**
+To save in KITTI format, replace `--format tum` with `--format kitti`.
 
-```bash
-source ~/ros2_ws/install/setup.bash
-ros2 run genz_lio save_odometry.py \
-    --format kitti --output ~/results/handheld_a_01_kitti.txt
-```
-
-Both formats work with either ROS version. Rebuild the package if it was built
-before this script was added.
+Rebuild the package if it was built before this script was added.
 
 | Option | Meaning |
 |---|---|
