@@ -592,6 +592,21 @@ See the [parameter guide](https://github.com/cocel-postech/genz-lio/blob/master/
 
 ## Additional options
 
+<details>
+<summary>Development: rebuild after C++ changes</summary>
+
+An editable install tracks Python source changes, but C++ changes require
+rebuilding the extension. A catkin/colcon build does not update it.
+From the repository root:
+
+```bash
+python -m pip install -e '.[rosbag,viz]'
+python -m pip install pytest
+python -m pytest python/tests -q
+```
+
+</details>
+
 ### Installation options
 
 Source builds target Linux x86-64 and Python 3.8–3.12, and require a C++17
@@ -711,20 +726,5 @@ reader handles timing preparation and synchronization with the shared C++ scan
 buffer. Leave the internal `timing_prepared` flag false in direct API calls.
 An incomplete final scan may be skipped when no following IMU coverage exists.
 Split recordings containing sensor-time rewinds into monotonic runs.
-
-</details>
-
-<details>
-<summary>Development: rebuild after C++ changes</summary>
-
-An editable install tracks Python source changes, but C++ changes require
-rebuilding the extension. A catkin/colcon build does not update it.
-From the repository root:
-
-```bash
-python -m pip install -e '.[rosbag,viz]'
-python -m pip install pytest
-python -m pytest python/tests -q
-```
 
 </details>

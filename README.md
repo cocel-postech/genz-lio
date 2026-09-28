@@ -641,8 +641,8 @@ See the [parameter guide](https://github.com/cocel-postech/genz-lio/blob/master/
 
 </details>
 
-See [python/README.md](python/README.md) for topic overrides, Ouster PCAP input,
-trajectory formats, the Python API, and rebuilding after C++ changes.
+See [python/README.md](python/README.md) for rebuilding after C++ changes,
+topic overrides, Ouster PCAP input, trajectory formats, and the Python API.
 
 ## ROS 1 support
 
