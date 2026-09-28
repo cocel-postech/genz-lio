@@ -74,7 +74,11 @@ Pip builds the C++ extension and installs rosbag and visualization dependencies:
 python -m pip install '.[rosbag,viz]'
 ```
 
-**Prepare configurations (once)**
+**3. Prepare configurations**
+
+The `experiments/` YAMLs provide the sequence-specific configurations for
+reproducing the benchmark experiments in the paper. The `default/` YAMLs are
+sensor templates for your own recordings.
 
 Export all bundled YAMLs once, preserving their `default/` and `experiments/`
 subdirectories under `configs/`:
@@ -91,7 +95,27 @@ Run this in the directory where you will run the examples below. This copies all
 folder for subsequent runs; there is no need to export again per sequence.
 Existing files are never overwritten.
 
-**3. Run**
+**4. Run**
+
+**Benchmark example: NarrowWide Handheld-A-01**
+
+Use the experiment YAML prepared above with the
+[NarrowWide](https://github.com/cocel-postech/NarrowWide) Handheld-A-01 recording:
+
+```bash
+genz_lio_pipeline run /data/Handheld-A-01.bag \
+    --config configs/experiments/narrowwide/vlp16_handheld_a_01.yaml \
+    --visualize --image-topic /camera/color/image_raw/compressed \
+    --output results/narrowwide_handheld_a_01
+```
+
+Replace `/data/Handheld-A-01.bag` with your bag path. The experiment YAML already
+contains the benchmark sensor topics and calibration. Obtain the dataset separately.
+The optional `--image-topic` displays the camera images recorded in this bag;
+omit it to run without the camera panel. See [camera preview](python/README.md#camera-preview).
+
+Press **SPACE** to start. For rosbag2, pass the recording directory instead of a
+`.bag` file. The exported YAMLs also work outside the source checkout.
 
 For your own sensor, copy a template, calibrate it, then open the visualizer:
 
@@ -102,34 +126,8 @@ genz_lio_pipeline run /data/sequence.bag \
     --config my_robot.yaml --visualize --output results/my_run
 ```
 
-Press **SPACE** to start. For rosbag2, pass the recording directory instead of
-`sequence.bag`. The YAMLs are included in the installed Python package, so this
-command also works outside the source checkout.
-
-**Example: GEODE Stairs with its benchmark configuration**
-
-Use the experiment YAML prepared above for the GEODE Stairs recording:
-
-```bash
-genz_lio_pipeline run /data/stairs.bag \
-    --config configs/experiments/geode/vlp16_stairs.yaml \
-    --visualize --output results/geode_stairs
-```
-
-Replace `/data/stairs.bag` with your GEODE Stairs bag path. The export copies the
-complete experiment configuration unchanged; no custom sensor YAML is needed
-for the matching benchmark input. The dataset itself is not included.
-
-**Optional camera preview:**
-
-```bash
-genz_lio_pipeline run /data/sequence.bag \
-    --config my_robot.yaml --visualize --image-topic /camera/image_raw \
-    --output results/my_run
-```
-
-This displays images recorded in the same bag; omitting `--image-topic` hides
-the camera panel. See [camera preview](python/README.md#camera-preview).
+To show camera images from your own recording, add `--image-topic` followed by
+an Image or CompressedImage topic present in that bag.
 
 After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will replace
 the source build above. A compatible wheel needs no local C++ build; plain

@@ -38,6 +38,10 @@ by the repository-root `pyproject.toml`; do not run this source install from
 
 ## Prepare configurations
 
+The `experiments/` YAMLs provide the sequence-specific configurations for
+reproducing the benchmark experiments in the paper. The `default/` YAMLs are
+sensor templates for your own recordings.
+
 Export all bundled YAMLs once, preserving their `default/` and `experiments/`
 subdirectories under `configs/`:
 
@@ -54,6 +58,41 @@ folder for subsequent runs; there is no need to export again per sequence.
 Existing files are never overwritten.
 
 ## Run a sequence
+
+### Example: NarrowWide Handheld-A-01
+
+For the [NarrowWide](https://github.com/cocel-postech/NarrowWide) Handheld-A-01
+recording, use the supplied
+[`experiments/narrowwide/vlp16_handheld_a_01.yaml`](https://github.com/cocel-postech/genz-lio/blob/master/ros/config/experiments/narrowwide/vlp16_handheld_a_01.yaml)
+benchmark configuration from the `configs/` folder prepared above:
+
+```bash
+genz_lio_pipeline run /data/Handheld-A-01.bag \
+    --config configs/experiments/narrowwide/vlp16_handheld_a_01.yaml \
+    --visualize --image-topic /camera/color/image_raw/compressed \
+    --output results/narrowwide_handheld_a_01
+```
+
+Replace `/data/Handheld-A-01.bag` with the path to your NarrowWide Handheld-A-01 recording. The
+exported YAML is an unchanged copy of the experiment configuration, including
+its sensor topics and calibration. You do not need to create a configuration
+from a default sensor template for this benchmark. The bag must be obtained
+separately; it is not bundled with the Python package.
+
+With a source checkout, the equivalent command from the repository root is:
+
+```bash
+genz_lio_pipeline run /data/Handheld-A-01.bag \
+    --config ros/config/experiments/narrowwide/vlp16_handheld_a_01.yaml \
+    --visualize --image-topic /camera/color/image_raw/compressed \
+    --output results/narrowwide_handheld_a_01
+```
+
+The optional `--image-topic /camera/color/image_raw/compressed` displays the
+camera stream recorded in Handheld-A-01. Omit this option to hide the camera
+panel. Press **SPACE** to start processing.
+
+### Your own sensor
 
 For your own sensor, copy a prepared template, then edit its topics, noise,
 timing, and LiDAR-to-IMU calibration for your input:
@@ -80,40 +119,14 @@ Python resolves `--config` as a local file path, relative to the working directo
 or absolute. The exported file works with source and wheel installations alike.
 Omitting `--config` uses compiled core defaults, not a sensor YAML.
 
-### Example: GEODE Stairs
-
-For the GEODE Stairs recording, use the supplied
-[`experiments/geode/vlp16_stairs.yaml`](https://github.com/cocel-postech/genz-lio/blob/master/ros/config/experiments/geode/vlp16_stairs.yaml)
-benchmark configuration from the `configs/` folder prepared above:
-
-```bash
-genz_lio_pipeline run /data/stairs.bag \
-    --config configs/experiments/geode/vlp16_stairs.yaml \
-    --visualize --output results/geode_stairs
-```
-
-Replace `/data/stairs.bag` with the path to your GEODE Stairs recording. The
-exported YAML is an unchanged copy of the experiment configuration, including
-its sensor topics and calibration. You do not need to create a configuration
-from a default sensor template for this benchmark. The bag must be obtained
-separately; it is not bundled with the Python package.
-
-With a source checkout, the equivalent command from the repository root is:
-
-```bash
-genz_lio_pipeline run /data/stairs.bag \
-    --config ros/config/experiments/geode/vlp16_stairs.yaml \
-    --visualize --output results/geode_stairs
-```
-
 ### Camera preview
 
-Add `--image-topic` to the visualization command:
+For example, the Handheld-A-01 bag contains this compressed image topic:
 
 ```bash
-genz_lio_pipeline run /data/sequence.bag \
-    --config my_robot.yaml --visualize \
-    --image-topic /camera/image_raw --output results/my_run
+genz_lio_pipeline run /data/Handheld-A-01.bag \
+    --config configs/experiments/narrowwide/vlp16_handheld_a_01.yaml --visualize \
+    --image-topic /camera/color/image_raw/compressed --output results/narrowwide_handheld_a_01
 ```
 
 The image topic must be inside the input bag. `sensor_msgs/Image` and
