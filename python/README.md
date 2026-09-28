@@ -99,8 +99,7 @@ panel. Press **SPACE** to start processing.
 
 Bag filename labels in braces identify the sequence, not the official download
 filename. Substitute the actual downloaded or prepared filename; no file renaming
-is required. Labels ending in `_pointcloud` or `_merged` refer to the prepared
-inputs described below.
+is required. The `prepared/` paths are output files created by the preparation commands below.
 
 The commands use `configs/experiments/` exported in the preparation step and
 write each sequence's trajectory to a separate output directory. All enable
@@ -372,23 +371,24 @@ genz_lio_pipeline run "{path_to_bag}/{NW_Handheld-B-02}.bag" \
 
 [Dataset and downloads](https://superodometry.com/datasets).
 
-**Prepare PointCloud2 input first.** The downloaded bags contain
-`/velodyne_packets`, which the Python pipeline cannot decode directly. Convert
-those packets with a Velodyne VLP-16 driver to `/velodyne_points`
-(`sensor_msgs/PointCloud2`) with per-point timing, while preserving `/imu/data`,
-original timestamps, and the image topics shown below. Record the prepared
-sequence as one `.bag`; use its filename in the corresponding command below.
-
-Multi-Floor spans `0.bag`–`2.bag`; Laurel-Cavern spans `0.bag`–`10.bag`.
-Process all parts in timestamp order into one continuous prepared recording.
-The CLI accepts one `.bag` or one rosbag2 recording, not a directory of ROS 1
-bag parts. Laurel-Cavern has no image topic; the other two commands require
-retaining their camera streams during preparation.
+**Prepare the bags once.** Complete the [tool setup](#prepare-raw-or-split-ros-1-bags), then run
+these commands from the repository root. The offline tool merges bag parts by
+recorded timestamp and converts VLP-16 packets to `/velodyne_points`. It preserves
+all other topics, including IMU and camera messages, without changing their
+contents or timestamps. The `prepared/` filenames below are created by these commands.
 
 **Long-Corridor**
 
 ```bash
-genz_lio_pipeline run "{path_to_bag}/{SM_Long-Corridor_pointcloud}.bag" \
+bash tools/rosbag/prepare.sh --decode-vlp16 \
+    --output prepared/SM_Long-Corridor.bag \
+    "{path_to_bag}/{SM_Long-Corridor}.bag"
+```
+
+Then run:
+
+```bash
+genz_lio_pipeline run prepared/SM_Long-Corridor.bag \
     --config configs/experiments/subt_mrs/vlp16_long_corridor.yaml \
     --visualize --image-topic /camera_1/image_raw \
     --output results/sm_long_corridor
@@ -396,8 +396,19 @@ genz_lio_pipeline run "{path_to_bag}/{SM_Long-Corridor_pointcloud}.bag" \
 
 **Multi-Floor**
 
+Replace only `{path_to_parts}` with the bag directory. Keep `{0..2}` unchanged;
+Bash expands it to `0.bag`, `1.bag`, and `2.bag`.
+
 ```bash
-genz_lio_pipeline run "{path_to_bag}/{SM_Multi-Floor_pointcloud}.bag" \
+bash tools/rosbag/prepare.sh --decode-vlp16 \
+    --output prepared/SM_Multi-Floor.bag \
+    "{path_to_parts}"/{0..2}.bag
+```
+
+Then run:
+
+```bash
+genz_lio_pipeline run prepared/SM_Multi-Floor.bag \
     --config configs/experiments/subt_mrs/vlp16_multi_floor.yaml \
     --visualize --image-topic /cmu_sp1/camera_1/image_raw \
     --output results/sm_multi_floor
@@ -405,8 +416,19 @@ genz_lio_pipeline run "{path_to_bag}/{SM_Multi-Floor_pointcloud}.bag" \
 
 **Laurel-Cavern**
 
+Replace only `{path_to_parts}` with the bag directory. Keep `{0..10}` unchanged;
+Bash expands it to all eleven parts, `0.bag` through `10.bag`. This sequence has no camera topic.
+
 ```bash
-genz_lio_pipeline run "{path_to_bag}/{SM_Laurel-Cavern_pointcloud}.bag" \
+bash tools/rosbag/prepare.sh --decode-vlp16 \
+    --output prepared/SM_Laurel-Cavern.bag \
+    "{path_to_parts}"/{0..10}.bag
+```
+
+Then run:
+
+```bash
+genz_lio_pipeline run prepared/SM_Laurel-Cavern.bag \
     --config configs/experiments/subt_mrs/vlp16_laurel_cavern.yaml \
     --visualize \
     --output results/sm_laurel_cavern
@@ -530,17 +552,25 @@ genz_lio_pipeline run "{path_to_bag}/{M3D_GNSS-denial-02}.bag" \
 Download the ROS bags including the camera streams. The examples select
 `cam0/debayered/image/compressed`.
 
-**Split recordings:** christ_church-01 and christ_church-02 each contain two
-bag parts (`..._0.bag` and `..._1.bag`). Merge both parts in timestamp order,
-without changing topics, message contents, or timestamps, into
-one merged `.bag` per sequence. The `_merged` placeholders below refer to those files.
-The commands below use those prepared files; passing only the first part would
-run an incomplete sequence. The other four commands use the original single bags.
+**Merge split recordings once.** Complete the [tool setup](#prepare-raw-or-split-ros-1-bags).
+For christ_church-01 and christ_church-02, pass both downloaded parts to the
+commands below. Merging preserves all topics, serialized message contents, and
+timestamps; it does not decode or modify the LiDAR points. The other four
+sequences use their original single bags.
 
 **christ_church-01**
 
 ```bash
-genz_lio_pipeline run "{path_to_bag}/{OS_christ_church-01_merged}.bag" \
+bash tools/rosbag/prepare.sh \
+    --output prepared/OS_christ_church-01.bag \
+    "{path_to_bag}/{christ_church-01_part_0}.bag" \
+    "{path_to_bag}/{christ_church-01_part_1}.bag"
+```
+
+Then run:
+
+```bash
+genz_lio_pipeline run prepared/OS_christ_church-01.bag \
     --config configs/experiments/oxford_spires/hesai64_christ_church.yaml \
     --visualize --image-topic /alphasense_driver_ros/cam0/debayered/image/compressed \
     --output results/os_christ_church_01
@@ -549,7 +579,16 @@ genz_lio_pipeline run "{path_to_bag}/{OS_christ_church-01_merged}.bag" \
 **christ_church-02**
 
 ```bash
-genz_lio_pipeline run "{path_to_bag}/{OS_christ_church-02_merged}.bag" \
+bash tools/rosbag/prepare.sh \
+    --output prepared/OS_christ_church-02.bag \
+    "{path_to_bag}/{christ_church-02_part_0}.bag" \
+    "{path_to_bag}/{christ_church-02_part_1}.bag"
+```
+
+Then run:
+
+```bash
+genz_lio_pipeline run prepared/OS_christ_church-02.bag \
     --config configs/experiments/oxford_spires/hesai64_christ_church.yaml \
     --visualize --image-topic /alphasense_driver_ros/cam0/debayered/image/compressed \
     --output results/os_christ_church_02
@@ -690,6 +729,74 @@ package lookup supported by `--config`. Pass the exported file to `--config`.
 With a source checkout, `--config ros/config/default/velodyne.yaml` also works
 when run from the repository root. `--sensor-config` is a legacy overlay option;
 the shipped YAMLs are complete and do not need it.
+
+## Prepare raw or split ROS 1 bags
+
+The source checkout includes [`tools/rosbag/prepare.sh`](../tools/rosbag/prepare.sh).
+Use it to prepare SubT-MRS raw packets or merge Oxford Spires bag parts before
+running the Python pipeline. This optional preparation tool requires **ROS 1
+Noetic on Ubuntu 20.04**; running Python on an already prepared bag does not
+require ROS. The tool is separate from the estimator and is not installed by pip.
+
+### Install and build the tool
+
+With ROS Noetic installed, use a fresh shell without a ROS 2 environment:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y git build-essential cmake libeigen3-dev \
+    ros-noetic-rosbag ros-noetic-roslib ros-noetic-velodyne-pointcloud
+# If you installed Python from a wheel, obtain the preparation tools first:
+# git clone https://github.com/cocel-postech/genz-lio.git
+cd "{path_to_genz_lio}"
+bash tools/rosbag/prepare.sh --help
+```
+
+The script sources Noetic and builds the standalone executable under
+`build/bag_tools/`. Subsequent calls reuse that build. It reads bag files directly;
+no `roscore`, sensor driver node, `rosbag play`, or real-time recording is needed.
+Use a writable local filesystem with enough space for the resulting bag.
+
+### Merge mode
+
+```bash
+bash tools/rosbag/prepare.sh --output prepared/merged.bag \
+    "{path_to_bag}/{part_0}.bag" "{path_to_bag}/{part_1}.bag"
+```
+
+All messages are merged by their recorded timestamps, regardless of input
+argument order. Original topic names, serialized message contents (including
+header timestamps), and bag timestamps are preserved. Do not include duplicated
+or overlapping recordings; duplicate file paths are rejected, but overlapping
+messages in different files are not deduplicated. The output is one ROS 1 `.bag`.
+
+### VLP-16 conversion mode
+
+```bash
+bash tools/rosbag/prepare.sh --decode-vlp16 \
+    --output prepared/pointcloud.bag "{path_to_bag}/{raw_packets}.bag"
+```
+
+This also merges all supplied parts and replaces `/velodyne_packets`
+(`velodyne_msgs/VelodyneScan`) with `/velodyne_points`
+(`sensor_msgs/PointCloud2`). The installed ROS VLP-16 decoder supplies XYZ,
+intensity, ring, and per-point `time` in seconds relative to the scan header.
+The scan header and bag timestamp are preserved. All other messages, including
+`/imu/data` and every camera topic, are copied unchanged. No frame transform,
+IMU resampling, or image recompression is applied.
+
+The converter uses the driver's `VLP16db.yaml` calibration and a 0.4–130 m
+range, matching the input preparation used for these SubT-MRS experiments.
+A different VLP-16 calibration can be selected with `--calibration /path/to/VLP16.yaml`.
+This mode is specifically for VLP-16 input, not other Velodyne models. The
+sequence-specific commands above include all required bag parts and then show
+how to run GenZ-LIO with the prepared file and retained camera topic.
+
+Input bags are opened read-only. Existing output files are refused. A completed
+output appears only after successful conversion; errors and normal interruption
+discard the partial output. A force kill or power loss can leave a `.partial.*`
+file, which is not a completed input bag. No trajectory evaluation is performed
+by this preparation tool.
 
 ## Input options
 

@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.16)
+project(genz_lio_bag_tools LANGUAGES CXX)
+
+find_package(catkin REQUIRED COMPONENTS roscpp roslib rosbag sensor_msgs velodyne_pointcloud)
+find_package(Eigen3 REQUIRED)
+add_executable(prepare_rosbag prepare_rosbag.cpp)
+target_compile_features(prepare_rosbag PRIVATE cxx_std_17)
+target_include_directories(prepare_rosbag PRIVATE ${catkin_INCLUDE_DIRS})
+target_link_libraries(prepare_rosbag PRIVATE ${catkin_LIBRARIES} Eigen3::Eigen)
+target_compile_options(prepare_rosbag PRIVATE -Wall -Wextra -Wpedantic)
