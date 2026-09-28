@@ -122,6 +122,7 @@ jobs:
           python -m pip install "${wheels[0]}[all]"
           python -m pip check
           python -m pytest python/tests -q
+          python ros/tests/test_convert_livox_bag.py -v
 
   manylinux:
     name: manylinux wheels

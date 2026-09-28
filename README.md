@@ -53,7 +53,8 @@ Process recorded data with an optional visualizer; no ROS installation is needed
 
 ### 1. Install dependencies and get the source
 
-Until the PyPI release is published, install from this repository:
+Use Linux with Python 3.8–3.12. Until the PyPI release is published, install
+from this repository:
 
 ```bash
 sudo apt-get update
@@ -73,6 +74,9 @@ Pip builds the C++ extension and installs rosbag and visualization dependencies:
 ```bash
 python -m pip install '.[rosbag,viz]'
 ```
+
+If the system Eigen is older than 3.4, CMake downloads it during the build;
+network access is required for that step.
 
 After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will replace
 the source build above. A compatible wheel needs no local C++ build; plain
@@ -891,7 +895,15 @@ Use the Pandar32 recordings with these experiment configurations.
 bag parts (`..._0.bag` and `..._1.bag`). Include both in timestamp order,
 preserving topics, message contents, and timestamps. Using only the first part
 runs an incomplete sequence. The other four sequences have one source bag each.
-For the playback example above, merge both parts into one `.bag` per sequence.
+ROS 1 can play both parts together without merging. Start GenZ-LIO with the
+matching YAML, then run this in the playback terminal:
+
+```bash
+rosbag play "{path_to_bag}/{sequence}_0.bag" "{path_to_bag}/{sequence}_1.bag"
+```
+
+Replace the placeholders with the actual filenames; both parts are replayed
+in timestamp order.
 
 | Sequence | YAML (`config:=`) |
 |---|---|

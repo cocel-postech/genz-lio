@@ -4,7 +4,8 @@ Process recorded data with an optional visualizer; no ROS installation is needed
 
 ## 1. Install dependencies and get the source
 
-Until the PyPI release is published, install from this repository:
+Use Linux with Python 3.8–3.12. Until the PyPI release is published, install
+from this repository:
 
 ```bash
 sudo apt-get update
@@ -24,6 +25,9 @@ Pip builds the C++ extension and installs rosbag and visualization dependencies:
 ```bash
 python -m pip install '.[rosbag,viz]'
 ```
+
+If the system Eigen is older than 3.4, CMake downloads it during the build;
+network access is required for that step.
 
 After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will replace
 the source build above. A compatible wheel needs no local C++ build; plain
@@ -635,14 +639,16 @@ the same output directory and sequence name overwrites those trajectory files.
 
 ### Input options
 
-Inspect the recording to find its topics:
+Inspect point counts and timing for recordings with one LiDAR and one IMU topic:
 
 ```bash
 genz_lio_pipeline inspect /data/sequence.bag
 ```
 
-Topics default to `common.lidar_topic` and `common.imu_topic` in the YAML.
-Override them when needed:
+`inspect` does not list topics or accept topic overrides. For topic names, use
+`rosbag info` or `ros2 bag info` in the corresponding ROS environment. During
+`run`, topics default to `common.lidar_topic` and `common.imu_topic` in the YAML;
+override them when needed:
 
 ```bash
 genz_lio_pipeline run /data/sequence.bag \
@@ -687,10 +693,9 @@ if result.valid:
 
 Provide finite, time-ordered IMU samples up to `scan_end`, with acceleration in
 m/s² and angular velocity in rad/s. Optional point attributes must each contain
-N entries. Supply per-point timing for deskewing. For raw bag input, the CLI
-reader handles timing preparation and synchronization with the shared C++ scan
-buffer. Leave the internal `timing_prepared` flag false in direct API calls.
-An incomplete final scan may be skipped when no following IMU coverage exists.
+N entries. Supply per-point timing for deskewing. For bag input, the CLI handles
+synchronization; an incomplete final scan may be skipped if IMU coverage ends
+too early.
 Split recordings containing sensor-time rewinds into monotonic runs.
 
 ---
