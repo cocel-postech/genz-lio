@@ -65,9 +65,8 @@ built, source it and rebuild GenZ-LIO.
 ### 3. Run
 
 Use the package's `config/experiments/` YAMLs for the paper's benchmark sequences,
-or a calibrated `config/default/` template for your own sensor. No configuration
-export is needed. `config:=` accepts a path relative to the package's `config/`
-directory, or an absolute YAML path.
+or a calibrated `config/default/` template for your own sensor. `config:=` accepts
+a path relative to the package's `config/` directory, or an absolute YAML path.
 
 **1) For reproducing benchmark experiments (e.g., NarrowWide Handheld-A-01)**
 
@@ -91,23 +90,10 @@ GenZ-LIO consumes PointCloud2 or supported Livox CustomMsg plus IMU messages;
 raw Velodyne packets must first be decoded to PointCloud2 with point timing.
 
 <details>
-<summary>▶️ All benchmark sequences: downloads and ROS 1 commands (42 sequences)</summary>
+<summary>▶️ All benchmark sequences: downloads and ROS 1 configurations (42 sequences)</summary>
 
-These commands use the package's `config/experiments/` YAMLs directly and start
-RViz. No configuration export is needed. In **both terminals**, source the
-workspace before running any commands:
-
-```bash
-source ~/catkin_ws/devel/setup.bash
-```
-
-For each sequence, run the **first block in terminal 1** to start GenZ-LIO and
-RViz. Wait for the node to start, then run the **second block in terminal 2** to
-play the recording. Stop the previous node before starting another sequence.
-
-Bag filename labels in braces identify the sequence, not the official download
-filename. Substitute the actual downloaded or prepared path; no file renaming
-is required. `_pointcloud` and `_merged` identify prepared inputs described below.
+Use the YAML path below as the `config:=` argument in the launch command above.
+Paths are relative to the package's `config/` directory.
 
 <details>
 <summary>GEODE (7 sequences)</summary>
@@ -116,75 +102,15 @@ is required. `_pointcloud` and `_merged` identify prepared inputs described belo
 
 Use the Alpha (Velodyne) recordings for these YAMLs.
 
-**Stairs**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_stairs.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{GD_Stairs}.bag"
-```
-
-**Waterways-Short**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_waterways_short.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{GD_Waterways-Short}.bag"
-```
-
-**Waterways-Medium**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_waterways_medium.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{GD_Waterways-Medium}.bag"
-```
-
-**Waterways-Long**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_waterways_long.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{GD_Waterways-Long}.bag"
-```
-
-**Offroad-02**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_offroad.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{GD_Offroad-02}.bag"
-```
-
-**Offroad-04**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_offroad.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{GD_Offroad-04}.bag"
-```
-
-**Offroad-07**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_offroad.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{GD_Offroad-07}.bag"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Stairs | [experiments/geode/vlp16_stairs.yaml](config/experiments/geode/vlp16_stairs.yaml) |
+| Waterways-Short | [experiments/geode/vlp16_waterways_short.yaml](config/experiments/geode/vlp16_waterways_short.yaml) |
+| Waterways-Medium | [experiments/geode/vlp16_waterways_medium.yaml](config/experiments/geode/vlp16_waterways_medium.yaml) |
+| Waterways-Long | [experiments/geode/vlp16_waterways_long.yaml](config/experiments/geode/vlp16_waterways_long.yaml) |
+| Offroad-02 | [experiments/geode/vlp16_offroad.yaml](config/experiments/geode/vlp16_offroad.yaml) |
+| Offroad-04 | [experiments/geode/vlp16_offroad.yaml](config/experiments/geode/vlp16_offroad.yaml) |
+| Offroad-07 | [experiments/geode/vlp16_offroad.yaml](config/experiments/geode/vlp16_offroad.yaml) |
 
 </details>
 
@@ -193,45 +119,12 @@ rosbag play "{path_to_bag}/{GD_Offroad-07}.bag"
 
 [Dataset](https://projects.asl.ethz.ch/datasets/) · [Download](https://doi.org/10.3929/ethz-b-000702477).
 
-**Katzensee-S**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/enwide/os128_enwide.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{EW_Katzensee-S}.bag"
-```
-
-**Katzensee-D**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/enwide/os128_enwide.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{EW_Katzensee-D}.bag"
-```
-
-**Intersection-S**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/enwide/os128_enwide.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{EW_Intersection-S}.bag"
-```
-
-**Intersection-D**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/enwide/os128_enwide.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{EW_Intersection-D}.bag"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Katzensee-S | [experiments/enwide/os128_enwide.yaml](config/experiments/enwide/os128_enwide.yaml) |
+| Katzensee-D | [experiments/enwide/os128_enwide.yaml](config/experiments/enwide/os128_enwide.yaml) |
+| Intersection-S | [experiments/enwide/os128_enwide.yaml](config/experiments/enwide/os128_enwide.yaml) |
+| Intersection-D | [experiments/enwide/os128_enwide.yaml](config/experiments/enwide/os128_enwide.yaml) |
 
 </details>
 
@@ -240,35 +133,11 @@ rosbag play "{path_to_bag}/{EW_Intersection-D}.bag"
 
 [Dataset and downloads](https://ntu-aris.github.io/ntu_viral_dataset/).
 
-**SPMS-01**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/ntu_viral/os16_spms_01.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{NV_SPMS-01}.bag"
-```
-
-**SPMS-02**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/ntu_viral/os16_spms_02.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{NV_SPMS-02}.bag"
-```
-
-**SPMS-03**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/ntu_viral/os16_spms_03.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{NV_SPMS-03}.bag"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| SPMS-01 | [experiments/ntu_viral/os16_spms_01.yaml](config/experiments/ntu_viral/os16_spms_01.yaml) |
+| SPMS-02 | [experiments/ntu_viral/os16_spms_02.yaml](config/experiments/ntu_viral/os16_spms_02.yaml) |
+| SPMS-03 | [experiments/ntu_viral/os16_spms_03.yaml](config/experiments/ntu_viral/os16_spms_03.yaml) |
 
 </details>
 
@@ -279,45 +148,12 @@ rosbag play "{path_to_bag}/{NV_SPMS-03}.bag"
 
 Download Cave01, Cave02, Cave04, and Corridor02 from the SuperLoc dataset table.
 
-**Cave-01**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/superloc/vlp16_cave.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{SL_Cave-01}.bag"
-```
-
-**Cave-02**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/superloc/vlp16_cave.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{SL_Cave-02}.bag"
-```
-
-**Cave-04**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/superloc/vlp16_cave.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{SL_Cave-04}.bag"
-```
-
-**Corridor-02**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/superloc/vlp16_corridor_02.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{SL_Corridor-02}.bag"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Cave-01 | [experiments/superloc/vlp16_cave.yaml](config/experiments/superloc/vlp16_cave.yaml) |
+| Cave-02 | [experiments/superloc/vlp16_cave.yaml](config/experiments/superloc/vlp16_cave.yaml) |
+| Cave-04 | [experiments/superloc/vlp16_cave.yaml](config/experiments/superloc/vlp16_cave.yaml) |
+| Corridor-02 | [experiments/superloc/vlp16_corridor_02.yaml](config/experiments/superloc/vlp16_corridor_02.yaml) |
 
 </details>
 
@@ -328,65 +164,14 @@ rosbag play "{path_to_bag}/{SL_Corridor-02}.bag"
 
 Dataset information and download instructions are maintained in the NarrowWide repository.
 
-**Tracked-01**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/narrowwide/mid70_tracked_01.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{NW_Tracked-01}.bag"
-```
-
-**Tracked-02**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/narrowwide/mid70_tracked_02.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{NW_Tracked-02}.bag"
-```
-
-**Handheld-A-01**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/narrowwide/vlp16_handheld_a_01.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{NW_Handheld-A-01}.bag"
-```
-
-**Handheld-A-02**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/narrowwide/vlp16_handheld_a_02.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{NW_Handheld-A-02}.bag"
-```
-
-**Handheld-B-01**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/narrowwide/avia_handheld_b.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{NW_Handheld-B-01}.bag"
-```
-
-**Handheld-B-02**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/narrowwide/avia_handheld_b.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{NW_Handheld-B-02}.bag"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Tracked-01 | [experiments/narrowwide/mid70_tracked_01.yaml](config/experiments/narrowwide/mid70_tracked_01.yaml) |
+| Tracked-02 | [experiments/narrowwide/mid70_tracked_02.yaml](config/experiments/narrowwide/mid70_tracked_02.yaml) |
+| Handheld-A-01 | [experiments/narrowwide/vlp16_handheld_a_01.yaml](config/experiments/narrowwide/vlp16_handheld_a_01.yaml) |
+| Handheld-A-02 | [experiments/narrowwide/vlp16_handheld_a_02.yaml](config/experiments/narrowwide/vlp16_handheld_a_02.yaml) |
+| Handheld-B-01 | [experiments/narrowwide/avia_handheld_b.yaml](config/experiments/narrowwide/avia_handheld_b.yaml) |
+| Handheld-B-02 | [experiments/narrowwide/avia_handheld_b.yaml](config/experiments/narrowwide/avia_handheld_b.yaml) |
 
 </details>
 
@@ -402,37 +187,16 @@ does not consume raw packets directly.
 
 Multi-Floor spans `0.bag`–`2.bag`; Laurel-Cavern spans `0.bag`–`10.bag`.
 Process all parts in timestamp order into one continuous prepared recording.
-The examples expect one prepared `.bag` per sequence.
+Use one prepared `.bag` per sequence for the playback example above.
 
-**Long-Corridor**
+The `_pointcloud` label used in the Python examples identifies this decoded
+input; it is not an official download filename or a required rename.
 
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/subt_mrs/vlp16_long_corridor.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{SM_Long-Corridor_pointcloud}.bag"
-```
-
-**Multi-Floor**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/subt_mrs/vlp16_multi_floor.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{SM_Multi-Floor_pointcloud}.bag"
-```
-
-**Laurel-Cavern**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/subt_mrs/vlp16_laurel_cavern.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{SM_Laurel-Cavern_pointcloud}.bag"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Long-Corridor | [experiments/subt_mrs/vlp16_long_corridor.yaml](config/experiments/subt_mrs/vlp16_long_corridor.yaml) |
+| Multi-Floor | [experiments/subt_mrs/vlp16_multi_floor.yaml](config/experiments/subt_mrs/vlp16_multi_floor.yaml) |
+| Laurel-Cavern | [experiments/subt_mrs/vlp16_laurel_cavern.yaml](config/experiments/subt_mrs/vlp16_laurel_cavern.yaml) |
 
 </details>
 
@@ -443,25 +207,10 @@ rosbag play "{path_to_bag}/{SM_Laurel-Cavern_pointcloud}.bag"
 
 Use the MID-70 recordings with these experiment configurations.
 
-**Basement-04**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/hilti21/mid70_hilti21_basement04.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{H21_Basement-04}.bag"
-```
-
-**Drone-Arena**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/hilti21/mid70_hilti21_drone_arena.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{H21_Drone-Arena}.bag"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Basement-04 | [experiments/hilti21/mid70_hilti21_basement04.yaml](config/experiments/hilti21/mid70_hilti21_basement04.yaml) |
+| Drone-Arena | [experiments/hilti21/mid70_hilti21_drone_arena.yaml](config/experiments/hilti21/mid70_hilti21_drone_arena.yaml) |
 
 </details>
 
@@ -472,35 +221,11 @@ rosbag play "{path_to_bag}/{H21_Drone-Arena}.bag"
 
 Use the Pandar32 recordings with these experiment configurations.
 
-**Exp-10**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/hilti22/pandar32_hilti22_exp10.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{H22_Exp-10}.bag"
-```
-
-**Exp-16**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/hilti22/pandar32_hilti22_exp16.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{H22_Exp-16}.bag"
-```
-
-**Exp-18**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/hilti22/pandar32_hilti22_exp18.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{H22_Exp-18}.bag"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Exp-10 | [experiments/hilti22/pandar32_hilti22_exp10.yaml](config/experiments/hilti22/pandar32_hilti22_exp10.yaml) |
+| Exp-16 | [experiments/hilti22/pandar32_hilti22_exp16.yaml](config/experiments/hilti22/pandar32_hilti22_exp16.yaml) |
+| Exp-18 | [experiments/hilti22/pandar32_hilti22_exp18.yaml](config/experiments/hilti22/pandar32_hilti22_exp18.yaml) |
 
 </details>
 
@@ -509,45 +234,12 @@ rosbag play "{path_to_bag}/{H22_Exp-18}.bag"
 
 [Dataset and downloads](https://github.com/sjtuyinjie/M3DGR).
 
-**Corridor-01**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/m3dgr/avia_corridor_01.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{M3D_Corridor-01}.bag"
-```
-
-**Corridor-02**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/m3dgr/avia_corridor_02.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{M3D_Corridor-02}.bag"
-```
-
-**GNSS-denial-01**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/m3dgr/avia_gnss_denial.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{M3D_GNSS-denial-01}.bag"
-```
-
-**GNSS-denial-02**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/m3dgr/avia_gnss_denial.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{M3D_GNSS-denial-02}.bag"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Corridor-01 | [experiments/m3dgr/avia_corridor_01.yaml](config/experiments/m3dgr/avia_corridor_01.yaml) |
+| Corridor-02 | [experiments/m3dgr/avia_corridor_02.yaml](config/experiments/m3dgr/avia_corridor_02.yaml) |
+| GNSS-denial-01 | [experiments/m3dgr/avia_gnss_denial.yaml](config/experiments/m3dgr/avia_gnss_denial.yaml) |
+| GNSS-denial-02 | [experiments/m3dgr/avia_gnss_denial.yaml](config/experiments/m3dgr/avia_gnss_denial.yaml) |
 
 </details>
 
@@ -560,67 +252,19 @@ rosbag play "{path_to_bag}/{M3D_GNSS-denial-02}.bag"
 bag parts (`..._0.bag` and `..._1.bag`). Include both in timestamp order,
 preserving topics, message contents, and timestamps. Using only the first part
 runs an incomplete sequence. The other four sequences have one source bag each.
-The `_merged` placeholders refer to one merged `.bag` per sequence.
+For the playback example above, merge both parts into one `.bag` per sequence.
 
-**christ_church-01**
+The `_merged` label used in the Python examples identifies the complete
+recording; it is not an official download filename or a required rename.
 
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/oxford_spires/hesai64_christ_church.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{OS_christ_church-01_merged}.bag"
-```
-
-**christ_church-02**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/oxford_spires/hesai64_christ_church.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{OS_christ_church-02_merged}.bag"
-```
-
-**christ_church-05**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/oxford_spires/hesai64_christ_church.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{OS_christ_church-05}.bag"
-```
-
-**blenheim_palace-01**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/oxford_spires/hesai64_blenheim_palace.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{OS_blenheim_palace-01}.bag"
-```
-
-**blenheim_palace-02**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/oxford_spires/hesai64_blenheim_palace.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{OS_blenheim_palace-02}.bag"
-```
-
-**blenheim_palace-05**
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/oxford_spires/hesai64_blenheim_palace.yaml
-```
-
-```bash
-rosbag play "{path_to_bag}/{OS_blenheim_palace-05}.bag"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| christ_church-01 | [experiments/oxford_spires/hesai64_christ_church.yaml](config/experiments/oxford_spires/hesai64_christ_church.yaml) |
+| christ_church-02 | [experiments/oxford_spires/hesai64_christ_church.yaml](config/experiments/oxford_spires/hesai64_christ_church.yaml) |
+| christ_church-05 | [experiments/oxford_spires/hesai64_christ_church.yaml](config/experiments/oxford_spires/hesai64_christ_church.yaml) |
+| blenheim_palace-01 | [experiments/oxford_spires/hesai64_blenheim_palace.yaml](config/experiments/oxford_spires/hesai64_blenheim_palace.yaml) |
+| blenheim_palace-02 | [experiments/oxford_spires/hesai64_blenheim_palace.yaml](config/experiments/oxford_spires/hesai64_blenheim_palace.yaml) |
+| blenheim_palace-05 | [experiments/oxford_spires/hesai64_blenheim_palace.yaml](config/experiments/oxford_spires/hesai64_blenheim_palace.yaml) |
 
 </details>
 
@@ -716,9 +360,8 @@ built, source it and rebuild GenZ-LIO.
 ### 3. Run
 
 Use the package's `config/experiments/` YAMLs for the paper's benchmark sequences,
-or a calibrated `config/default/` template for your own sensor. No configuration
-export is needed. `config:=` accepts a path relative to the package's `config/`
-directory, or an absolute YAML path.
+or a calibrated `config/default/` template for your own sensor. `config:=` accepts
+a path relative to the package's `config/` directory, or an absolute YAML path.
 
 **1) For reproducing benchmark experiments (e.g., NarrowWide Handheld-A-01)**
 
@@ -747,31 +390,15 @@ GenZ-LIO consumes PointCloud2 or supported Livox CustomMsg plus IMU messages;
 raw Velodyne packets must first be decoded to PointCloud2 with point timing.
 
 <details>
-<summary>▶️ All benchmark sequences: downloads and ROS 2 commands (42 sequences)</summary>
+<summary>▶️ All benchmark sequences: downloads and ROS 2 configurations (42 sequences)</summary>
 
-These commands use the package's `config/experiments/` YAMLs directly and start
-RViz. No configuration export is needed. In **both terminals**, source the
-workspace before running any commands:
+Use the YAML path below as the `config:=` argument in the launch command above.
+Paths are relative to the package's `config/` directory.
 
-```bash
-source ~/ros2_ws/install/setup.bash
-```
-
-For each sequence, run the **first block in terminal 1** to start GenZ-LIO and
-RViz. Wait for the node to start, then run the **second block in terminal 2** to
-play the recording. Stop the previous node before starting another sequence.
-
-The download links may provide ROS 1 bags. The playback commands below require
-**rosbag2 recordings prepared from those sequences**, preserving sensor topics,
-timestamps, per-point timing, and IMU data. They cannot play ROS 1 `.bag` files
-directly. For Livox CustomMsg, the recording must use
-`livox_ros_driver2/msg/CustomMsg`; changing the topic name alone does not convert
-the message type. Build and source the Livox driver before using these recordings.
-
-Directory labels in braces identify the sequence, not an official download
-name. Replace `{path_to_rosbag2}` and the sequence label with the actual path
-to its rosbag2 recording. `_pointcloud` and `_merged` identify the preparation
-requirements below, not a required directory naming convention.
+Downloads may contain ROS 1 bags. Prepare rosbag2 recordings for ROS 2 playback,
+preserving sensor topics, timestamps, per-point timing, and IMU data. Livox
+CustomMsg recordings must use `livox_ros_driver2/msg/CustomMsg`; renaming the
+topic alone does not convert the message type.
 
 <details>
 <summary>GEODE (7 sequences)</summary>
@@ -780,75 +407,15 @@ requirements below, not a required directory naming convention.
 
 Use the Alpha (Velodyne) recordings for these YAMLs.
 
-**Stairs**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_stairs.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{GD_Stairs}"
-```
-
-**Waterways-Short**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_waterways_short.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{GD_Waterways-Short}"
-```
-
-**Waterways-Medium**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_waterways_medium.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{GD_Waterways-Medium}"
-```
-
-**Waterways-Long**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_waterways_long.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{GD_Waterways-Long}"
-```
-
-**Offroad-02**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_offroad.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{GD_Offroad-02}"
-```
-
-**Offroad-04**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_offroad.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{GD_Offroad-04}"
-```
-
-**Offroad-07**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_offroad.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{GD_Offroad-07}"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Stairs | [experiments/geode/vlp16_stairs.yaml](config/experiments/geode/vlp16_stairs.yaml) |
+| Waterways-Short | [experiments/geode/vlp16_waterways_short.yaml](config/experiments/geode/vlp16_waterways_short.yaml) |
+| Waterways-Medium | [experiments/geode/vlp16_waterways_medium.yaml](config/experiments/geode/vlp16_waterways_medium.yaml) |
+| Waterways-Long | [experiments/geode/vlp16_waterways_long.yaml](config/experiments/geode/vlp16_waterways_long.yaml) |
+| Offroad-02 | [experiments/geode/vlp16_offroad.yaml](config/experiments/geode/vlp16_offroad.yaml) |
+| Offroad-04 | [experiments/geode/vlp16_offroad.yaml](config/experiments/geode/vlp16_offroad.yaml) |
+| Offroad-07 | [experiments/geode/vlp16_offroad.yaml](config/experiments/geode/vlp16_offroad.yaml) |
 
 </details>
 
@@ -857,45 +424,12 @@ ros2 bag play "{path_to_rosbag2}/{GD_Offroad-07}"
 
 [Dataset](https://projects.asl.ethz.ch/datasets/) · [Download](https://doi.org/10.3929/ethz-b-000702477).
 
-**Katzensee-S**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/enwide/os128_enwide.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{EW_Katzensee-S}"
-```
-
-**Katzensee-D**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/enwide/os128_enwide.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{EW_Katzensee-D}"
-```
-
-**Intersection-S**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/enwide/os128_enwide.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{EW_Intersection-S}"
-```
-
-**Intersection-D**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/enwide/os128_enwide.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{EW_Intersection-D}"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Katzensee-S | [experiments/enwide/os128_enwide.yaml](config/experiments/enwide/os128_enwide.yaml) |
+| Katzensee-D | [experiments/enwide/os128_enwide.yaml](config/experiments/enwide/os128_enwide.yaml) |
+| Intersection-S | [experiments/enwide/os128_enwide.yaml](config/experiments/enwide/os128_enwide.yaml) |
+| Intersection-D | [experiments/enwide/os128_enwide.yaml](config/experiments/enwide/os128_enwide.yaml) |
 
 </details>
 
@@ -904,35 +438,11 @@ ros2 bag play "{path_to_rosbag2}/{EW_Intersection-D}"
 
 [Dataset and downloads](https://ntu-aris.github.io/ntu_viral_dataset/).
 
-**SPMS-01**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/ntu_viral/os16_spms_01.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{NV_SPMS-01}"
-```
-
-**SPMS-02**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/ntu_viral/os16_spms_02.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{NV_SPMS-02}"
-```
-
-**SPMS-03**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/ntu_viral/os16_spms_03.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{NV_SPMS-03}"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| SPMS-01 | [experiments/ntu_viral/os16_spms_01.yaml](config/experiments/ntu_viral/os16_spms_01.yaml) |
+| SPMS-02 | [experiments/ntu_viral/os16_spms_02.yaml](config/experiments/ntu_viral/os16_spms_02.yaml) |
+| SPMS-03 | [experiments/ntu_viral/os16_spms_03.yaml](config/experiments/ntu_viral/os16_spms_03.yaml) |
 
 </details>
 
@@ -943,45 +453,12 @@ ros2 bag play "{path_to_rosbag2}/{NV_SPMS-03}"
 
 Download Cave01, Cave02, Cave04, and Corridor02 from the SuperLoc dataset table.
 
-**Cave-01**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/superloc/vlp16_cave.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{SL_Cave-01}"
-```
-
-**Cave-02**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/superloc/vlp16_cave.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{SL_Cave-02}"
-```
-
-**Cave-04**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/superloc/vlp16_cave.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{SL_Cave-04}"
-```
-
-**Corridor-02**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/superloc/vlp16_corridor_02.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{SL_Corridor-02}"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Cave-01 | [experiments/superloc/vlp16_cave.yaml](config/experiments/superloc/vlp16_cave.yaml) |
+| Cave-02 | [experiments/superloc/vlp16_cave.yaml](config/experiments/superloc/vlp16_cave.yaml) |
+| Cave-04 | [experiments/superloc/vlp16_cave.yaml](config/experiments/superloc/vlp16_cave.yaml) |
+| Corridor-02 | [experiments/superloc/vlp16_corridor_02.yaml](config/experiments/superloc/vlp16_corridor_02.yaml) |
 
 </details>
 
@@ -992,65 +469,14 @@ ros2 bag play "{path_to_rosbag2}/{SL_Corridor-02}"
 
 Dataset information and download instructions are maintained in the NarrowWide repository.
 
-**Tracked-01**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/narrowwide/mid70_tracked_01.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{NW_Tracked-01}"
-```
-
-**Tracked-02**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/narrowwide/mid70_tracked_02.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{NW_Tracked-02}"
-```
-
-**Handheld-A-01**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/narrowwide/vlp16_handheld_a_01.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{NW_Handheld-A-01}"
-```
-
-**Handheld-A-02**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/narrowwide/vlp16_handheld_a_02.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{NW_Handheld-A-02}"
-```
-
-**Handheld-B-01**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/narrowwide/avia_handheld_b.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{NW_Handheld-B-01}"
-```
-
-**Handheld-B-02**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/narrowwide/avia_handheld_b.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{NW_Handheld-B-02}"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Tracked-01 | [experiments/narrowwide/mid70_tracked_01.yaml](config/experiments/narrowwide/mid70_tracked_01.yaml) |
+| Tracked-02 | [experiments/narrowwide/mid70_tracked_02.yaml](config/experiments/narrowwide/mid70_tracked_02.yaml) |
+| Handheld-A-01 | [experiments/narrowwide/vlp16_handheld_a_01.yaml](config/experiments/narrowwide/vlp16_handheld_a_01.yaml) |
+| Handheld-A-02 | [experiments/narrowwide/vlp16_handheld_a_02.yaml](config/experiments/narrowwide/vlp16_handheld_a_02.yaml) |
+| Handheld-B-01 | [experiments/narrowwide/avia_handheld_b.yaml](config/experiments/narrowwide/avia_handheld_b.yaml) |
+| Handheld-B-02 | [experiments/narrowwide/avia_handheld_b.yaml](config/experiments/narrowwide/avia_handheld_b.yaml) |
 
 </details>
 
@@ -1068,35 +494,14 @@ Multi-Floor spans `0.bag`–`2.bag`; Laurel-Cavern spans `0.bag`–`10.bag`.
 Process all parts in timestamp order into one continuous prepared recording.
 Record or convert the prepared data to one rosbag2 recording per sequence.
 
-**Long-Corridor**
+The `_pointcloud` label used in the Python examples identifies this decoded
+input; it is not an official download filename or a required rename.
 
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/subt_mrs/vlp16_long_corridor.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{SM_Long-Corridor_pointcloud}"
-```
-
-**Multi-Floor**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/subt_mrs/vlp16_multi_floor.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{SM_Multi-Floor_pointcloud}"
-```
-
-**Laurel-Cavern**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/subt_mrs/vlp16_laurel_cavern.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{SM_Laurel-Cavern_pointcloud}"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Long-Corridor | [experiments/subt_mrs/vlp16_long_corridor.yaml](config/experiments/subt_mrs/vlp16_long_corridor.yaml) |
+| Multi-Floor | [experiments/subt_mrs/vlp16_multi_floor.yaml](config/experiments/subt_mrs/vlp16_multi_floor.yaml) |
+| Laurel-Cavern | [experiments/subt_mrs/vlp16_laurel_cavern.yaml](config/experiments/subt_mrs/vlp16_laurel_cavern.yaml) |
 
 </details>
 
@@ -1107,25 +512,10 @@ ros2 bag play "{path_to_rosbag2}/{SM_Laurel-Cavern_pointcloud}"
 
 Use the MID-70 recordings with these experiment configurations.
 
-**Basement-04**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/hilti21/mid70_hilti21_basement04.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{H21_Basement-04}"
-```
-
-**Drone-Arena**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/hilti21/mid70_hilti21_drone_arena.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{H21_Drone-Arena}"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Basement-04 | [experiments/hilti21/mid70_hilti21_basement04.yaml](config/experiments/hilti21/mid70_hilti21_basement04.yaml) |
+| Drone-Arena | [experiments/hilti21/mid70_hilti21_drone_arena.yaml](config/experiments/hilti21/mid70_hilti21_drone_arena.yaml) |
 
 </details>
 
@@ -1136,35 +526,11 @@ ros2 bag play "{path_to_rosbag2}/{H21_Drone-Arena}"
 
 Use the Pandar32 recordings with these experiment configurations.
 
-**Exp-10**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/hilti22/pandar32_hilti22_exp10.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{H22_Exp-10}"
-```
-
-**Exp-16**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/hilti22/pandar32_hilti22_exp16.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{H22_Exp-16}"
-```
-
-**Exp-18**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/hilti22/pandar32_hilti22_exp18.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{H22_Exp-18}"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Exp-10 | [experiments/hilti22/pandar32_hilti22_exp10.yaml](config/experiments/hilti22/pandar32_hilti22_exp10.yaml) |
+| Exp-16 | [experiments/hilti22/pandar32_hilti22_exp16.yaml](config/experiments/hilti22/pandar32_hilti22_exp16.yaml) |
+| Exp-18 | [experiments/hilti22/pandar32_hilti22_exp18.yaml](config/experiments/hilti22/pandar32_hilti22_exp18.yaml) |
 
 </details>
 
@@ -1173,45 +539,12 @@ ros2 bag play "{path_to_rosbag2}/{H22_Exp-18}"
 
 [Dataset and downloads](https://github.com/sjtuyinjie/M3DGR).
 
-**Corridor-01**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/m3dgr/avia_corridor_01.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{M3D_Corridor-01}"
-```
-
-**Corridor-02**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/m3dgr/avia_corridor_02.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{M3D_Corridor-02}"
-```
-
-**GNSS-denial-01**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/m3dgr/avia_gnss_denial.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{M3D_GNSS-denial-01}"
-```
-
-**GNSS-denial-02**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/m3dgr/avia_gnss_denial.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{M3D_GNSS-denial-02}"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| Corridor-01 | [experiments/m3dgr/avia_corridor_01.yaml](config/experiments/m3dgr/avia_corridor_01.yaml) |
+| Corridor-02 | [experiments/m3dgr/avia_corridor_02.yaml](config/experiments/m3dgr/avia_corridor_02.yaml) |
+| GNSS-denial-01 | [experiments/m3dgr/avia_gnss_denial.yaml](config/experiments/m3dgr/avia_gnss_denial.yaml) |
+| GNSS-denial-02 | [experiments/m3dgr/avia_gnss_denial.yaml](config/experiments/m3dgr/avia_gnss_denial.yaml) |
 
 </details>
 
@@ -1224,67 +557,19 @@ ros2 bag play "{path_to_rosbag2}/{M3D_GNSS-denial-02}"
 bag parts (`..._0.bag` and `..._1.bag`). Include both in timestamp order,
 preserving topics, message contents, and timestamps. Using only the first part
 runs an incomplete sequence. The other four sequences have one source bag each.
-The `_merged` placeholders refer to one continuous rosbag2 recording containing both parts.
+Prepare one continuous rosbag2 recording containing both parts per sequence.
 
-**christ_church-01**
+The `_merged` label used in the Python examples identifies the complete
+recording; it is not an official download filename or a required rename.
 
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/oxford_spires/hesai64_christ_church.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{OS_christ_church-01_merged}"
-```
-
-**christ_church-02**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/oxford_spires/hesai64_christ_church.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{OS_christ_church-02_merged}"
-```
-
-**christ_church-05**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/oxford_spires/hesai64_christ_church.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{OS_christ_church-05}"
-```
-
-**blenheim_palace-01**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/oxford_spires/hesai64_blenheim_palace.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{OS_blenheim_palace-01}"
-```
-
-**blenheim_palace-02**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/oxford_spires/hesai64_blenheim_palace.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{OS_blenheim_palace-02}"
-```
-
-**blenheim_palace-05**
-
-```bash
-ros2 launch genz_lio odometry.launch.py config:=experiments/oxford_spires/hesai64_blenheim_palace.yaml
-```
-
-```bash
-ros2 bag play "{path_to_rosbag2}/{OS_blenheim_palace-05}"
-```
+| Sequence | YAML (`config:=`) |
+|---|---|
+| christ_church-01 | [experiments/oxford_spires/hesai64_christ_church.yaml](config/experiments/oxford_spires/hesai64_christ_church.yaml) |
+| christ_church-02 | [experiments/oxford_spires/hesai64_christ_church.yaml](config/experiments/oxford_spires/hesai64_christ_church.yaml) |
+| christ_church-05 | [experiments/oxford_spires/hesai64_christ_church.yaml](config/experiments/oxford_spires/hesai64_christ_church.yaml) |
+| blenheim_palace-01 | [experiments/oxford_spires/hesai64_blenheim_palace.yaml](config/experiments/oxford_spires/hesai64_blenheim_palace.yaml) |
+| blenheim_palace-02 | [experiments/oxford_spires/hesai64_blenheim_palace.yaml](config/experiments/oxford_spires/hesai64_blenheim_palace.yaml) |
+| blenheim_palace-05 | [experiments/oxford_spires/hesai64_blenheim_palace.yaml](config/experiments/oxford_spires/hesai64_blenheim_palace.yaml) |
 
 </details>
 
