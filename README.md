@@ -927,8 +927,8 @@ The ROS node publishes `/Odometry`; it does not automatically save a trajectory.
 
 Parameter tuning guidance is available in the [parameter guide](ros/config/parameter_tuning_guide.md).
 
-See [ros/README.md](ros/README.md#additional-options) for ROS 1-to-ROS 2 bag conversion,
-TUM/KITTI odometry saving, published topics, and troubleshooting.
+See [ros/README.md](ros/README.md#additional-options) for TUM/KITTI odometry saving,
+ROS 1-to-ROS 2 bag conversion, published topics, and troubleshooting.
 
 </details>
 
@@ -1232,8 +1232,8 @@ The ROS node publishes `/Odometry`; it does not automatically save a trajectory.
 
 Parameter tuning guidance is available in the [parameter guide](ros/config/parameter_tuning_guide.md).
 
-See [ros/README.md](ros/README.md#additional-options) for ROS 1-to-ROS 2 bag conversion,
-TUM/KITTI odometry saving, DDS settings, and troubleshooting.
+See [ros/README.md](ros/README.md#additional-options) for TUM/KITTI odometry saving,
+ROS 1-to-ROS 2 bag conversion, troubleshooting, and DDS settings.
 
 </details>
 

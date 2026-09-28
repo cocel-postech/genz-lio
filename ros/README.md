@@ -590,52 +590,6 @@ Parameter tuning guidance is available in the [parameter guide](config/parameter
 
 ## + Additional options
 
-### Convert ROS 1 bags to ROS 2
-
-Use [rosbags-convert](https://ternaris.gitlab.io/rosbags/topics/convert.html)
-for recordings with standard messages such as PointCloud2 and IMU. The converter
-does not require a ROS installation. Install it in a separate environment
-(Python 3.8 or newer); these commands use the tested `rosbags` 0.9.23 CLI:
-
-```bash
-python3 -m venv ~/.venvs/genz-bag-convert
-source ~/.venvs/genz-bag-convert/bin/activate
-python -m pip install 'rosbags==0.9.23'
-rosbags-convert "{path_to_bag}/{sequence}.bag" \
-    --dst "{path_to_output}/{sequence}_ros2"
-deactivate
-```
-
-Replace the braced paths and sequence name. The destination must not already
-exist. The result is a rosbag2 directory containing `metadata.yaml` and an SQLite
-`.db3` file; the original bag is unchanged. Bag timestamps, sensor header
-stamps, topics, point fields, and IMU values are preserved. ROS 1 Header's `seq`
-field has no ROS 2 counterpart and is omitted.
-
-In a terminal sourced for your ROS 2 workspace, inspect and play the result:
-
-```bash
-source ~/ros2_ws/install/setup.bash
-ros2 bag info "{path_to_output}/{sequence}_ros2"
-# Start GenZ-LIO in another terminal before playback.
-ros2 bag play "{path_to_output}/{sequence}_ros2"
-```
-
-- **Raw packets:** conversion changes the bag format; it does not decode
-  `/velodyne_packets`. Prepare timed PointCloud2 scans first, as described for
-  SubT-MRS in the benchmark tables above.
-- **Split recordings:** prepare one continuous bag containing every part before
-  conversion. This includes both parts of Oxford christ_church-01/02 and all
-  parts of the SubT-MRS sequences described above.
-- **Livox CustomMsg:** this command preserves the original custom type's package
-  name. A ROS 1 `livox_ros_driver/CustomMsg` becomes
-  `livox_ros_driver/msg/CustomMsg`, which the ROS 2 GenZ-LIO subscriber does not
-  accept. It requires `livox_ros_driver2/msg/CustomMsg`. Use a type-aware
-  conversion to that schema, or prepare PointCloud2 with per-point timing and
-  configure `lidar_type: livox_pcl`. Renaming the topic is insufficient.
-
----
-
 ### Save odometry
 
 The [save_odometry.py](scripts/save_odometry.py) script subscribes to
@@ -699,28 +653,49 @@ ros2 bag record -o genz_output /Odometry /tf /tf_static
 
 ---
 
-### ROS 2 transport setup
+### Convert ROS 1 bags to ROS 2
 
-DDS (Data Distribution Service) is the middleware layer used by ROS 2 to move
-messages between processes. When Fast DDS is used, sourcing this workspace
-selects the installed [fastdds_local.xml](config/dds/fastdds_local.xml) profile
-unless `FASTRTPS_DEFAULT_PROFILES_FILE` or `FASTDDS_DEFAULT_PROFILES_FILE` is
-already set. The launch file supplies the same fallback for its own processes.
-
-Source `install/setup.bash` in **every** terminal used for the node, RViz, bag
-player, or drivers. This gives separately launched processes the same default
-profile. Check its resolved installed path with:
+Use [rosbags-convert](https://ternaris.gitlab.io/rosbags/topics/convert.html)
+for recordings with standard messages such as PointCloud2 and IMU. The converter
+does not require a ROS installation. Install it in a separate environment
+(Python 3.8 or newer); these commands use the tested `rosbags` 0.9.23 CLI:
 
 ```bash
-printenv FASTRTPS_DEFAULT_PROFILES_FILE
+python3 -m venv ~/.venvs/genz-bag-convert
+source ~/.venvs/genz-bag-convert/bin/activate
+python -m pip install 'rosbags==0.9.23'
+rosbags-convert "{path_to_bag}/{sequence}.bag" \
+    --dst "{path_to_output}/{sequence}_ros2"
+deactivate
 ```
 
-The profile adjusts local Fast DDS transport buffers. It does not change
-estimator parameters, enforce a ROS middleware implementation, or apply to
-Cyclone DDS. Transport buffers are separate from `common.qos_depth`, which limits
-subscriber history. An incompatible reliability setting or sustained overload
-still needs to be fixed. A larger queue can consume more memory, particularly
-for high-resolution clouds.
+Replace the braced paths and sequence name. The destination must not already
+exist. The result is a rosbag2 directory containing `metadata.yaml` and an SQLite
+`.db3` file; the original bag is unchanged. Bag timestamps, sensor header
+stamps, topics, point fields, and IMU values are preserved. ROS 1 Header's `seq`
+field has no ROS 2 counterpart and is omitted.
+
+In a terminal sourced for your ROS 2 workspace, inspect and play the result:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 bag info "{path_to_output}/{sequence}_ros2"
+# Start GenZ-LIO in another terminal before playback.
+ros2 bag play "{path_to_output}/{sequence}_ros2"
+```
+
+- **Raw packets:** conversion changes the bag format; it does not decode
+  `/velodyne_packets`. Prepare timed PointCloud2 scans first, as described for
+  SubT-MRS in the benchmark tables above.
+- **Split recordings:** prepare one continuous bag containing every part before
+  conversion. This includes both parts of Oxford christ_church-01/02 and all
+  parts of the SubT-MRS sequences described above.
+- **Livox CustomMsg:** this command preserves the original custom type's package
+  name. A ROS 1 `livox_ros_driver/CustomMsg` becomes
+  `livox_ros_driver/msg/CustomMsg`, which the ROS 2 GenZ-LIO subscriber does not
+  accept. It requires `livox_ros_driver2/msg/CustomMsg`. Use a type-aware
+  conversion to that schema, or prepare PointCloud2 with per-point timing and
+  configure `lidar_type: livox_pcl`. Renaming the topic is insufficient.
 
 ---
 
@@ -785,6 +760,31 @@ not prove the estimator did; a publish trace alone does not prove delivery.
 Initial IMU initialization may produce no valid pose. Diagnostics are disabled
 when the environment variable is unset. Keep whole-run timing separate from
 accuracy and from per-scan estimator computation time.
+
+---
+
+### ROS 2 transport setup
+
+DDS (Data Distribution Service) is the middleware layer used by ROS 2 to move
+messages between processes. When Fast DDS is used, sourcing this workspace
+selects the installed [fastdds_local.xml](config/dds/fastdds_local.xml) profile
+unless `FASTRTPS_DEFAULT_PROFILES_FILE` or `FASTDDS_DEFAULT_PROFILES_FILE` is
+already set. The launch file supplies the same fallback for its own processes.
+
+Source `install/setup.bash` in **every** terminal used for the node, RViz, bag
+player, or drivers. This gives separately launched processes the same default
+profile. Check its resolved installed path with:
+
+```bash
+printenv FASTRTPS_DEFAULT_PROFILES_FILE
+```
+
+The profile adjusts local Fast DDS transport buffers. It does not change
+estimator parameters, enforce a ROS middleware implementation, or apply to
+Cyclone DDS. Transport buffers are separate from `common.qos_depth`, which limits
+subscriber history. An incompatible reliability setting or sustained overload
+still needs to be fixed. A larger queue can consume more memory, particularly
+for high-resolution clouds.
 
 ---
 
