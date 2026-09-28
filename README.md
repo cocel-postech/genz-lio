@@ -16,7 +16,7 @@
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 [Dataset](https://github.com/cocel-postech/NarrowWide)
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-[Install](#installation)
+[Install](#python-support)
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 [Python](python/README.md)
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
@@ -44,47 +44,201 @@ from nine public datasets and our [NarrowWide dataset](https://github.com/cocel-
 
 </details>
 
-## Installation
-```bash
-pip install genz-lio
-```
-Next, follow the instructions on how to run the system by typing:
-```bash
-genz_lio_pipeline --help
-```
+## Python support
 
-See [python/README.md](python/README.md) for input formats, visualization, and saving trajectories.
-
-## ROS support
-
-Build instructions, dependencies, and dataset playback are in
-[ros/README.md](ros/README.md#installation).
+Process recorded data with an optional visualizer; no ROS installation is needed.
 
 <details>
-<summary>ROS 1 Noetic</summary>
+<summary>Install, build, and run (Linux, Python 3.8–3.12)</summary>
 
-After building and sourcing the catkin workspace:
+**1. Install dependencies and get the source**
+
+Until the PyPI release is published, install from this repository:
 
 ```bash
+sudo apt-get update
+sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
+    python3-dev python3-venv libgl1
+git clone https://github.com/cocel-postech/genz-lio.git
+cd genz-lio
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install --upgrade pip
+```
+
+**2. Build and install**
+
+Pip builds the C++ extension and installs rosbag and visualization dependencies:
+
+```bash
+python -m pip install '.[rosbag,viz]'
+```
+
+**3. Run**
+
+Export a bundled YAML, calibrate it, then open the visualizer:
+
+```bash
+genz_lio_pipeline export-config default/velodyne.yaml my_robot.yaml
+# Edit my_robot.yaml for your sensor topics and LiDAR-to-IMU calibration.
+genz_lio_pipeline run /data/sequence.bag \
+    --config my_robot.yaml --visualize --output results/my_run
+```
+
+Press **SPACE** to start. For rosbag2, pass the recording directory instead of
+`sequence.bag`. The YAMLs are included in the installed Python package, so this
+command also works outside the source checkout.
+
+**Example: GEODE Stairs with its benchmark configuration**
+
+Use the bundled experiment YAML directly for the GEODE Stairs recording:
+
+```bash
+genz_lio_pipeline export-config experiments/geode/vlp16_stairs.yaml stairs.yaml
+genz_lio_pipeline run /data/stairs.bag \
+    --config stairs.yaml --visualize --output results/geode_stairs
+```
+
+Replace `/data/stairs.bag` with your GEODE Stairs bag path. The export copies the
+complete experiment configuration unchanged; no custom sensor YAML is needed
+for the matching benchmark input. The dataset itself is not included.
+
+**Optional camera preview:**
+
+```bash
+genz_lio_pipeline run /data/sequence.bag \
+    --config my_robot.yaml --visualize --image-topic /camera/image_raw \
+    --output results/my_run
+```
+
+This displays images recorded in the same bag; omitting `--image-topic` hides
+the camera panel. See [camera preview](python/README.md#camera-preview).
+
+After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will replace
+the source build above. A compatible wheel needs no local C++ build; plain
+`pip install genz-lio` installs only the core and CLI.
+
+</details>
+
+See [python/README.md](python/README.md) for installation options, input formats,
+configuration export, visualization controls, and saved trajectories.
+
+## ROS 1 support
+
+<details>
+<summary>Install, build, and run with RViz (Noetic)</summary>
+
+**1. Install dependencies**
+
+Start with [ROS 1 Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) installed:
+
+```bash
+source /opt/ros/noetic/setup.bash
+sudo apt-get update
+sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
+    libyaml-cpp-dev ros-noetic-roscpp ros-noetic-roslib \
+    ros-noetic-pcl-ros ros-noetic-pcl-conversions ros-noetic-tf \
+    ros-noetic-tf2-ros ros-noetic-visualization-msgs ros-noetic-rviz \
+    ros-noetic-rosbag
+```
+
+**Livox CustomMsg input:** first [build and source livox_ros_driver](ros/README.md#livox-ros-1).
+Complete that step in this shell before building GenZ-LIO below. Skip it for
+PointCloud2 input.
+
+**2. Build GenZ-LIO**
+
+```bash
+mkdir -p ~/catkin_ws/src
+cd ~/catkin_ws/src
+git clone https://github.com/cocel-postech/genz-lio.git
+cd ~/catkin_ws
+catkin_make -DCMAKE_BUILD_TYPE=Release
+source devel/setup.bash
+```
+
+**3. Run**
+
+Choose a calibrated sensor or experiment YAML. The launch file starts RViz:
+
+```bash
+source ~/catkin_ws/devel/setup.bash
 roslaunch genz_lio odometry.launch config:=default/velodyne.yaml
 ```
 
-</details>
-
-<details>
-<summary>ROS 2 Humble / Jazzy</summary>
-
-After building and sourcing the colcon workspace:
+In a second terminal:
 
 ```bash
+source ~/catkin_ws/devel/setup.bash
+rosbag play /data/sequence.bag
+```
+
+For live input, start your LiDAR/IMU drivers instead of the bag player.
+
+</details>
+
+See [ros/README.md](ros/README.md#ros-1-noetic) for Livox setup, configuration,
+recording outputs, and troubleshooting.
+
+## ROS 2 support
+
+<details>
+<summary>Install, build, and run with RViz (Humble / Jazzy)</summary>
+
+**1. Install dependencies**
+
+Start with ROS 2 [Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
+on Ubuntu 22.04 or [Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debians.html)
+on Ubuntu 24.04. Use a separate shell and workspace for each distribution.
+
+```bash
+# ROS 2: use jazzy instead of humble on Ubuntu 24.04.
+source /opt/ros/humble/setup.bash
+sudo apt-get update
+sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
+    libyaml-cpp-dev libpcl-dev python3-colcon-common-extensions \
+    ros-${ROS_DISTRO}-rclcpp ros-${ROS_DISTRO}-pcl-conversions \
+    ros-${ROS_DISTRO}-tf2-ros ros-${ROS_DISTRO}-visualization-msgs \
+    ros-${ROS_DISTRO}-launch-ros ros-${ROS_DISTRO}-rosbag2 ros-${ROS_DISTRO}-rviz2
+```
+
+**Livox CustomMsg input:** first [build and source livox_ros_driver2](ros/README.md#livox-ros-2).
+Complete that step in this shell before building GenZ-LIO below. Skip it for
+PointCloud2 input.
+
+**2. Build GenZ-LIO**
+
+```bash
+mkdir -p ~/ros2_ws/src
+cd ~/ros2_ws/src
+git clone https://github.com/cocel-postech/genz-lio.git
+cd ~/ros2_ws
+colcon build --packages-select genz_lio --cmake-args -DCMAKE_BUILD_TYPE=Release
+source install/setup.bash
+```
+
+**3. Run**
+
+Choose a calibrated sensor or experiment YAML. The launch file starts RViz:
+
+```bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch genz_lio odometry.launch.py config:=default/velodyne.yaml
 ```
 
+In a second terminal, source the same workspace before playing a rosbag2 directory:
+
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 bag play /data/sequence_ros2
+```
+
+For live input, start your LiDAR/IMU drivers instead of the bag player.
+
 </details>
 
-Both launch RViz by default. Select a calibrated sensor or experiment YAML.
-See [benchmark configurations](ros/README.md#benchmark-configurations) and the
-[parameter guide](ros/config/parameter_tuning_guide.md).
+See [ros/README.md](ros/README.md#ros-2-humble--jazzy) for Livox setup, DDS,
+[benchmark configurations](ros/README.md#benchmark-configurations), and recording outputs.
 
 ## :pencil: Citation
 

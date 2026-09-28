@@ -6,21 +6,54 @@ also a build target. Use a separate shell and workspace for each ROS version.
 
 ## Installation
 
-Install the relevant ROS distribution first. Commands below assume Ubuntu with
-ROS package repositories already configured. The core requires C++17, CMake
+Install the relevant ROS distribution first. The commands below assume Ubuntu
+with the ROS package repositories configured. The core requires C++17, CMake
 3.16+, Eigen 3.4+, OpenMP, and Boost headers; ROS also requires PCL and yaml-cpp.
-CMake fetches Eigen 3.4 if the installed version is too old, requiring network
-access during configuration.
+CMake fetches Eigen 3.4 if the installed version is too old.
+
+Follow the section for your ROS version in order: dependencies → optional Livox
+driver → GenZ-LIO build → execution. Livox `CustomMsg` support is detected at
+build time. If you add the driver later, rebuild GenZ-LIO after sourcing it.
+PointCloud2 input can skip the Livox driver build (`lidar_type: livox_pcl` for
+Livox PointCloud2). `lidar_type: livox` requires CustomMsg support.
 
 ### ROS 1 Noetic
 
+#### 1. Install dependencies
+
+Install [ROS Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) first:
+
 ```bash
+source /opt/ros/noetic/setup.bash
 sudo apt-get update
 sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
     libyaml-cpp-dev ros-noetic-roscpp ros-noetic-roslib \
     ros-noetic-pcl-ros ros-noetic-pcl-conversions ros-noetic-tf \
-    ros-noetic-tf2-ros ros-noetic-visualization-msgs ros-noetic-rviz
+    ros-noetic-tf2-ros ros-noetic-visualization-msgs ros-noetic-rviz \
+    ros-noetic-rosbag
+```
+
+#### Livox ROS 1
+
+For `livox_ros_driver/CustomMsg`, install
+[Livox-SDK](https://github.com/Livox-SDK/Livox-SDK)
+following its build instructions, then build
+[livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver) in a separate workspace:
+
+```bash
 source /opt/ros/noetic/setup.bash
+git clone https://github.com/Livox-SDK/livox_ros_driver.git ~/livox_ws/src
+cd ~/livox_ws
+catkin_make -DCMAKE_BUILD_TYPE=Release
+source devel/setup.bash
+```
+
+Keep this shell for the next step. GenZ-LIO's ROS 1 wrapper expects
+`livox_ros_driver`, not the ROS 1 variant of `livox_ros_driver2`.
+
+#### 2. Build GenZ-LIO
+
+```bash
 mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/src
 git clone https://github.com/cocel-postech/genz-lio.git
@@ -29,16 +62,71 @@ catkin_make -DCMAKE_BUILD_TYPE=Release
 source devel/setup.bash
 ```
 
-### ROS 2 Humble
+Check that CMake reports `Livox CustomMsg support enabled` if you need Livox
+CustomMsg input.
+
+#### 3. Run with RViz
+
+Select a calibrated sensor or experiment YAML:
 
 ```bash
+source ~/catkin_ws/devel/setup.bash
+roslaunch genz_lio odometry.launch config:=default/velodyne.yaml
+```
+
+In another terminal:
+
+```bash
+source ~/catkin_ws/devel/setup.bash
+rosbag play /data/sequence.bag
+```
+
+### ROS 2 Humble / Jazzy
+
+#### 1. Install dependencies
+
+Install [Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
+on Ubuntu 22.04 or [Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debians.html)
+on Ubuntu 24.04. Change `humble` to `jazzy` in the source command for Jazzy;
+the package names below use the sourced distribution's `ROS_DISTRO`.
+
+```bash
+# ROS 2: use jazzy instead of humble on Ubuntu 24.04.
+source /opt/ros/humble/setup.bash
 sudo apt-get update
 sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
     libyaml-cpp-dev libpcl-dev python3-colcon-common-extensions \
-    ros-humble-rclcpp ros-humble-pcl-conversions ros-humble-tf2-ros \
-    ros-humble-visualization-msgs ros-humble-launch-ros \
-    ros-humble-rosbag2 ros-humble-rviz2
-source /opt/ros/humble/setup.bash
+    ros-${ROS_DISTRO}-rclcpp ros-${ROS_DISTRO}-pcl-conversions \
+    ros-${ROS_DISTRO}-tf2-ros ros-${ROS_DISTRO}-visualization-msgs \
+    ros-${ROS_DISTRO}-launch-ros ros-${ROS_DISTRO}-rosbag2 ros-${ROS_DISTRO}-rviz2
+```
+
+#### Livox ROS 2
+
+For `livox_ros_driver2/msg/CustomMsg`, install
+[Livox-SDK2](https://github.com/Livox-SDK/Livox-SDK2)
+following its build instructions, then build
+[livox_ros_driver2](https://github.com/Livox-SDK/livox_ros_driver2) in a dedicated
+workspace. Its build script clears that workspace's build/install directories,
+so keep it separate from GenZ-LIO and use a different workspace per ROS distribution.
+
+In the same Humble or Jazzy shell used above:
+
+```bash
+mkdir -p ~/livox_ros2_ws/src
+git clone https://github.com/Livox-SDK/livox_ros_driver2.git ~/livox_ros2_ws/src/livox_ros_driver2
+cd ~/livox_ros2_ws/src/livox_ros_driver2
+bash build.sh "$ROS_DISTRO"
+source ~/livox_ros2_ws/install/setup.bash
+```
+
+The driver build accepts `humble` or `jazzy`. Keep this shell for the next step.
+For bag replay, the recorded CustomMsg type must match the ROS 2 driver's type;
+renaming a topic does not convert ROS 1 messages into ROS 2 messages.
+
+#### 2. Build GenZ-LIO
+
+```bash
 mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/src
 git clone https://github.com/cocel-postech/genz-lio.git
@@ -47,79 +135,28 @@ colcon build --packages-select genz_lio --cmake-args -DCMAKE_BUILD_TYPE=Release
 source install/setup.bash
 ```
 
-### ROS 2 Jazzy
+Check that CMake reports `Livox CustomMsg support enabled` if you need Livox
+CustomMsg input.
 
-In a separate workspace with ROS 2 Jazzy installed:
+#### 3. Run with RViz
 
-```bash
-sudo apt-get update
-sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
-    libyaml-cpp-dev libpcl-dev python3-colcon-common-extensions \
-    ros-jazzy-rclcpp ros-jazzy-pcl-conversions ros-jazzy-tf2-ros \
-    ros-jazzy-visualization-msgs ros-jazzy-launch-ros \
-    ros-jazzy-rosbag2 ros-jazzy-rviz2
-source /opt/ros/jazzy/setup.bash
-mkdir -p ~/ros2_jazzy_ws/src
-cd ~/ros2_jazzy_ws/src
-git clone https://github.com/cocel-postech/genz-lio.git
-cd ~/ros2_jazzy_ws
-colcon build --packages-select genz_lio --cmake-args -DCMAKE_BUILD_TYPE=Release
-source install/setup.bash
-```
-
-Humble and Jazzy use the same ROS 2 launch and playback commands below.
-
-<details>
-<summary>Optional: check a ROS 2 build with Docker</summary>
-
-Docker is not required to build or run GenZ-LIO. The
-[build script](../docker/build_ros2.sh) installs dependencies in a disposable
-container, builds the package, runs its tests, and checks that the node starts.
-Use it to check a clean build without installing ROS dependencies on the host.
-
-From the repository root, with Docker installed:
+Select a calibrated sensor or experiment YAML:
 
 ```bash
-bash docker/build_ros2.sh humble
-# Or:
-bash docker/build_ros2.sh jazzy
-```
-
-The check requires network access for the image and dependency downloads.
-It does not launch RViz, configure GPU access, or replay a dataset.
-
-</details>
-
-### Livox input
-
-For Livox `CustomMsg`, build and source `livox_ros_driver` (ROS 1) or
-`livox_ros_driver2` (ROS 2) **before building GenZ-LIO**. The build output reports
-whether that driver was found. Rebuild GenZ-LIO after adding it.
-
-Without the driver, other sensors still work, but `preprocess.lidar_type: livox`
-will refuse to start. Livox data published as `sensor_msgs/PointCloud2` uses
-`lidar_type: livox_pcl` and does not require `CustomMsg` support.
-
-## Run with RViz
-
-Source the built workspace in each terminal. The two launch files are
-`odometry.launch` and `odometry.launch.py`:
-
-```bash
-# ROS 1
-roslaunch genz_lio odometry.launch config:=default/velodyne.yaml
-# In another ROS 1 terminal:
-rosbag play /data/sequence.bag
-```
-
-```bash
-# ROS 2
+source ~/ros2_ws/install/setup.bash
 ros2 launch genz_lio odometry.launch.py config:=default/velodyne.yaml
-# In another ROS 2 terminal, source the same install/setup.bash first:
+```
+
+In another terminal, source the same workspace before playback:
+
+```bash
+source ~/ros2_ws/install/setup.bash
 ros2 bag play /data/sequence_ros2
 ```
 
-The ROS 2 example expects a rosbag2 recording directory. The Python pipeline
+## Run options
+
+The ROS 2 playback command expects a rosbag2 recording directory. The Python pipeline
 can read either rosbag1 or rosbag2 directly without a running ROS graph.
 For live input, run the LiDAR and IMU drivers instead of the bag player.
 Recordings with raw Velodyne packets, such as the SubT-MRS inputs, need a driver
@@ -172,7 +209,8 @@ for high-resolution clouds.
 ## Benchmark configurations
 
 Paths below are relative to `ros/config/`. Each file is complete and can also
-be passed to Python with its repository-relative or absolute path. A shared row
+be passed to Python with its repository-relative or absolute path. Without a
+checkout, use [configuration export](../python/README.md#configurations-without-a-source-checkout). A shared row
 means those sequences use the same YAML. Dataset information for
 [NarrowWide is maintained here](https://github.com/cocel-postech/NarrowWide).
 
@@ -265,6 +303,29 @@ To show the odometry information panel in the terminal, set
 processed scan; interactive terminals use ANSI clearing and redirected output
 uses plain text. It is disabled by default. Reported FPS measures estimator
 computation, not transport or rendering latency.
+
+## Optional Docker build check
+
+<details>
+<summary>Optional: check a ROS 2 build with Docker</summary>
+
+Docker is not required to build or run GenZ-LIO. The
+[build script](../docker/build_ros2.sh) installs dependencies in a disposable
+container, builds the package, runs its tests, and checks that the node starts.
+Use it to check a clean build without installing ROS dependencies on the host.
+
+From the repository root, with Docker installed:
+
+```bash
+bash docker/build_ros2.sh humble
+# Or:
+bash docker/build_ros2.sh jazzy
+```
+
+The check requires network access for the image and dependency downloads.
+It does not launch RViz, configure GPU access, or replay a dataset.
+
+</details>
 
 ## Troubleshooting
 

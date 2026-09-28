@@ -5,11 +5,11 @@ interactive Polyscope visualizer. ROS is not required for offline rosbag reading
 
 ## Installation
 
-The Python package targets Python 3.8–3.12 on Linux x86-64. Build dependencies
-are a C++17 compiler, CMake 3.16+, OpenMP, Eigen 3.4+, and Boost headers.
-The visualizer also needs an OpenGL-capable display.
+The Python package targets Python 3.8–3.12 on Linux x86-64. Source builds require
+a C++17 compiler, CMake 3.16+, OpenMP, Eigen 3.4+, and Boost headers.
+Visualization needs an active display with OpenGL support.
 
-Install from a complete checkout in a virtual environment:
+Install dependencies, get the complete checkout, and create a virtual environment:
 
 ```bash
 sudo apt-get update
@@ -20,58 +20,150 @@ cd genz-lio
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install '.[all]'
-genz_lio_pipeline run --help
 ```
 
-CMake downloads Eigen 3.4 if the system version is older; this needs network
-access during the build. Packaging is configured by the repository-root
-`pyproject.toml`. Run pip from that root so C++ sources, YAMLs, and licenses
-are included. Installation is currently from source; no PyPI release is required.
+## Build and install
 
-Install `.` for the core and CLI only, `.[rosbag]` to read bags,
-or `.[rosbag,viz]` for bag playback with visualization. The `all` extra includes rosbag, visualization, and Ouster SDK dependencies;
-`ouster` installs the SDK reader dependencies. The SDK is pinned to its compatible
-0.13 API; this extra requires glibc 2.28 or newer (for example, Ubuntu 20.04+). The bag reader is the path used for the
-visualized regression runs. An active display and OpenGL support are needed for
-visualization; omit `--visualize` on a headless machine.
-
-## Configurations without a source checkout
-
-The installed package includes the six sensor templates and 29 benchmark YAMLs:
+From the repository root, build the extension and install dependencies for bag
+reading and visualization:
 
 ```bash
-genz_lio_pipeline list-configs
-genz_lio_pipeline export-config default/velodyne.yaml my_robot.yaml
-genz_lio_pipeline export-config experiments/geode/vlp16_stairs.yaml stairs.yaml
+python -m pip install '.[rosbag,viz]'
 ```
 
-Edit the exported sensor file for your calibration, then pass `--config my_robot.yaml`.
-Exports preserve the complete YAML, including sensor topics and publishing settings,
-and refuse to overwrite existing files. The packaged originals stay unchanged.
+Pip invokes CMake automatically. CMake downloads Eigen 3.4 if the system version
+is older; this needs network access during the build. Packaging is configured
+by the repository-root `pyproject.toml`; do not run this source install from
+`python/`. A separate catkin/colcon build is unnecessary for Python.
 
 ## Run a sequence
+
+Export a sensor YAML included in the installed package, then edit its topics,
+noise, timing, and LiDAR-to-IMU calibration for your input:
+
+```bash
+genz_lio_pipeline export-config default/velodyne.yaml my_robot.yaml
+```
+
+Inspect the bag and run:
 
 ```bash
 genz_lio_pipeline inspect /data/sequence.bag
 genz_lio_pipeline run /data/sequence.bag \
-    --config ros/config/default/velodyne.yaml \
-    --visualize --output results/my_run
+    --config my_robot.yaml --visualize --output results/my_run
 ```
 
-For rosbag2, pass the recording directory containing `metadata.yaml` instead
-of a `.bag` file. Select a calibrated sensor YAML or a
+Press **SPACE** to start. Omit `--visualize` for headless processing.
+For rosbag2, pass the directory containing `metadata.yaml` instead of a `.bag`.
+Select a calibrated sensor YAML or export a
 [benchmark configuration](https://github.com/cocel-postech/genz-lio/blob/master/ros/README.md#benchmark-configurations).
-Python paths are relative to the working directory or absolute, rather than
-relative to the ROS package. Pass one complete YAML; `--sensor-config` is a
-legacy overlay option and is unnecessary for the shipped configurations.
+TUM odometry is saved to the selected output directory at completion or normal quit.
+
+Python resolves `--config` as a local file path, relative to the working directory
+or absolute. The exported file works with source and wheel installations alike.
 Omitting `--config` uses compiled core defaults, not a sensor YAML.
+
+### Example: GEODE Stairs
+
+For the GEODE Stairs recording, use the supplied
+[`experiments/geode/vlp16_stairs.yaml`](https://github.com/cocel-postech/genz-lio/blob/master/ros/config/experiments/geode/vlp16_stairs.yaml)
+benchmark configuration:
+
+```bash
+genz_lio_pipeline export-config experiments/geode/vlp16_stairs.yaml stairs.yaml
+genz_lio_pipeline run /data/stairs.bag \
+    --config stairs.yaml --visualize --output results/geode_stairs
+```
+
+Replace `/data/stairs.bag` with the path to your GEODE Stairs recording. The
+exported YAML is an unchanged copy of the experiment configuration, including
+its sensor topics and calibration. You do not need to create a configuration
+from a default sensor template for this benchmark. The bag must be obtained
+separately; it is not bundled with the Python package.
+
+With a source checkout, the equivalent command from the repository root is:
+
+```bash
+genz_lio_pipeline run /data/stairs.bag \
+    --config ros/config/experiments/geode/vlp16_stairs.yaml \
+    --visualize --output results/geode_stairs
+```
+
+### Camera preview
+
+Add `--image-topic` to the visualization command:
+
+```bash
+genz_lio_pipeline run /data/sequence.bag \
+    --config my_robot.yaml --visualize \
+    --image-topic /camera/image_raw --output results/my_run
+```
+
+The image topic must be inside the input bag. `sensor_msgs/Image` and
+`sensor_msgs/CompressedImage` are supported; this is not a live ROS subscription.
+Omit `--image-topic` to skip image reading and hide the camera box.
+
+Images are for display only. The preview uses the latest image at or before the
+scan end, clears after 0.5 seconds without a recent image, and keeps its aspect
+ratio within 640×360 pixels. Missing images do not block estimation. Decoding and
+rendering add some work; use whole-run timing to measure its cost on your system.
+Pillow is included in the `viz` extra. Camera preview uses Polyscope's inline
+image API, with a compatibility path for the Python 3.8 Polyscope 2.5 Linux wheel.
+
+<details>
+<summary>Installation extras and the planned PyPI release</summary>
+
+Use `python -m pip install '.[all]'` to include all optional readers and
+visualization. Other source extras are `.[rosbag]`, `.[viz]`, and `.[ouster]`;
+`python -m pip install .` installs only the core and CLI.
+
+After the package is published on PyPI, installation without a checkout will be:
+
+```bash
+python -m pip install 'genz-lio[all]'
+```
+
+Use `genz-lio[rosbag,viz]` for bag reading with visualization, or `genz-lio`
+for the core and CLI only. A compatible wheel includes the compiled C++ extension;
+a source distribution requires the build dependencies above. Until publication,
+use the source installation instructions.
+
+The Ouster SDK extra uses version 0.13.1 and requires glibc 2.28 or newer
+(for example, Ubuntu 20.04+). The bag reader does not require that SDK.
+
+</details>
+
+## Configurations without a source checkout
+
+Source YAMLs live in `ros/config/`. During packaging, the six sensor templates
+and 29 benchmark YAMLs are copied into `genz_lio/configs/` in the installed
+package. Installing a wheel does **not** create a `ros/config/` directory in your
+working directory and does not require ROS or a cloned repository.
+
+List the bundled names and export the YAML you need:
+
+```bash
+genz_lio_pipeline list-configs
+genz_lio_pipeline export-config default/velodyne.yaml another_robot.yaml
+```
+
+Edit the exported sensor file for your calibration, then pass `--config another_robot.yaml`.
+Exports preserve the complete YAML, including sensor topics and publishing settings,
+and refuse to overwrite existing files. The packaged originals stay unchanged.
+
+A name such as `default/velodyne.yaml` is an input to `export-config`, not a
+package lookup supported by `--config`. Pass the exported file to `--config`.
+With a source checkout, `--config ros/config/default/velodyne.yaml` also works
+when run from the repository root. `--sensor-config` is a legacy overlay option;
+the shipped YAMLs are complete and do not need it.
+
+## Input options
 
 Topics come from `common.lidar_topic` and `common.imu_topic`. To override them:
 
 ```bash
 genz_lio_pipeline run /data/sequence.bag \
-    --config ros/config/default/velodyne.yaml \
+    --config my_robot.yaml \
     --lidar-topic /velodyne_points --imu-topic /imu/data \
     --visualize-autoplay --output results/my_run
 ```
@@ -97,7 +189,7 @@ Trajectories are saved with or without visualization. The default is
 
 ```bash
 genz_lio_pipeline run /data/sequence.bag \
-    --config ros/config/default/velodyne.yaml --visualize \
+    --config my_robot.yaml --visualize \
     --output results/my_run --format tum --format kitti
 ```
 
@@ -146,25 +238,6 @@ display. Memory can still grow with a larger retained map. The optional CLI
 `0` keeps all retained display samples. This setting has no GUI slider and does
 not alter odometry, map retention, or the semantic scan points.
 
-### Camera preview
-
-```bash
-genz_lio_pipeline run /data/sequence.bag \
-    --config ros/config/default/velodyne.yaml --visualize \
-    --image-topic /camera/image_raw --output results/my_run
-```
-
-The image topic must be inside the input bag. `sensor_msgs/Image` and
-`sensor_msgs/CompressedImage` are supported; this is not a live ROS subscription.
-Omit `--image-topic` to skip image reading and hide the camera box.
-
-Images are for display only. The preview uses the latest image at or before the
-scan end, clears after 0.5 seconds without a recent image, and keeps its aspect
-ratio within 640×360 pixels. Missing images do not block estimation. Decoding and
-rendering add some work; use whole-run timing to measure its cost on your system.
-Pillow is included in the `viz` extra. Camera preview uses Polyscope's inline
-image API, with a compatibility path for the Python 3.8 Polyscope 2.5 Linux wheel.
-
 ## Python API
 
 For applications that supply synchronized arrays:
@@ -172,7 +245,7 @@ For applications that supply synchronized arrays:
 ```python
 from genz_lio import GenZLIO, load_config
 
-lio = GenZLIO(load_config("ros/config/default/velodyne.yaml"))
+lio = GenZLIO(load_config("my_robot.yaml"))
 # Supply points, scan_begin, scan_end, imu, and point_times from your input.
 result = lio.register_scan(
     points,                 # (N, 3), LiDAR frame, meters
