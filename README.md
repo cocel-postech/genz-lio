@@ -1280,8 +1280,7 @@ For LiDAR-only odometry, see [GenZ-ICP](https://github.com/cocel-postech/genz-ic
 
 ## :sparkles: Contributors
 
-Bug reports, documentation improvements, and pull requests are always welcome.  
-Contributions are greatly appreciated, and we would be happy to see your profile appear below!
+Bug reports, documentation improvements, and pull requests are always welcome.
 
 <a href="https://github.com/cocel-postech/genz-lio/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=cocel-postech/genz-lio" />
@@ -1289,7 +1288,7 @@ Contributions are greatly appreciated, and we would be happy to see your profile
 
 ## :pray: Acknowledgments and license
 
-Many thanks to the [HKU-MARS Lab](https://github.com/hku-mars) and the KISS-ICP team at [PRBonn](https://github.com/PRBonn) for their open-source contributions to the robotics community.
+Many thanks to the [HKU-MARS Lab](https://github.com/hku-mars) and [PRBonn](https://github.com/PRBonn) for their open-source contributions to the robotics community.
 
 GenZ-LIO builds on [PV-LIO](https://github.com/HViktorTsoi/PV-LIO),
 [VoxelMap](https://github.com/hku-mars/VoxelMap),
@@ -1301,6 +1300,6 @@ GenZ-LIO is distributed under [GPL-2.0](https://github.com/cocel-postech/genz-li
 
 ## :mailbox: Contact
 
-For questions and bug reports, open an
+For questions and bugs, open an
 [issue](https://github.com/cocel-postech/genz-lio/issues) or contact
 [Daehan Lee](https://github.com/Daehan2Lee) ( :envelope: daehanlee `at` postech `dot` ac `dot` kr)
