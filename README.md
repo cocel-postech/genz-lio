@@ -36,7 +36,11 @@ It was evaluated on 42 sequences
 from nine public datasets and our [NarrowWide dataset](https://github.com/cocel-postech/NarrowWide) and supports **Python, ROS 1, and ROS 2**.
 
 <details>
-<summary>Algorithm overview</summary>
+<summary>System overview</summary>
+
+![GenZ-LIO system overview](pictures/GenZ-LIO_system_overview.png)
+
+Three core modules:
 
 - **Scale-aware adaptive voxelization** adjusts scan downsampling to the environment.
 - **Hybrid-metric state update** combines point-to-plane and point-to-point constraints.
