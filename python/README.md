@@ -25,6 +25,10 @@ Pip builds the C++ extension and installs rosbag and visualization dependencies:
 python -m pip install '.[rosbag,viz]'
 ```
 
+After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will replace
+the source build above. A compatible wheel needs no local C++ build; plain
+`pip install genz-lio` installs only the core and CLI.
+
 ## 3. Prepare configurations
 
 The `experiments/` YAMLs provide the sequence-specific configurations for
@@ -572,6 +576,8 @@ genz_lio_pipeline run "{path_to_bag}/{OS_blenheim_palace-05}.bag" \
 
 **2) For your own sensor, copy a template, calibrate it, then open the visualizer:**
 
+If you use a Velodyne LiDAR, start with the following template:
+
 ```bash
 cp configs/default/velodyne.yaml my_robot.yaml
 # Edit my_robot.yaml for your sensor topics and LiDAR-to-IMU calibration.
@@ -582,10 +588,7 @@ genz_lio_pipeline run /data/sequence.bag \
 To show camera images from your own recording, add `--image-topic` followed by
 an Image or CompressedImage topic present in that bag.
 
-After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will replace
-the source build above. A compatible wheel needs no local C++ build; plain
-`pip install genz-lio` installs only the core and CLI.
-
+See the [parameter guide](https://github.com/cocel-postech/genz-lio/blob/master/ros/config/parameter_tuning_guide.md) for parameter tuning.
 
 ## Additional options
 
@@ -615,8 +618,6 @@ genz_lio_pipeline export-config default/velodyne.yaml another_robot.yaml
 Edit the exported file and pass its path to `--config`. With a source checkout,
 paths such as `--config ros/config/default/velodyne.yaml` work directly from the
 repository root. Omitting `--config` uses core defaults, not a sensor YAML.
-See the [parameter tuning guide](https://github.com/cocel-postech/genz-lio/blob/master/ros/config/parameter_tuning_guide.md)
-for calibration and parameter details.
 
 ### Input options
 

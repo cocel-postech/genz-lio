@@ -74,6 +74,10 @@ Pip builds the C++ extension and installs rosbag and visualization dependencies:
 python -m pip install '.[rosbag,viz]'
 ```
 
+After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will replace
+the source build above. A compatible wheel needs no local C++ build; plain
+`pip install genz-lio` installs only the core and CLI.
+
 **3. Prepare configurations**
 
 The `experiments/` YAMLs provide the sequence-specific configurations for
@@ -621,6 +625,8 @@ genz_lio_pipeline run "{path_to_bag}/{OS_blenheim_palace-05}.bag" \
 
 **2) For your own sensor, copy a template, calibrate it, then open the visualizer:**
 
+If you use a Velodyne LiDAR, start with the following template:
+
 ```bash
 cp configs/default/velodyne.yaml my_robot.yaml
 # Edit my_robot.yaml for your sensor topics and LiDAR-to-IMU calibration.
@@ -631,14 +637,12 @@ genz_lio_pipeline run /data/sequence.bag \
 To show camera images from your own recording, add `--image-topic` followed by
 an Image or CompressedImage topic present in that bag.
 
-After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will replace
-the source build above. A compatible wheel needs no local C++ build; plain
-`pip install genz-lio` installs only the core and CLI.
+See the [parameter guide](https://github.com/cocel-postech/genz-lio/blob/master/ros/config/parameter_tuning_guide.md) for parameter tuning.
 
 </details>
 
-See [python/README.md](python/README.md) for installation options, input formats,
-configuration export, and saved trajectories.
+See [python/README.md](python/README.md) for topic overrides, Ouster PCAP input,
+trajectory formats, the Python API, and rebuilding after C++ changes.
 
 ## ROS 1 support
 
