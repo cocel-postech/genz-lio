@@ -98,7 +98,7 @@ files or your changes.
 
 **4. Run**
 
-**Benchmark example: NarrowWide Handheld-A-01**
+**1) For reproducing benchmark experiments (e.g., NarrowWide Handheld-A-01)**
 
 Use the experiment YAML prepared above with the
 [NarrowWide](https://github.com/cocel-postech/NarrowWide) Handheld-A-01 recording:
@@ -110,16 +110,511 @@ genz_lio_pipeline run "{path_to_bag}/Handheld-A-01.bag" \
     --output results/narrowwide_handheld_a_01
 ```
 
-Replace `{path_to_bag}` (including the braces) with the directory containing
-`Handheld-A-01.bag`. The experiment YAML already contains the benchmark sensor
+The experiment YAML already contains the benchmark sensor
 topics and calibration. Obtain the dataset separately.
 The optional `--image-topic` displays the camera images recorded in this bag;
-omit it to run without the camera panel. See [camera preview](python/README.md#camera-preview).
+omit it to run without the camera panel.
 
 Press **SPACE** to start. For rosbag2, pass the recording directory instead of a
 `.bag` file. The exported YAMLs also work outside the source checkout.
 
-For your own sensor, copy a template, calibrate it, then open the visualizer:
+<details>
+<summary>All benchmark sequences: downloads and Python commands (42 sequences)</summary>
+
+The commands use `configs/experiments/` exported in the preparation step and
+write each sequence's trajectory to a separate output directory. All enable
+`--visualize`; `--image-topic` is included where the recording contains a camera
+stream. Omit that option to disable the preview. Camera streams are display-only.
+Download the full recordings with images when using the camera options below.
+
+<details>
+<summary>GEODE (7 sequences)</summary>
+
+[Dataset](https://thisparticle.github.io/geode/) · [Download](https://drive.google.com/drive/folders/1hEn3sBAvQhSdUFnGMZCCv-W0Ynj2rWBs).
+
+Use the Alpha (Velodyne) recordings for these YAMLs. The examples select the left camera.
+
+**Stairs**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/stairs_alpha.bag" \
+    --config configs/experiments/geode/vlp16_stairs.yaml \
+    --visualize --image-topic /left_camera/compressed \
+    --output results/gd_stairs
+```
+
+**Waterways-Short**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/waterways_short_alpha.bag" \
+    --config configs/experiments/geode/vlp16_waterways_short.yaml \
+    --visualize --image-topic /left_camera/compressed \
+    --output results/gd_waterways_short
+```
+
+**Waterways-Medium**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/waterways_medium_alpha.bag" \
+    --config configs/experiments/geode/vlp16_waterways_medium.yaml \
+    --visualize --image-topic /left_camera/compressed \
+    --output results/gd_waterways_medium
+```
+
+**Waterways-Long**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/waterways_long_alpha.bag" \
+    --config configs/experiments/geode/vlp16_waterways_long.yaml \
+    --visualize --image-topic /left_camera/compressed \
+    --output results/gd_waterways_long
+```
+
+**Offroad-02**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/offroad_2_alpha.bag" \
+    --config configs/experiments/geode/vlp16_offroad.yaml \
+    --visualize --image-topic /left_camera/compressed \
+    --output results/gd_offroad_02
+```
+
+**Offroad-04**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/offroad_4_alpha.bag" \
+    --config configs/experiments/geode/vlp16_offroad.yaml \
+    --visualize --image-topic /left_camera/compressed \
+    --output results/gd_offroad_04
+```
+
+**Offroad-07**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/offroad_7_alpha.bag" \
+    --config configs/experiments/geode/vlp16_offroad.yaml \
+    --visualize --image-topic /left_camera/compressed \
+    --output results/gd_offroad_07
+```
+
+</details>
+
+<details>
+<summary>ENWIDE (4 sequences)</summary>
+
+[Dataset](https://projects.asl.ethz.ch/datasets/) · [Download](https://doi.org/10.3929/ethz-b-000702477).
+
+These four recordings contain no Image/CompressedImage topic, so the commands omit `--image-topic`.
+
+**Katzensee-S**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/2023-08-21-10-20-22-katzensee_s.bag" \
+    --config configs/experiments/enwide/os128_enwide.yaml \
+    --visualize \
+    --output results/ew_katzensee_s
+```
+
+**Katzensee-D**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/2023-08-21-10-29-20-katzensee_d.bag" \
+    --config configs/experiments/enwide/os128_enwide.yaml \
+    --visualize \
+    --output results/ew_katzensee_d
+```
+
+**Intersection-S**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/2023-08-09-16-19-09-intersection_s.bag" \
+    --config configs/experiments/enwide/os128_enwide.yaml \
+    --visualize \
+    --output results/ew_intersection_s
+```
+
+**Intersection-D**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/2023-08-09-17-58-11-intersection_d.bag" \
+    --config configs/experiments/enwide/os128_enwide.yaml \
+    --visualize \
+    --output results/ew_intersection_d
+```
+
+</details>
+
+<details>
+<summary>NTU VIRAL (3 sequences)</summary>
+
+[Dataset and downloads](https://ntu-aris.github.io/ntu_viral_dataset/).
+
+**SPMS-01**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/spms_01.bag" \
+    --config configs/experiments/ntu_viral/os16_spms_01.yaml \
+    --visualize --image-topic /left/image_raw \
+    --output results/nv_spms_01
+```
+
+**SPMS-02**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/spms_02.bag" \
+    --config configs/experiments/ntu_viral/os16_spms_02.yaml \
+    --visualize --image-topic /left/image_raw \
+    --output results/nv_spms_02
+```
+
+**SPMS-03**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/spms_03.bag" \
+    --config configs/experiments/ntu_viral/os16_spms_03.yaml \
+    --visualize --image-topic /left/image_raw \
+    --output results/nv_spms_03
+```
+
+</details>
+
+<details>
+<summary>SuperLoc (4 sequences)</summary>
+
+[Dataset and downloads](https://superodometry.com/superloc).
+
+Download Cave01, Cave02, Cave04, and Corridor02 from the SuperLoc dataset table.
+
+**Cave-01**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/cave01.bag" \
+    --config configs/experiments/superloc/vlp16_cave.yaml \
+    --visualize --image-topic /camera_1/image_raw \
+    --output results/sl_cave_01
+```
+
+**Cave-02**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/cave02.bag" \
+    --config configs/experiments/superloc/vlp16_cave.yaml \
+    --visualize --image-topic /camera_1/image_raw \
+    --output results/sl_cave_02
+```
+
+**Cave-04**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/cave04.bag" \
+    --config configs/experiments/superloc/vlp16_cave.yaml \
+    --visualize --image-topic /camera_1/image_raw \
+    --output results/sl_cave_04
+```
+
+**Corridor-02**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/corridor02.bag" \
+    --config configs/experiments/superloc/vlp16_corridor_02.yaml \
+    --visualize --image-topic /camera_1/image_raw \
+    --output results/sl_corridor_02
+```
+
+</details>
+
+<details>
+<summary>NarrowWide (6 sequences)</summary>
+
+[Dataset and downloads](https://github.com/cocel-postech/NarrowWide).
+
+Dataset information and download instructions are maintained in the NarrowWide repository.
+
+**Tracked-01**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/Tracked-01.bag" \
+    --config configs/experiments/narrowwide/mid70_tracked_01.yaml \
+    --visualize --image-topic /camera/image_color/compressed \
+    --output results/nw_tracked_01
+```
+
+**Tracked-02**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/Tracked-02.bag" \
+    --config configs/experiments/narrowwide/mid70_tracked_02.yaml \
+    --visualize --image-topic /camera/image_color/compressed \
+    --output results/nw_tracked_02
+```
+
+**Handheld-A-01**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/Handheld-A-01.bag" \
+    --config configs/experiments/narrowwide/vlp16_handheld_a_01.yaml \
+    --visualize --image-topic /camera/color/image_raw/compressed \
+    --output results/nw_handheld_a_01
+```
+
+**Handheld-A-02**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/Handheld-A-02.bag" \
+    --config configs/experiments/narrowwide/vlp16_handheld_a_02.yaml \
+    --visualize --image-topic /camera/color/image_raw/compressed \
+    --output results/nw_handheld_a_02
+```
+
+**Handheld-B-01**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/Handheld-B-01.bag" \
+    --config configs/experiments/narrowwide/avia_handheld_b.yaml \
+    --visualize --image-topic /camera/image_color/compressed \
+    --output results/nw_handheld_b_01
+```
+
+**Handheld-B-02**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/Handheld-B-02.bag" \
+    --config configs/experiments/narrowwide/avia_handheld_b.yaml \
+    --visualize --image-topic /camera/image_color/compressed \
+    --output results/nw_handheld_b_02
+```
+
+</details>
+
+<details>
+<summary>SubT-MRS (3 sequences)</summary>
+
+[Dataset and downloads](https://superodometry.com/datasets).
+
+**Prepare PointCloud2 input first.** The downloaded bags contain
+`/velodyne_packets`, which the Python pipeline cannot decode directly. Convert
+those packets with a Velodyne VLP-16 driver to `/velodyne_points`
+(`sensor_msgs/PointCloud2`) with per-point timing, while preserving `/imu/data`,
+original timestamps, and the image topics shown below. Record the prepared
+sequence as one `.bag`, using the example filenames below.
+
+Multi-Floor spans `0.bag`–`2.bag`; Laurel-Cavern spans `0.bag`–`10.bag`.
+Process all parts in timestamp order into one continuous prepared recording.
+The CLI accepts one `.bag` or one rosbag2 recording, not a directory of ROS 1
+bag parts. Laurel-Cavern has no image topic; the other two commands require
+retaining their camera streams during preparation.
+
+**Long-Corridor**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/long_corridor_pointcloud.bag" \
+    --config configs/experiments/subt_mrs/vlp16_long_corridor.yaml \
+    --visualize --image-topic /camera_1/image_raw \
+    --output results/sm_long_corridor
+```
+
+**Multi-Floor**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/multi_floor_pointcloud.bag" \
+    --config configs/experiments/subt_mrs/vlp16_multi_floor.yaml \
+    --visualize --image-topic /cmu_sp1/camera_1/image_raw \
+    --output results/sm_multi_floor
+```
+
+**Laurel-Cavern**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/laurel_cavern_pointcloud.bag" \
+    --config configs/experiments/subt_mrs/vlp16_laurel_cavern.yaml \
+    --visualize \
+    --output results/sm_laurel_cavern
+```
+
+</details>
+
+<details>
+<summary>HILTI 2021 (2 sequences)</summary>
+
+[Dataset and downloads](https://hilti-challenge.com/dataset-2021).
+
+The examples use camera 0 and the MID-70 experiment configurations.
+
+**Basement-04**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/Basement_4.bag" \
+    --config configs/experiments/hilti21/mid70_hilti21_basement04.yaml \
+    --visualize --image-topic /alphasense/cam0/image_raw \
+    --output results/h21_basement_04
+```
+
+**Drone-Arena**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/uzh_tracking_area_run2.bag" \
+    --config configs/experiments/hilti21/mid70_hilti21_drone_arena.yaml \
+    --visualize --image-topic /alphasense/cam0/image_raw \
+    --output results/h21_drone_arena
+```
+
+</details>
+
+<details>
+<summary>HILTI 2022 (3 sequences)</summary>
+
+[Dataset and downloads](https://hilti-challenge.com/dataset-2022).
+
+The examples use camera 0 and the Pandar32 experiment configurations.
+
+**Exp-10**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/exp10_cupola_2.bag" \
+    --config configs/experiments/hilti22/pandar32_hilti22_exp10.yaml \
+    --visualize --image-topic /alphasense/cam0/image_raw \
+    --output results/h22_exp_10
+```
+
+**Exp-16**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/exp16_attic_to_upper_gallery_2.bag" \
+    --config configs/experiments/hilti22/pandar32_hilti22_exp16.yaml \
+    --visualize --image-topic /alphasense/cam0/image_raw \
+    --output results/h22_exp_16
+```
+
+**Exp-18**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/exp18_corridor_lower_gallery_2.bag" \
+    --config configs/experiments/hilti22/pandar32_hilti22_exp18.yaml \
+    --visualize --image-topic /alphasense/cam0/image_raw \
+    --output results/h22_exp_18
+```
+
+</details>
+
+<details>
+<summary>M3DGR (4 sequences)</summary>
+
+[Dataset and downloads](https://github.com/sjtuyinjie/M3DGR).
+
+The examples select the RGB color camera rather than the compressed depth stream.
+
+**Corridor-01**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/Corridor01.bag" \
+    --config configs/experiments/m3dgr/avia_corridor_01.yaml \
+    --visualize --image-topic /camera/color/image_raw/compressed \
+    --output results/m3d_corridor_01
+```
+
+**Corridor-02**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/Corridor02.bag" \
+    --config configs/experiments/m3dgr/avia_corridor_02.yaml \
+    --visualize --image-topic /camera/color/image_raw/compressed \
+    --output results/m3d_corridor_02
+```
+
+**GNSS-denial-01**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/GNSS-denial01.bag" \
+    --config configs/experiments/m3dgr/avia_gnss_denial.yaml \
+    --visualize --image-topic /camera/color/image_raw/compressed \
+    --output results/m3d_gnss_denial_01
+```
+
+**GNSS-denial-02**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/GNSS-denial02.bag" \
+    --config configs/experiments/m3dgr/avia_gnss_denial.yaml \
+    --visualize --image-topic /camera/color/image_raw/compressed \
+    --output results/m3d_gnss_denial_02
+```
+
+</details>
+
+<details>
+<summary>Oxford Spires (6 sequences)</summary>
+
+[Dataset](https://ori-drs.github.io/datasets/oxford-spires/) · [Download](https://huggingface.co/datasets/ori-drs/oxford_spires_dataset).
+
+Download the ROS bags including the camera streams. The examples select
+`cam0/debayered/image/compressed`.
+
+**Split recordings:** christ_church-01 and christ_church-02 each contain two
+bag parts (`..._0.bag` and `..._1.bag`). Merge both parts in timestamp order,
+without changing topics, message contents, or timestamps, into
+`christ_church_01_merged.bag` and `christ_church_02_merged.bag`, respectively.
+The commands below use those prepared files; passing only the first part would
+run an incomplete sequence. The other four commands use the original single bags.
+
+**christ_church-01**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/christ_church_01_merged.bag" \
+    --config configs/experiments/oxford_spires/hesai64_christ_church.yaml \
+    --visualize --image-topic /alphasense_driver_ros/cam0/debayered/image/compressed \
+    --output results/os_christ_church_01
+```
+
+**christ_church-02**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/christ_church_02_merged.bag" \
+    --config configs/experiments/oxford_spires/hesai64_christ_church.yaml \
+    --visualize --image-topic /alphasense_driver_ros/cam0/debayered/image/compressed \
+    --output results/os_christ_church_02
+```
+
+**christ_church-05**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/1710926317_2024-03-20-09-18-38_0.bag" \
+    --config configs/experiments/oxford_spires/hesai64_christ_church.yaml \
+    --visualize --image-topic /alphasense_driver_ros/cam0/debayered/image/compressed \
+    --output results/os_christ_church_05
+```
+
+**blenheim_palace-01**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/1710406700_2024-03-14-08-58-21_0.bag" \
+    --config configs/experiments/oxford_spires/hesai64_blenheim_palace.yaml \
+    --visualize --image-topic /alphasense_driver_ros/cam0/debayered/image/compressed \
+    --output results/os_blenheim_palace_01
+```
+
+**blenheim_palace-02**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/1710407340_2024-03-14-09-09-01_0.bag" \
+    --config configs/experiments/oxford_spires/hesai64_blenheim_palace.yaml \
+    --visualize --image-topic /alphasense_driver_ros/cam0/debayered/image/compressed \
+    --output results/os_blenheim_palace_02
+```
+
+**blenheim_palace-05**
+
+```bash
+genz_lio_pipeline run "{path_to_bag}/1710410169_2024-03-14-09-56-09_0.bag" \
+    --config configs/experiments/oxford_spires/hesai64_blenheim_palace.yaml \
+    --visualize --image-topic /alphasense_driver_ros/cam0/debayered/image/compressed \
+    --output results/os_blenheim_palace_05
+```
+
+</details>
+
+</details>
+
+**2) For your own sensor, copy a template, calibrate it, then open the visualizer:**
 
 ```bash
 cp configs/default/velodyne.yaml my_robot.yaml
