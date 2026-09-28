@@ -189,9 +189,6 @@ Multi-Floor spans `0.bag`–`2.bag`; Laurel-Cavern spans `0.bag`–`10.bag`.
 Process all parts in timestamp order into one continuous prepared recording.
 Use one prepared `.bag` per sequence for the playback example above.
 
-The `_pointcloud` label used in the Python examples identifies this decoded
-input; it is not an official download filename or a required rename.
-
 | Sequence | YAML (`config:=`) |
 |---|---|
 | Long-Corridor | [experiments/subt_mrs/vlp16_long_corridor.yaml](config/experiments/subt_mrs/vlp16_long_corridor.yaml) |
@@ -253,9 +250,6 @@ bag parts (`..._0.bag` and `..._1.bag`). Include both in timestamp order,
 preserving topics, message contents, and timestamps. Using only the first part
 runs an incomplete sequence. The other four sequences have one source bag each.
 For the playback example above, merge both parts into one `.bag` per sequence.
-
-The `_merged` label used in the Python examples identifies the complete
-recording; it is not an official download filename or a required rename.
 
 | Sequence | YAML (`config:=`) |
 |---|---|
@@ -494,9 +488,6 @@ Multi-Floor spans `0.bag`–`2.bag`; Laurel-Cavern spans `0.bag`–`10.bag`.
 Process all parts in timestamp order into one continuous prepared recording.
 Record or convert the prepared data to one rosbag2 recording per sequence.
 
-The `_pointcloud` label used in the Python examples identifies this decoded
-input; it is not an official download filename or a required rename.
-
 | Sequence | YAML (`config:=`) |
 |---|---|
 | Long-Corridor | [experiments/subt_mrs/vlp16_long_corridor.yaml](config/experiments/subt_mrs/vlp16_long_corridor.yaml) |
@@ -558,9 +549,6 @@ bag parts (`..._0.bag` and `..._1.bag`). Include both in timestamp order,
 preserving topics, message contents, and timestamps. Using only the first part
 runs an incomplete sequence. The other four sequences have one source bag each.
 Prepare one continuous rosbag2 recording containing both parts per sequence.
-
-The `_merged` label used in the Python examples identifies the complete
-recording; it is not an official download filename or a required rename.
 
 | Sequence | YAML (`config:=`) |
 |---|---|
