@@ -210,7 +210,7 @@ for high-resolution clouds.
 
 Paths below are relative to `ros/config/`. Each file is complete and can also
 be passed to Python with its repository-relative or absolute path. Without a
-checkout, use [configuration export](../python/README.md#configurations-without-a-source-checkout). A shared row
+checkout, use [configuration export](../python/README.md#3-prepare-configurations). A shared row
 means those sequences use the same YAML. Dataset information for
 [NarrowWide is maintained here](https://github.com/cocel-postech/NarrowWide).
 

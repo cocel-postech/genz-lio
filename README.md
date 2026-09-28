@@ -640,7 +640,8 @@ an Image or CompressedImage topic present in that bag.
 Parameter tuning guidance is available in the [parameter guide](https://github.com/cocel-postech/genz-lio/blob/master/ros/config/parameter_tuning_guide.md).
 
 See [python/README.md](python/README.md) for rebuilding after C++ changes,
-topic overrides, Ouster PCAP input, trajectory formats, and the Python API.
+saving odometry, input options, camera input requirements, the Python API,
+and Ouster PCAP input.
 
 </details>
 

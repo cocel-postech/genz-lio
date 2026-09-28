@@ -29,6 +29,9 @@ After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will repl
 the source build above. A compatible wheel needs no local C++ build; plain
 `pip install genz-lio` installs only the core and CLI.
 
+For all optional readers and visualization, use `python -m pip install '.[all]'`
+(or `python -m pip install 'genz-lio[all]'` after the PyPI release).
+
 ## 3. Prepare configurations
 
 The `experiments/` YAMLs provide the sequence-specific configurations for
@@ -590,10 +593,9 @@ an Image or CompressedImage topic present in that bag.
 
 Parameter tuning guidance is available in the [parameter guide](https://github.com/cocel-postech/genz-lio/blob/master/ros/config/parameter_tuning_guide.md).
 
-## Additional options
+## + Additional options
 
-<details>
-<summary>Development: rebuild after C++ changes</summary>
+### Development: rebuild after C++ changes
 
 An editable install tracks Python source changes, but C++ changes require
 rebuilding the extension. A catkin/colcon build does not update it.
@@ -605,63 +607,7 @@ python -m pip install pytest
 python -m pytest python/tests -q
 ```
 
-</details>
-
-### Installation options
-
-Source builds target Linux x86-64 and Python 3.8–3.12, and require a C++17
-compiler, CMake 3.16+, OpenMP, Eigen 3.4+, and Boost headers. CMake downloads
-Eigen 3.4 if the system version is older. Visualization needs an active display
-with OpenGL support. Run source installation commands from the repository root;
-a catkin/colcon build is unnecessary for Python.
-
-Use `python -m pip install '.[all]'` for all readers and visualization.
-Individual extras are `.[rosbag]`, `.[viz]`, and `.[ouster]`; `python -m pip install .`
-installs only the core and CLI. After the PyPI release, the equivalent full
-installation will be `python -m pip install 'genz-lio[all]'`.
-
-### Configurations without a source checkout
-
-The package includes the YAMLs from `ros/config/`. Export them as shown in
-step 3, or export one file:
-
-```bash
-genz_lio_pipeline list-configs
-genz_lio_pipeline export-config default/velodyne.yaml another_robot.yaml
-```
-
-Edit the exported file and pass its path to `--config`. With a source checkout,
-paths such as `--config ros/config/default/velodyne.yaml` work directly from the
-repository root. Omitting `--config` uses core defaults, not a sensor YAML.
-
-### Input options
-
-Inspect the recording to find its topics:
-
-```bash
-genz_lio_pipeline inspect /data/sequence.bag
-```
-
-Topics default to `common.lidar_topic` and `common.imu_topic` in the YAML.
-Override them when needed:
-
-```bash
-genz_lio_pipeline run /data/sequence.bag \
-    --config my_robot.yaml \
-    --lidar-topic /velodyne_points --imu-topic /imu/data \
-    --output results/my_run
-```
-
-Omit `--visualize` for headless processing. Use `--visualize-autoplay` to start
-visualization immediately and close it at completion. Processing runs without
-a real-time pacing limit; sensor timestamps determine estimation timing.
-
-### Camera input
-
-`--image-topic` requires visualization and an image topic inside the input bag:
-`sensor_msgs/Image` or `sensor_msgs/CompressedImage`. It does not subscribe to a
-live ROS topic. Images are display-only; omitting the option skips image reading
-and hides the camera panel.
+---
 
 ### Save odometry
 
@@ -685,22 +631,42 @@ normal quit (**Q** or closing the window), including the processed portion of
 an interrupted run. Forcibly killing the process can prevent saving. Reusing
 the same output directory and sequence name overwrites those trajectory files.
 
-<details>
-<summary>Ouster PCAP input</summary>
+---
 
-Install the `ouster` or `all` extra. For a single-sensor PCAP, place the matching
-metadata JSON beside the capture with the same filename stem, then pass the
-`.pcap` path to `genz_lio_pipeline run`. Native IMU packets must be present.
+### Input options
 
-The reader converts acceleration from g to m/s² and angular velocity from
-degrees/s to rad/s using sensor timestamps. Configure LiDAR/IMU extrinsics for
-the SDK's sensor coordinates, and split timestamp resets into separate recordings.
-The Ouster SDK extra requires glibc 2.28 or newer; the bag reader does not need it.
+Inspect the recording to find its topics:
 
-</details>
+```bash
+genz_lio_pipeline inspect /data/sequence.bag
+```
 
-<details>
-<summary>Python API</summary>
+Topics default to `common.lidar_topic` and `common.imu_topic` in the YAML.
+Override them when needed:
+
+```bash
+genz_lio_pipeline run /data/sequence.bag \
+    --config my_robot.yaml \
+    --lidar-topic /velodyne_points --imu-topic /imu/data \
+    --output results/my_run
+```
+
+Omit `--visualize` for headless processing. Use `--visualize-autoplay` to start
+visualization immediately and close it at completion. Processing runs without
+a real-time pacing limit; sensor timestamps determine estimation timing.
+
+---
+
+### Camera input
+
+`--image-topic` requires visualization and an image topic inside the input bag:
+`sensor_msgs/Image` or `sensor_msgs/CompressedImage`. It does not subscribe to a
+live ROS topic. Images are display-only; omitting the option skips image reading
+and hides the camera panel.
+
+---
+
+### Python API
 
 For applications that supply synchronized arrays:
 
@@ -727,4 +693,21 @@ buffer. Leave the internal `timing_prepared` flag false in direct API calls.
 An incomplete final scan may be skipped when no following IMU coverage exists.
 Split recordings containing sensor-time rewinds into monotonic runs.
 
-</details>
+---
+
+### Ouster PCAP input
+
+From the repository root, install the Ouster reader:
+
+```bash
+python -m pip install '.[ouster]'
+```
+
+For a single-sensor PCAP, place the matching metadata JSON beside the capture
+with the same filename stem, then pass the `.pcap` path to
+`genz_lio_pipeline run`. Native IMU packets must be present.
+
+The reader converts acceleration from g to m/s² and angular velocity from
+degrees/s to rad/s using sensor timestamps. Configure LiDAR/IMU extrinsics for
+the SDK's sensor coordinates, and split timestamp resets into separate recordings.
+The Ouster SDK extra requires glibc 2.28 or newer; the bag reader does not need it.
