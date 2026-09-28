@@ -121,16 +121,16 @@ Press **SPACE** to start. For rosbag2, pass the recording directory instead of a
 <details>
 <summary>▶️ All benchmark sequences: downloads and Python commands (42 sequences)</summary>
 
-Bag filename labels in braces identify the sequence, not the official download
-filename. Substitute the actual downloaded or prepared filename; no file renaming
-is required. Labels ending in `_pointcloud` or `_merged` refer to the prepared
-inputs described below.
-
 The commands use `configs/experiments/` exported in the preparation step and
 write each sequence's trajectory to a separate output directory. All enable
 `--visualize`; `--image-topic` is included where the recording contains a camera
 stream. Omit that option to disable the preview. Camera streams are display-only.
 Download the full recordings with images when using the camera options below.
+
+Bag filename labels in braces identify the sequence, not the official download
+filename. Substitute the actual downloaded or prepared filename; no file renaming
+is required. Labels ending in `_pointcloud` or `_merged` refer to the prepared
+inputs described below.
 
 <details>
 <summary>GEODE (7 sequences)</summary>
