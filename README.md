@@ -51,7 +51,7 @@ Process recorded data with an optional visualizer; no ROS installation is needed
 <details>
 <summary>Install, build, and run (Linux, Python 3.8–3.12)</summary>
 
-#### 1. Install dependencies and get the source
+### 1. Install dependencies and get the source
 
 Until the PyPI release is published, install from this repository:
 
@@ -66,7 +66,7 @@ source .venv/bin/activate
 python -m pip install --upgrade pip
 ```
 
-#### 2. Build and install
+### 2. Build and install
 
 Pip builds the C++ extension and installs rosbag and visualization dependencies:
 
@@ -78,7 +78,7 @@ After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will repl
 the source build above. A compatible wheel needs no local C++ build; plain
 `pip install genz-lio` installs only the core and CLI.
 
-#### 3. Prepare configurations
+### 3. Prepare configurations
 
 The `experiments/` YAMLs provide the sequence-specific configurations for
 reproducing the benchmark experiments in the paper. The `default/` YAMLs are
@@ -100,7 +100,7 @@ folder for subsequent runs; there is no need to export again per sequence.
 Exported YAMLs are editable. Re-running the export will not overwrite existing
 files or your changes.
 
-#### 4. Run
+### 4. Run
 
 **1) For reproducing benchmark experiments (e.g., NarrowWide Handheld-A-01)**
 
@@ -649,7 +649,7 @@ topic overrides, Ouster PCAP input, trajectory formats, and the Python API.
 <details>
 <summary>Install, build, and run with RViz (Noetic)</summary>
 
-#### 1. Install dependencies
+### 1. Install dependencies
 
 Start with [ROS 1 Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) installed:
 
@@ -667,7 +667,7 @@ sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
 Complete that step in this shell before building GenZ-LIO below. Skip it for
 PointCloud2 input.
 
-#### 2. Build GenZ-LIO
+### 2. Build GenZ-LIO
 
 ```bash
 mkdir -p ~/catkin_ws/src
@@ -678,7 +678,7 @@ catkin_make -DCMAKE_BUILD_TYPE=Release
 source devel/setup.bash
 ```
 
-#### 3. Run
+### 3. Run
 
 Choose a calibrated sensor or experiment YAML. The launch file starts RViz:
 
@@ -706,7 +706,7 @@ recording outputs, and troubleshooting.
 <details>
 <summary>Install, build, and run with RViz (Humble / Jazzy)</summary>
 
-#### 1. Install dependencies
+### 1. Install dependencies
 
 Start with ROS 2 [Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
 on Ubuntu 22.04 or [Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debians.html)
@@ -727,7 +727,7 @@ sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
 Complete that step in this shell before building GenZ-LIO below. Skip it for
 PointCloud2 input.
 
-#### 2. Build GenZ-LIO
+### 2. Build GenZ-LIO
 
 ```bash
 mkdir -p ~/ros2_ws/src
@@ -738,7 +738,7 @@ colcon build --packages-select genz_lio --cmake-args -DCMAKE_BUILD_TYPE=Release
 source install/setup.bash
 ```
 
-#### 3. Run
+### 3. Run
 
 Choose a calibrated sensor or experiment YAML. The launch file starts RViz:
 
