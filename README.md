@@ -74,12 +74,29 @@ Pip builds the C++ extension and installs rosbag and visualization dependencies:
 python -m pip install '.[rosbag,viz]'
 ```
 
-**3. Run**
+**Prepare configurations (once)**
 
-Export a bundled YAML, calibrate it, then open the visualizer:
+Export all bundled YAMLs once, preserving their `default/` and `experiments/`
+subdirectories under `configs/`:
 
 ```bash
-genz_lio_pipeline export-config default/velodyne.yaml my_robot.yaml
+genz_lio_pipeline list-configs | while IFS= read -r config; do
+    mkdir -p "configs/$(dirname "$config")"
+    genz_lio_pipeline export-config "$config" "configs/$config"
+done
+```
+
+Run this in the directory where you will run the examples below. This copies all
+35 YAMLs unchanged and works with both source and wheel installations. Keep this
+folder for subsequent runs; there is no need to export again per sequence.
+Existing files are never overwritten.
+
+**3. Run**
+
+For your own sensor, copy a template, calibrate it, then open the visualizer:
+
+```bash
+cp configs/default/velodyne.yaml my_robot.yaml
 # Edit my_robot.yaml for your sensor topics and LiDAR-to-IMU calibration.
 genz_lio_pipeline run /data/sequence.bag \
     --config my_robot.yaml --visualize --output results/my_run
@@ -91,12 +108,12 @@ command also works outside the source checkout.
 
 **Example: GEODE Stairs with its benchmark configuration**
 
-Use the bundled experiment YAML directly for the GEODE Stairs recording:
+Use the experiment YAML prepared above for the GEODE Stairs recording:
 
 ```bash
-genz_lio_pipeline export-config experiments/geode/vlp16_stairs.yaml stairs.yaml
 genz_lio_pipeline run /data/stairs.bag \
-    --config stairs.yaml --visualize --output results/geode_stairs
+    --config configs/experiments/geode/vlp16_stairs.yaml \
+    --visualize --output results/geode_stairs
 ```
 
 Replace `/data/stairs.bag` with your GEODE Stairs bag path. The export copies the

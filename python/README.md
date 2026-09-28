@@ -36,13 +36,30 @@ is older; this needs network access during the build. Packaging is configured
 by the repository-root `pyproject.toml`; do not run this source install from
 `python/`. A separate catkin/colcon build is unnecessary for Python.
 
-## Run a sequence
+## Prepare configurations
 
-Export a sensor YAML included in the installed package, then edit its topics,
-noise, timing, and LiDAR-to-IMU calibration for your input:
+Export all bundled YAMLs once, preserving their `default/` and `experiments/`
+subdirectories under `configs/`:
 
 ```bash
-genz_lio_pipeline export-config default/velodyne.yaml my_robot.yaml
+genz_lio_pipeline list-configs | while IFS= read -r config; do
+    mkdir -p "configs/$(dirname "$config")"
+    genz_lio_pipeline export-config "$config" "configs/$config"
+done
+```
+
+Run this in the directory where you will run the examples below. This copies all
+35 YAMLs unchanged and works with both source and wheel installations. Keep this
+folder for subsequent runs; there is no need to export again per sequence.
+Existing files are never overwritten.
+
+## Run a sequence
+
+For your own sensor, copy a prepared template, then edit its topics, noise,
+timing, and LiDAR-to-IMU calibration for your input:
+
+```bash
+cp configs/default/velodyne.yaml my_robot.yaml
 ```
 
 Inspect the bag and run:
@@ -55,7 +72,7 @@ genz_lio_pipeline run /data/sequence.bag \
 
 Press **SPACE** to start. Omit `--visualize` for headless processing.
 For rosbag2, pass the directory containing `metadata.yaml` instead of a `.bag`.
-Select a calibrated sensor YAML or export a
+Select a calibrated sensor YAML or a prepared
 [benchmark configuration](https://github.com/cocel-postech/genz-lio/blob/master/ros/README.md#benchmark-configurations).
 TUM odometry is saved to the selected output directory at completion or normal quit.
 
@@ -67,12 +84,12 @@ Omitting `--config` uses compiled core defaults, not a sensor YAML.
 
 For the GEODE Stairs recording, use the supplied
 [`experiments/geode/vlp16_stairs.yaml`](https://github.com/cocel-postech/genz-lio/blob/master/ros/config/experiments/geode/vlp16_stairs.yaml)
-benchmark configuration:
+benchmark configuration from the `configs/` folder prepared above:
 
 ```bash
-genz_lio_pipeline export-config experiments/geode/vlp16_stairs.yaml stairs.yaml
 genz_lio_pipeline run /data/stairs.bag \
-    --config stairs.yaml --visualize --output results/geode_stairs
+    --config configs/experiments/geode/vlp16_stairs.yaml \
+    --visualize --output results/geode_stairs
 ```
 
 Replace `/data/stairs.bag` with the path to your GEODE Stairs recording. The
@@ -140,7 +157,8 @@ and 29 benchmark YAMLs are copied into `genz_lio/configs/` in the installed
 package. Installing a wheel does **not** create a `ros/config/` directory in your
 working directory and does not require ROS or a cloned repository.
 
-List the bundled names and export the YAML you need:
+The [preparation step](#prepare-configurations) exports all YAMLs at once. To
+list the names or export just one additional copy instead:
 
 ```bash
 genz_lio_pipeline list-configs
