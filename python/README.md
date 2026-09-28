@@ -588,7 +588,7 @@ genz_lio_pipeline run /data/sequence.bag \
 To show camera images from your own recording, add `--image-topic` followed by
 an Image or CompressedImage topic present in that bag.
 
-See the [parameter guide](https://github.com/cocel-postech/genz-lio/blob/master/ros/config/parameter_tuning_guide.md) for parameter tuning.
+Parameter tuning guidance is available in the [parameter guide](https://github.com/cocel-postech/genz-lio/blob/master/ros/config/parameter_tuning_guide.md).
 
 ## Additional options
 
