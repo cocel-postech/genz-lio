@@ -1,27 +1,16 @@
 # GenZ-LIO for ROS 1 and ROS 2
 
-Both wrappers use the same C++ estimator and configuration format. ROS 1 Noetic
-and ROS 2 Humble have been exercised with visualized sequence replay; Jazzy is
-also a build target. Use a separate shell and workspace for each ROS version.
+Both interfaces use the same C++ estimator and YAML configuration format.
+Follow the four steps for your ROS version below. Use a separate shell and
+workspace for ROS 1 Noetic, ROS 2 Humble, and ROS 2 Jazzy.
 
-## Installation
+<a id="ros-1-noetic"></a>
 
-Install the relevant ROS distribution first. The commands below assume Ubuntu
-with the ROS package repositories configured. The core requires C++17, CMake
-3.16+, Eigen 3.4+, OpenMP, and Boost headers; ROS also requires PCL and yaml-cpp.
-CMake fetches Eigen 3.4 if the installed version is too old.
+## ROS 1 support
 
-Follow the section for your ROS version in order: dependencies → optional Livox
-driver → GenZ-LIO build → execution. Livox `CustomMsg` support is detected at
-build time. If you add the driver later, rebuild GenZ-LIO after sourcing it.
-PointCloud2 input can skip the Livox driver build (`lidar_type: livox_pcl` for
-Livox PointCloud2). `lidar_type: livox` requires CustomMsg support.
+### 1. Install dependencies
 
-### ROS 1 Noetic
-
-#### 1. Install dependencies
-
-Install [ROS Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) first:
+Start with [ROS 1 Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) installed:
 
 ```bash
 source /opt/ros/noetic/setup.bash
@@ -33,7 +22,12 @@ sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
     ros-noetic-rosbag
 ```
 
-#### Livox ROS 1
+For Livox `CustomMsg` input, complete the optional driver build below before
+building GenZ-LIO. PointCloud2 input does not require this step.
+
+<a id="livox-ros-1"></a>
+<details>
+<summary>Livox ROS 1: build CustomMsg support (optional)</summary>
 
 For `livox_ros_driver/CustomMsg`, install
 [Livox-SDK](https://github.com/Livox-SDK/Livox-SDK)
@@ -51,7 +45,9 @@ source devel/setup.bash
 Keep this shell for the next step. GenZ-LIO's ROS 1 wrapper expects
 `livox_ros_driver`, not the ROS 1 variant of `livox_ros_driver2`.
 
-#### 2. Build GenZ-LIO
+</details>
+
+### 2. Build GenZ-LIO
 
 ```bash
 mkdir -p ~/catkin_ws/src
@@ -62,33 +58,74 @@ catkin_make -DCMAKE_BUILD_TYPE=Release
 source devel/setup.bash
 ```
 
-Check that CMake reports `Livox CustomMsg support enabled` if you need Livox
-CustomMsg input.
+If using Livox CustomMsg, check that CMake reports
+`Livox CustomMsg support enabled`. If the driver was added after GenZ-LIO was
+built, source it and rebuild GenZ-LIO.
 
-#### 3. Run with RViz
+### 3. Prepare configurations
 
-Select a calibrated sensor or experiment YAML:
+The package includes `config/experiments/` YAMLs for reproducing the paper's
+benchmarks and `config/default/` templates for your own sensor. `config:=` accepts
+a path relative to the package's `config/` directory, or an absolute YAML path.
+ROS does not require the Python configuration export step.
+
+For benchmark runs, use the matching [experiment YAML](#benchmark-configurations).
+For your own sensor, copy a template; for example, with a Velodyne LiDAR:
+
+```bash
+cp ~/catkin_ws/src/genz-lio/ros/config/default/velodyne.yaml ~/my_robot.yaml
+```
+
+Edit `my_robot.yaml` for your topics, sensor type, per-point timing, noise, and
+LiDAR-to-IMU calibration. The default extrinsics are placeholders.
+Parameter tuning guidance is available in the [parameter guide](config/parameter_tuning_guide.md).
+
+### 4. Run
+
+**1) For reproducing benchmark experiments (e.g., NarrowWide Handheld-A-01)**
+
+Start GenZ-LIO with RViz in the first terminal:
 
 ```bash
 source ~/catkin_ws/devel/setup.bash
-roslaunch genz_lio odometry.launch config:=default/velodyne.yaml
+roslaunch genz_lio odometry.launch \
+    config:=experiments/narrowwide/vlp16_handheld_a_01.yaml
 ```
 
-In another terminal:
+Wait for the node to start, then play the recording in a second terminal:
 
 ```bash
 source ~/catkin_ws/devel/setup.bash
-rosbag play /data/sequence.bag
+rosbag play "{path_to_bag}/{NW_Handheld-A-01}.bag"
 ```
 
-### ROS 2 Humble / Jazzy
+Replace the bag placeholders with the actual downloaded or prepared file.
+Dataset downloads and input preparation notes are listed in the
+[benchmark sequence guide](../python/README.md#4-run).
+GenZ-LIO consumes PointCloud2 or supported Livox CustomMsg plus IMU messages;
+raw Velodyne packets must first be decoded to PointCloud2 with point timing.
 
-#### 1. Install dependencies
+**2) For your own sensor**
 
-Install [Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
+Launch with the calibrated file from step 3:
+
+```bash
+roslaunch genz_lio odometry.launch config:="$HOME/my_robot.yaml"
+```
+
+In the second terminal, play your own recording instead of the benchmark above.
+For live input, start your LiDAR/IMU drivers instead of the bag player.
+The ROS node publishes `/Odometry`; it does not automatically save a trajectory.
+
+<a id="ros-2-humble--jazzy"></a>
+
+## ROS 2 support
+
+### 1. Install dependencies
+
+Start with ROS 2 [Humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debians.html)
 on Ubuntu 22.04 or [Jazzy](https://docs.ros.org/en/jazzy/Installation/Ubuntu-Install-Debians.html)
-on Ubuntu 24.04. Change `humble` to `jazzy` in the source command for Jazzy;
-the package names below use the sourced distribution's `ROS_DISTRO`.
+on Ubuntu 24.04. Use a separate shell and workspace for each distribution.
 
 ```bash
 # ROS 2: use jazzy instead of humble on Ubuntu 24.04.
@@ -101,7 +138,12 @@ sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
     ros-${ROS_DISTRO}-launch-ros ros-${ROS_DISTRO}-rosbag2 ros-${ROS_DISTRO}-rviz2
 ```
 
-#### Livox ROS 2
+For Livox `CustomMsg` input, complete the optional driver build below before
+building GenZ-LIO. PointCloud2 input does not require this step.
+
+<a id="livox-ros-2"></a>
+<details>
+<summary>Livox ROS 2: build CustomMsg support (optional)</summary>
 
 For `livox_ros_driver2/msg/CustomMsg`, install
 [Livox-SDK2](https://github.com/Livox-SDK/Livox-SDK2)
@@ -124,7 +166,9 @@ The driver build accepts `humble` or `jazzy`. Keep this shell for the next step.
 For bag replay, the recorded CustomMsg type must match the ROS 2 driver's type;
 renaming a topic does not convert ROS 1 messages into ROS 2 messages.
 
-#### 2. Build GenZ-LIO
+</details>
+
+### 2. Build GenZ-LIO
 
 ```bash
 mkdir -p ~/ros2_ws/src
@@ -135,32 +179,122 @@ colcon build --packages-select genz_lio --cmake-args -DCMAKE_BUILD_TYPE=Release
 source install/setup.bash
 ```
 
-Check that CMake reports `Livox CustomMsg support enabled` if you need Livox
-CustomMsg input.
+If using Livox CustomMsg, check that CMake reports
+`Livox CustomMsg support enabled`. If the driver was added after GenZ-LIO was
+built, source it and rebuild GenZ-LIO.
 
-#### 3. Run with RViz
+### 3. Prepare configurations
 
-Select a calibrated sensor or experiment YAML:
+The package includes `config/experiments/` YAMLs for reproducing the paper's
+benchmarks and `config/default/` templates for your own sensor. `config:=` accepts
+a path relative to the package's `config/` directory, or an absolute YAML path.
+ROS does not require the Python configuration export step.
+
+For benchmark runs, use the matching [experiment YAML](#benchmark-configurations).
+For your own sensor, copy a template; for example, with a Velodyne LiDAR:
+
+```bash
+cp ~/ros2_ws/src/genz-lio/ros/config/default/velodyne.yaml ~/my_robot.yaml
+```
+
+Edit `my_robot.yaml` for your topics, sensor type, per-point timing, noise, and
+LiDAR-to-IMU calibration. The default extrinsics are placeholders.
+Parameter tuning guidance is available in the [parameter guide](config/parameter_tuning_guide.md).
+
+### 4. Run
+
+**1) For reproducing benchmark experiments (e.g., NarrowWide Handheld-A-01)**
+
+Start GenZ-LIO with RViz in the first terminal:
 
 ```bash
 source ~/ros2_ws/install/setup.bash
-ros2 launch genz_lio odometry.launch.py config:=default/velodyne.yaml
+ros2 launch genz_lio odometry.launch.py \
+    config:=experiments/narrowwide/vlp16_handheld_a_01.yaml
 ```
 
-In another terminal, source the same workspace before playback:
+Wait for the node to start, then play the recording in a second terminal:
 
 ```bash
 source ~/ros2_ws/install/setup.bash
-ros2 bag play /data/sequence_ros2
+ros2 bag play "{path_to_rosbag2_recording}"
 ```
 
-## Run options
+Use a rosbag2 recording of Handheld-A-01 with the original sensor topics,
+timestamps, and message fields. The command above expects a rosbag2 directory,
+not a ROS 1 `.bag`; prepare the recording in ROS 2 format first if needed.
+Source `install/setup.bash` in every terminal, including the bag player and
+drivers. With Fast DDS, this also applies the package's default transport profile
+unless you have already selected your own profile.
+Dataset downloads and input preparation notes are listed in the
+[benchmark sequence guide](../python/README.md#4-run).
+GenZ-LIO consumes PointCloud2 or supported Livox CustomMsg plus IMU messages;
+raw Velodyne packets must first be decoded to PointCloud2 with point timing.
 
-The ROS 2 playback command expects a rosbag2 recording directory. The Python pipeline
-can read either rosbag1 or rosbag2 directly without a running ROS graph.
-For live input, run the LiDAR and IMU drivers instead of the bag player.
-Recordings with raw Velodyne packets, such as the SubT-MRS inputs, need a driver
-conversion to PointCloud2 before the estimator can consume them.
+**2) For your own sensor**
+
+Launch with the calibrated file from step 3:
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:="$HOME/my_robot.yaml"
+```
+
+In the second terminal, play your own recording instead of the benchmark above.
+For live input, start your LiDAR/IMU drivers instead of the bag player.
+The ROS node publishes `/Odometry`; it does not automatically save a trajectory.
+
+<a id="additional-options"></a>
+
+## + Additional options
+
+### Development: rebuild after C++ changes
+
+Rebuild the ROS workspace after changing the C++ core or ROS wrapper, then
+source its setup file again. Stop and restart the running node to load the new
+binary. These commands do not rebuild the Python extension.
+
+```bash
+# ROS 1, in a Noetic shell:
+cd ~/catkin_ws
+catkin_make -DCMAKE_BUILD_TYPE=Release
+source devel/setup.bash
+```
+
+```bash
+# ROS 2, in the matching Humble or Jazzy shell:
+cd ~/ros2_ws
+colcon build --packages-select genz_lio --cmake-args -DCMAKE_BUILD_TYPE=Release
+source install/setup.bash
+```
+
+For newly added Livox CustomMsg support, source the driver workspace before
+rebuilding. Set `lidar_type: livox` for CustomMsg or `lidar_type: livox_pcl`
+for Livox PointCloud2. The message type must match the selected ROS wrapper.
+
+---
+
+### Save odometry and point clouds
+
+Start the recorder before playing the input, and stop it normally after processing.
+
+The ROS node does not automatically write a TUM trajectory. Record its output:
+
+```bash
+# ROS 1, in a separate sourced terminal:
+rosbag record -O genz_output.bag /Odometry /tf /tf_static
+# ROS 2, in a separate sourced terminal:
+ros2 bag record -o genz_output /Odometry /tf /tf_static
+```
+
+These commands save ROS messages. For direct TUM/KITTI text output, use the
+[Python pipeline](../python/README.md#save-odometry). `pcd_save.enable` saves
+point clouds, not odometry: use a writable `pcd_save.directory` and a positive
+`pcd_save.interval` to split output. Accumulating an entire run with interval
+`-1` can use substantial memory.
+
+---
+
+### Launch and input options
 
 | Launch argument | Default | Meaning |
 |---|---|---|
@@ -176,12 +310,12 @@ ros2 launch genz_lio odometry.launch.py config:=/data/my_robot.yaml \
     lidar_topic:=/points imu_topic:=/imu/data rviz:=true
 ```
 
-There is no sensor-specific launch file or required overlay. Choose one complete
-file from `config/default/`: `avia.yaml`, `hesai.yaml`, `mid360.yaml`,
-`ouster.yaml`, `robosense.yaml`, or `velodyne.yaml`. These are templates: check
-sensor topics, scan geometry, timestamps, noise, and LiDAR-to-IMU extrinsics.
-Zero translation and identity rotation are placeholders, not factory calibration.
-For benchmark runs, select a file from the table below.
+Add `rviz:=false` to either launch command to run without RViz. Use a fresh
+shell when switching ROS distributions or workspaces. Available templates are
+`avia.yaml`, `hesai.yaml`, `mid360.yaml`, `ouster.yaml`, `robosense.yaml`, and
+`velodyne.yaml` under the package configuration directory.
+
+---
 
 ### ROS 2 transport setup
 
@@ -206,7 +340,9 @@ subscriber history. An incompatible reliability setting or sustained overload
 still needs to be fixed. A larger queue can consume more memory, particularly
 for high-resolution clouds.
 
-## Benchmark configurations
+---
+
+### Benchmark configurations
 
 Paths below are relative to `ros/config/`. Each file is complete and can also
 be passed to Python with its repository-relative or absolute path. Without a
@@ -246,23 +382,15 @@ means those sequences use the same YAML. Dataset information for
 | OS christ_church-01, OS christ_church-02, OS christ_church-05 | [experiments/oxford_spires/hesai64_christ_church.yaml](config/experiments/oxford_spires/hesai64_christ_church.yaml) |
 | OS blenheim_palace-01, OS blenheim_palace-02, OS blenheim_palace-05 | [experiments/oxford_spires/hesai64_blenheim_palace.yaml](config/experiments/oxford_spires/hesai64_blenheim_palace.yaml) |
 
-Example:
-
-```bash
-roslaunch genz_lio odometry.launch config:=experiments/geode/vlp16_stairs.yaml
-ros2 launch genz_lio odometry.launch.py config:=experiments/geode/vlp16_stairs.yaml
-# From the repository root, with the Python package installed:
-genz_lio_pipeline run /data/stairs.bag \
-    --config ros/config/experiments/geode/vlp16_stairs.yaml --visualize
-```
-
 Use the evaluation convention associated with the dataset. Dense ground-truth
 trajectory alignment, surveyed position-control errors, and M3DGR marker-based
 endpoint errors are different metrics; they should not all be labeled ATE RMSE.
 The supplied YAMLs identify benchmark inputs, not a guarantee of exact scores
 on every build or machine. See the [parameter guide](config/parameter_tuning_guide.md).
 
-## Published data and saving
+---
+
+### Published data
 
 | Topic | Message | Contents |
 |---|---|---|
@@ -283,20 +411,9 @@ The default TF tree has a static gravity alignment from `world` to
 `camera_init` for the current initialized run, and a dynamic body transform.
 Use the supplied RViz settings to keep cloud timestamps and frames consistent.
 
-The ROS node does not automatically write a TUM trajectory. Record its output:
+---
 
-```bash
-# ROS 1, in a separate sourced terminal:
-rosbag record -O genz_output.bag /Odometry /tf /tf_static
-# ROS 2, in a separate sourced terminal:
-ros2 bag record -o genz_output /Odometry /tf /tf_static
-```
-
-These commands save ROS messages. For direct TUM/KITTI text output, use the
-[Python pipeline](../python/README.md#save-odometry). `pcd_save.enable` saves
-point clouds, not odometry: use a writable `pcd_save.directory` and a positive
-`pcd_save.interval` to split output. Accumulating an entire run with interval
-`-1` can use substantial memory.
+### Terminal information
 
 To show the odometry information panel in the terminal, set
 `publish.terminal_status_en: true` in the selected YAML. It refreshes each valid
@@ -304,30 +421,9 @@ processed scan; interactive terminals use ANSI clearing and redirected output
 uses plain text. It is disabled by default. Reported FPS measures estimator
 computation, not transport or rendering latency.
 
-## Optional Docker build check
+---
 
-<details>
-<summary>Optional: check a ROS 2 build with Docker</summary>
-
-Docker is not required to build or run GenZ-LIO. The
-[build script](../docker/build_ros2.sh) installs dependencies in a disposable
-container, builds the package, runs its tests, and checks that the node starts.
-Use it to check a clean build without installing ROS dependencies on the host.
-
-From the repository root, with Docker installed:
-
-```bash
-bash docker/build_ros2.sh humble
-# Or:
-bash docker/build_ros2.sh jazzy
-```
-
-The check requires network access for the image and dependency downloads.
-It does not launch RViz, configure GPU access, or replay a dataset.
-
-</details>
-
-## Troubleshooting
+### Troubleshooting
 
 - **No scans / initialization never completes:** check topic names and message types,
   matching ROS 2 QoS, overlapping LiDAR/IMU timestamps, and Livox build support.
@@ -355,3 +451,23 @@ not prove the estimator did; a publish trace alone does not prove delivery.
 Initial IMU initialization may produce no valid pose. Diagnostics are disabled
 when the environment variable is unset. Keep whole-run timing separate from
 accuracy and from per-scan estimator computation time.
+
+---
+
+### Optional Docker build check
+
+Docker is not required to build or run GenZ-LIO. The
+[build script](../docker/build_ros2.sh) installs dependencies in a disposable
+container, builds the package, runs its tests, and checks that the node starts.
+Use it to check a clean build without installing ROS dependencies on the host.
+
+From the repository root, with Docker installed:
+
+```bash
+bash docker/build_ros2.sh humble
+# Or:
+bash docker/build_ros2.sh jazzy
+```
+
+The check requires network access for the image and dependency downloads.
+It does not launch RViz, configure GPU access, or replay a dataset.

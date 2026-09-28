@@ -664,9 +664,30 @@ sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
     ros-noetic-rosbag
 ```
 
-**Livox CustomMsg input:** first [build and source livox_ros_driver](ros/README.md#livox-ros-1).
-Complete that step in this shell before building GenZ-LIO below. Skip it for
-PointCloud2 input.
+For Livox `CustomMsg` input, complete the optional driver build below before
+building GenZ-LIO. PointCloud2 input does not require this step.
+
+<a id="livox-ros-1"></a>
+<details>
+<summary>Livox ROS 1: build CustomMsg support (optional)</summary>
+
+For `livox_ros_driver/CustomMsg`, install
+[Livox-SDK](https://github.com/Livox-SDK/Livox-SDK)
+following its build instructions, then build
+[livox_ros_driver](https://github.com/Livox-SDK/livox_ros_driver) in a separate workspace:
+
+```bash
+source /opt/ros/noetic/setup.bash
+git clone https://github.com/Livox-SDK/livox_ros_driver.git ~/livox_ws/src
+cd ~/livox_ws
+catkin_make -DCMAKE_BUILD_TYPE=Release
+source devel/setup.bash
+```
+
+Keep this shell for the next step. GenZ-LIO's ROS 1 wrapper expects
+`livox_ros_driver`, not the ROS 1 variant of `livox_ros_driver2`.
+
+</details>
 
 ### 2. Build GenZ-LIO
 
@@ -679,26 +700,67 @@ catkin_make -DCMAKE_BUILD_TYPE=Release
 source devel/setup.bash
 ```
 
-### 3. Run
+If using Livox CustomMsg, check that CMake reports
+`Livox CustomMsg support enabled`. If the driver was added after GenZ-LIO was
+built, source it and rebuild GenZ-LIO.
 
-Choose a calibrated sensor or experiment YAML. The launch file starts RViz:
+### 3. Prepare configurations
+
+The package includes `config/experiments/` YAMLs for reproducing the paper's
+benchmarks and `config/default/` templates for your own sensor. `config:=` accepts
+a path relative to the package's `config/` directory, or an absolute YAML path.
+ROS does not require the Python configuration export step.
+
+For benchmark runs, use the matching [experiment YAML](ros/README.md#benchmark-configurations).
+For your own sensor, copy a template; for example, with a Velodyne LiDAR:
+
+```bash
+cp ~/catkin_ws/src/genz-lio/ros/config/default/velodyne.yaml ~/my_robot.yaml
+```
+
+Edit `my_robot.yaml` for your topics, sensor type, per-point timing, noise, and
+LiDAR-to-IMU calibration. The default extrinsics are placeholders.
+Parameter tuning guidance is available in the [parameter guide](ros/config/parameter_tuning_guide.md).
+
+### 4. Run
+
+**1) For reproducing benchmark experiments (e.g., NarrowWide Handheld-A-01)**
+
+Start GenZ-LIO with RViz in the first terminal:
 
 ```bash
 source ~/catkin_ws/devel/setup.bash
-roslaunch genz_lio odometry.launch config:=default/velodyne.yaml
+roslaunch genz_lio odometry.launch \
+    config:=experiments/narrowwide/vlp16_handheld_a_01.yaml
 ```
 
-In a second terminal:
+Wait for the node to start, then play the recording in a second terminal:
 
 ```bash
 source ~/catkin_ws/devel/setup.bash
-rosbag play /data/sequence.bag
+rosbag play "{path_to_bag}/{NW_Handheld-A-01}.bag"
 ```
 
+Replace the bag placeholders with the actual downloaded or prepared file.
+Dataset downloads and input preparation notes are listed in the
+[benchmark sequence guide](python/README.md#4-run).
+GenZ-LIO consumes PointCloud2 or supported Livox CustomMsg plus IMU messages;
+raw Velodyne packets must first be decoded to PointCloud2 with point timing.
+
+**2) For your own sensor**
+
+Launch with the calibrated file from step 3:
+
+```bash
+roslaunch genz_lio odometry.launch config:="$HOME/my_robot.yaml"
+```
+
+In the second terminal, play your own recording instead of the benchmark above.
 For live input, start your LiDAR/IMU drivers instead of the bag player.
+The ROS node publishes `/Odometry`; it does not automatically save a trajectory.
 
-See [ros/README.md](ros/README.md#ros-1-noetic) for Livox setup, configuration,
-recording outputs, and troubleshooting.
+See [ros/README.md](ros/README.md#additional-options) for rebuilding after C++ changes,
+recording outputs, launch options, benchmark configurations, and troubleshooting.
 
 </details>
 
@@ -724,9 +786,35 @@ sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
     ros-${ROS_DISTRO}-launch-ros ros-${ROS_DISTRO}-rosbag2 ros-${ROS_DISTRO}-rviz2
 ```
 
-**Livox CustomMsg input:** first [build and source livox_ros_driver2](ros/README.md#livox-ros-2).
-Complete that step in this shell before building GenZ-LIO below. Skip it for
-PointCloud2 input.
+For Livox `CustomMsg` input, complete the optional driver build below before
+building GenZ-LIO. PointCloud2 input does not require this step.
+
+<a id="livox-ros-2"></a>
+<details>
+<summary>Livox ROS 2: build CustomMsg support (optional)</summary>
+
+For `livox_ros_driver2/msg/CustomMsg`, install
+[Livox-SDK2](https://github.com/Livox-SDK/Livox-SDK2)
+following its build instructions, then build
+[livox_ros_driver2](https://github.com/Livox-SDK/livox_ros_driver2) in a dedicated
+workspace. Its build script clears that workspace's build/install directories,
+so keep it separate from GenZ-LIO and use a different workspace per ROS distribution.
+
+In the same Humble or Jazzy shell used above:
+
+```bash
+mkdir -p ~/livox_ros2_ws/src
+git clone https://github.com/Livox-SDK/livox_ros_driver2.git ~/livox_ros2_ws/src/livox_ros_driver2
+cd ~/livox_ros2_ws/src/livox_ros_driver2
+bash build.sh "$ROS_DISTRO"
+source ~/livox_ros2_ws/install/setup.bash
+```
+
+The driver build accepts `humble` or `jazzy`. Keep this shell for the next step.
+For bag replay, the recorded CustomMsg type must match the ROS 2 driver's type;
+renaming a topic does not convert ROS 1 messages into ROS 2 messages.
+
+</details>
 
 ### 2. Build GenZ-LIO
 
@@ -739,26 +827,72 @@ colcon build --packages-select genz_lio --cmake-args -DCMAKE_BUILD_TYPE=Release
 source install/setup.bash
 ```
 
-### 3. Run
+If using Livox CustomMsg, check that CMake reports
+`Livox CustomMsg support enabled`. If the driver was added after GenZ-LIO was
+built, source it and rebuild GenZ-LIO.
 
-Choose a calibrated sensor or experiment YAML. The launch file starts RViz:
+### 3. Prepare configurations
+
+The package includes `config/experiments/` YAMLs for reproducing the paper's
+benchmarks and `config/default/` templates for your own sensor. `config:=` accepts
+a path relative to the package's `config/` directory, or an absolute YAML path.
+ROS does not require the Python configuration export step.
+
+For benchmark runs, use the matching [experiment YAML](ros/README.md#benchmark-configurations).
+For your own sensor, copy a template; for example, with a Velodyne LiDAR:
+
+```bash
+cp ~/ros2_ws/src/genz-lio/ros/config/default/velodyne.yaml ~/my_robot.yaml
+```
+
+Edit `my_robot.yaml` for your topics, sensor type, per-point timing, noise, and
+LiDAR-to-IMU calibration. The default extrinsics are placeholders.
+Parameter tuning guidance is available in the [parameter guide](ros/config/parameter_tuning_guide.md).
+
+### 4. Run
+
+**1) For reproducing benchmark experiments (e.g., NarrowWide Handheld-A-01)**
+
+Start GenZ-LIO with RViz in the first terminal:
 
 ```bash
 source ~/ros2_ws/install/setup.bash
-ros2 launch genz_lio odometry.launch.py config:=default/velodyne.yaml
+ros2 launch genz_lio odometry.launch.py \
+    config:=experiments/narrowwide/vlp16_handheld_a_01.yaml
 ```
 
-In a second terminal, source the same workspace before playing a rosbag2 directory:
+Wait for the node to start, then play the recording in a second terminal:
 
 ```bash
 source ~/ros2_ws/install/setup.bash
-ros2 bag play /data/sequence_ros2
+ros2 bag play "{path_to_rosbag2_recording}"
 ```
 
+Use a rosbag2 recording of Handheld-A-01 with the original sensor topics,
+timestamps, and message fields. The command above expects a rosbag2 directory,
+not a ROS 1 `.bag`; prepare the recording in ROS 2 format first if needed.
+Source `install/setup.bash` in every terminal, including the bag player and
+drivers. With Fast DDS, this also applies the package's default transport profile
+unless you have already selected your own profile.
+Dataset downloads and input preparation notes are listed in the
+[benchmark sequence guide](python/README.md#4-run).
+GenZ-LIO consumes PointCloud2 or supported Livox CustomMsg plus IMU messages;
+raw Velodyne packets must first be decoded to PointCloud2 with point timing.
+
+**2) For your own sensor**
+
+Launch with the calibrated file from step 3:
+
+```bash
+ros2 launch genz_lio odometry.launch.py config:="$HOME/my_robot.yaml"
+```
+
+In the second terminal, play your own recording instead of the benchmark above.
 For live input, start your LiDAR/IMU drivers instead of the bag player.
+The ROS node publishes `/Odometry`; it does not automatically save a trajectory.
 
-See [ros/README.md](ros/README.md#ros-2-humble--jazzy) for Livox setup, DDS,
-[benchmark configurations](ros/README.md#benchmark-configurations), and recording outputs.
+See [ros/README.md](ros/README.md#additional-options) for rebuilding after C++ changes,
+recording outputs, launch options, DDS settings, benchmark configurations, and troubleshooting.
 
 </details>
 
