@@ -25,26 +25,15 @@ are starting points, not a promise of the paper's sequence-specific results.
 The wrappers do not perform automatic clock alignment. Provide synchronized
 timestamps or a calibrated fixed offset. Neither approach repairs missing samples.
 
-## Three spatial resolutions
-
-| Parameter | Role |
-|---|---|
-| `mapping.down_sample_size` | Initial adaptive voxel size; fixed scan resolution when adaptation is disabled |
-| Adaptive voxel size | Per-scan resolution controlled by `adaptive_voxelization` |
-| `mapping.voxel_size` | Root-cell edge length of the retained octree map |
-
-With adaptive voxelization enabled, the map-insertion cloud uses half the current
-adaptive voxel size, and estimation points are downsampled from that cloud at
-the full adaptive size. With adaptation disabled, both use `down_sample_size`.
-These resolutions are distinct from map root size and rendered point size.
-`Map pts (cm)` in the visualizer changes only appearance.
-
 ## Scale-aware adaptive voxelization
 
-The scale indicator is a moving mean of per-scan median ranges from a downsampled
-probe. It determines a target number of points between `min_points` and
-`max_points`; a PD controller adjusts the estimation voxel size to track it.
-The target is not a hard bound on the actual point count.
+The scale indicator is a moving mean of the median ranges of downsampled scans.
+It determines a target number of points between `min_points` and `max_points`;
+a PD controller adjusts the voxel size to track it.
+
+`mapping.down_sample_size` sets the initial adaptive voxel size in meters
+(`0.25` in the default templates). When `adaptive_voxelization.enable` is `false`,
+it sets the fixed voxel size used for scan downsampling throughout the sequence.
 
 | Parameter under `adaptive_voxelization` | Starting value | Effect |
 |---|---|---|
@@ -53,10 +42,10 @@ The target is not a hard bound on the actual point count.
 | `scale_threshold` | `30.0` m | Scale at which the target reaches `max_points` |
 | `setpoint_exponent` | `2` | Shape of target interpolation |
 | `min_points` / `max_points` | `1000` / `4000` | Target counts at the confined/open ends |
-| `p_gain_min` / `p_gain_max` | `5e-6` / `5e-5` | Scheduled proportional gain bounds |
-| `d_gain_min` / `d_gain_max` | `5e-8` / `5e-7` | Scheduled derivative gain bounds |
-| `error_sensitivity` | `0.1` | Error normalization for gain scheduling |
-| `error_rate_sensitivity` | `0.2` | Error-rate normalization for gain scheduling |
+| `p_gain_min` / `p_gain_max` | `5e-6` / `5e-5` | Tunable lower/upper bounds on the proportional gain; larger gains strengthen the response to point-count error |
+| `d_gain_min` / `d_gain_max` | `5e-8` / `5e-7` | Tunable lower/upper bounds on the derivative gain; larger gains strengthen the response to changes in point-count error |
+| `error_sensitivity` | `0.1` | Error normalization for gain scheduling; use a positive value (no fixed upper bound). Increasing it reduces the normalized error for the same point-count error, keeping the proportional gain closer to its lower bound |
+| `error_rate_sensitivity` | `0.2` | Error-rate normalization for gain scheduling; use a positive value (no fixed upper bound). Increasing it reduces the normalized error rate for the same error change, keeping the derivative gain closer to its lower bound |
 
 For normalized scale `t` between 0 and 1, interpolation uses `1 - (1 - t)^p`.
 Increasing `p` raises the target at intermediate scales and smooths its approach
@@ -68,7 +57,7 @@ sequence to check both tracking and computation time.
 
 | Parameter | Meaning and tradeoff |
 |---|---|
-| `mapping.voxel_size` | Root edge length in meters; changes geometry grouping and point-to-point discretization covariance |
+| `mapping.voxel_size` | Root voxel edge length in meters; changes geometry grouping and point-to-point discretization covariance |
 | `mapping.max_layer` | Maximum subdivision level; level `l` has cell edge `voxel_size / 2^l` |
 | `mapping.layer_point_size` | Point-count threshold for plane initialization at each level |
 | `mapping.planar_threshold` | Maximum smallest covariance eigenvalue, in m², for a planar cell; lower is stricter |
@@ -97,18 +86,24 @@ accuracy. A LiDAR's maximum measurement range alone does not establish a safe
 map-retention radius. Keep each benchmark's configured value when reproducing
 results; validate both accuracy and wall time before changing it.
 
-## Hybrid metric and gates
+## Hybrid-metric state update
 
-`hybrid_metric.enable: true` combines point-to-plane and point-to-point updates.
-`hybrid_metric.lambda_po` scales point-to-point covariance; reducing it increases
-the relative weight of those constraints. Start at `0.05` and assess changes on
-both planar and unstructured scenes.
+The hybrid metric combines point-to-plane and point-to-point updates. Tune their
+relative weight and correspondence gates on both planar and unstructured scenes.
 
-`mapping.sigma_num` gates point-to-plane residuals, while
-`hybrid_metric.sigma_num` gates point-to-point residuals. Smaller values reject
-more matches and can leave an update with insufficient support.
+| Parameter | Starting value | Effect |
+|---|---|---|
+| `hybrid_metric.enable` | `true` | Combine point-to-plane and point-to-point updates |
+| `hybrid_metric.lambda_po` | `0.05` | Scale point-to-point covariance; smaller values increase the relative weight of point-to-point constraints |
+| `mapping.sigma_num` | `3.0` | Point-to-plane residual gate multiplier; smaller values reject more matches |
+| `hybrid_metric.sigma_num` | `3.0` | Point-to-point residual gate multiplier; smaller values reject more matches |
+| `hybrid_metric.adaptive_threshold.initial_threshold` | `0.5` m | Initial and minimum threshold scale for point-to-point matching; larger values allow a wider correspondence gate |
+| `hybrid_metric.adaptive_threshold.max_range_motion` | `100.0` m | Cap on each point's range when converting rotational corrections to displacement; increasing it can widen the gate for distant points |
 
-The adaptive gate lives **inside `hybrid_metric`**:
+Overly strict gates can leave an update with insufficient support. The adaptive
+gate responds to accepted pose corrections and point range; rejected updates do
+not replace its correction history. Its parameters are nested inside
+`hybrid_metric`:
 
 ```yaml
 hybrid_metric:
@@ -116,11 +111,6 @@ hybrid_metric:
         initial_threshold: 0.5
         max_range_motion: 100.0
 ```
-
-`initial_threshold` sets the initial/minimum threshold scale.
-`max_range_motion` converts rotational corrections to displacement at a chosen
-range. The gate responds to accepted pose corrections and point range; rejected
-updates do not replace its correction history.
 
 ## Noise and iteration count
 
@@ -136,26 +126,9 @@ Consult the sensor calibration and the estimator's discretization rather than
 assuming every value is a datasheet noise density. Treat changes as model
 changes and score complete sequences.
 
-`mapping.max_iteration` bounds iterated filter updates per scan. The supplied
-benchmark protocol uses `4`. Raising it costs computation and does not guarantee
+`mapping.max_iteration` bounds iterated filter updates per scan. The default
+templates use `4`. Raising it costs computation and does not guarantee
 better convergence.
-
-## Benchmark tuning protocol
-
-For comparable tuning trials, keep the following fixed:
-
-- `preprocess.point_filter_num: 1` and `mapping.max_iteration: 4`.
-- Adaptive voxelization enabled, window `5`, scale threshold `30.0`, exponent `2`,
-  and point targets `1000` / `4000`.
-- Hybrid metric enabled.
-- `mapping.down_sample_size` at the sequence's selected `0.25` or `0.4`.
-- `mapping.map_range: -1.0` except the configured GEODE Waterways retention limits.
-
-First search map root sizes `0.5`, `1.0`, or `2.0` and maximum layers `3` or `4`,
-along with plane thresholds, gates, candidate/support budgets, adaptive gate
-parameters, and noise parameters. Prefer keeping `lambda_po` and the adaptive
-controller gains/sensitivities at the values above until evidence justifies a
-change. Re-evaluate related sequences when tuning a shared YAML.
 
 ## Threads, transport, and visualization
 
