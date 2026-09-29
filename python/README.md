@@ -1,16 +1,14 @@
-# GenZ-LIO Python
+# GenZ-LIO
 
 <div align="center">
 
 <a href="../pictures/GenZ-LIO.gif" title="Open the 30-second GIF">
-  <img src="../pictures/GenZ-LIO_20s.webp" width="1000" alt="GenZ-LIO on NarrowWide Handheld-A-01" />
+  <img src="../pictures/GenZ-LIO_20s.webp" width="1100" alt="GenZ-LIO on NarrowWide Handheld-A-01" />
 </a>
 
 </div>
 
 [GenZ-LIO](https://arxiv.org/abs/2603.16273) is designed for robust and computationally efficient LiDAR-inertial odometry across confined spaces, open environments, and transitions between them.
-
-Process recorded data with an optional visualizer; no ROS installation is needed.
 
 ## 1. Install dependencies and get the source
 
