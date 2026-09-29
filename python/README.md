@@ -1,6 +1,26 @@
+<div align="center">
+
 # GenZ-LIO
 
-<div align="center">
+**Generalizable LiDAR-Inertial Odometry Beyond Confined–Open Boundaries**
+
+[![C++](https://img.shields.io/badge/C%2B%2B-17-blue)](../cpp/genz_lio)
+[![Python](https://img.shields.io/badge/Python-3.8--3.12-yellow)](README.md)
+[![ROS 1](https://img.shields.io/badge/ROS%201-Noetic-green)](../ros/README.md)
+[![ROS 2](https://img.shields.io/badge/ROS%202-Humble%20%7C%20Jazzy-orange)](../ros/README.md)
+[![License](https://img.shields.io/badge/License-GPL%20v2-red.svg)](../LICENSE)
+
+[Demo](https://www.youtube.com/watch?v=EyTJbdC_AA4)
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+[Paper](https://arxiv.org/abs/2603.16273)
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+[Dataset](https://github.com/cocel-postech/NarrowWide)
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+[Install](#1-install-dependencies-and-get-the-source)
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+[Python](README.md)
+<span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+[ROS](../ros/README.md)
 
 <a href="../pictures/GenZ-LIO.gif" title="Open the 30-second GIF">
   <img src="../pictures/GenZ-LIO_20s.webp" width="1100" alt="GenZ-LIO on NarrowWide Handheld-A-01" />
