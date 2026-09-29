@@ -22,7 +22,7 @@
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 [ROS](ros/README.md)
 
-<img src="pictures/GenZ-ICP.gif" width="500" alt="Temporary illustration from GenZ-ICP" />
+<img src="pictures/GenZ-LIO.gif" width="1100" alt="GenZ-LIO on NarrowWide Handheld-A-01" />
 <br />
 <br />
 
