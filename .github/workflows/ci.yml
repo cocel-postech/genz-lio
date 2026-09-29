@@ -2,6 +2,10 @@
 # are built and tested, and uploading waits until the paper is accepted.
 name: build
 
+env:
+  CMAKE_BUILD_PARALLEL_LEVEL: "2"
+  MAKEFLAGS: "-j2"
+
 on:
   push:
     branches: [master]
@@ -9,6 +13,40 @@ on:
   workflow_dispatch:
 
 jobs:
+  python-ubuntu:
+    name: Python on Ubuntu ${{ matrix.ubuntu }}
+    runs-on: ubuntu-latest
+    container: ubuntu:${{ matrix.ubuntu }}
+    strategy:
+      fail-fast: false
+      matrix:
+        ubuntu: ["20.04", "22.04", "24.04"]
+    steps:
+      - name: Install README dependencies
+        run: |
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y \
+            git build-essential cmake libeigen3-dev libboost-dev \
+            python3-dev python3-venv libgl1
+      - uses: actions/checkout@v4
+      - name: Build and test with the distribution Python
+        shell: bash
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          python -m pip install '.[rosbag,viz]' pytest
+          python -m pip check
+          python -m pytest python/tests -q
+          python ros/tests/test_convert_livox_bag.py -v
+      - name: Install and test all optional dependencies
+        shell: bash
+        run: |
+          source .venv/bin/activate
+          python -m pip install '.[all]'
+          python -m pip check
+          python -m pytest python/tests -q
+
   core:
     name: core (${{ matrix.build_type }})
     runs-on: ubuntu-22.04
@@ -47,7 +85,7 @@ jobs:
         shell: bash
         run: |
           source /opt/ros/noetic/setup.bash
-          catkin_make -DCMAKE_BUILD_TYPE=Release
+          catkin_make -j2 -DCMAKE_BUILD_TYPE=Release
       - name: Test
         shell: bash
         run: |

@@ -32,7 +32,8 @@
 
 ## 1. Install dependencies and get the source
 
-Use Linux with Python 3.8–3.12. Until the PyPI release is published, install
+Use Linux with Python 3.8–3.12. Ubuntu 20.04, 22.04, and 24.04 provide Python
+3.8, 3.10, and 3.12, respectively. Until the PyPI release is published, install
 from this repository:
 
 ```bash
@@ -51,8 +52,12 @@ python -m pip install --upgrade pip
 Pip builds the C++ extension and installs rosbag and visualization dependencies:
 
 ```bash
-python -m pip install '.[rosbag,viz]'
+CMAKE_BUILD_PARALLEL_LEVEL=2 python -m pip install '.[rosbag,viz]'
 ```
+
+The build uses two parallel compile jobs to limit memory use; increase
+`CMAKE_BUILD_PARALLEL_LEVEL` if your machine has sufficient memory. This does not
+change the odometry thread setting.
 
 If the system Eigen is older than 3.4, CMake downloads it during the build;
 network access is required for that step.
@@ -61,7 +66,8 @@ After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will repl
 the source build above. A compatible wheel needs no local C++ build; plain
 `pip install genz-lio` installs only the core and CLI.
 
-For all optional readers and visualization, use `python -m pip install '.[all]'`
+For all optional readers and visualization, use
+`CMAKE_BUILD_PARALLEL_LEVEL=2 python -m pip install '.[all]'`
 (or `python -m pip install 'genz-lio[all]'` after the PyPI release).
 
 ## 3. Prepare configurations
@@ -634,7 +640,7 @@ rebuilding the extension. A catkin/colcon build does not update it.
 From the repository root:
 
 ```bash
-python -m pip install -e '.[rosbag,viz]'
+CMAKE_BUILD_PARALLEL_LEVEL=2 python -m pip install -e '.[rosbag,viz]'
 python -m pip install pytest
 python -m pytest python/tests -q
 ```
@@ -733,7 +739,7 @@ Split recordings containing sensor-time rewinds into monotonic runs.
 From the repository root, install the Ouster reader:
 
 ```bash
-python -m pip install '.[ouster]'
+CMAKE_BUILD_PARALLEL_LEVEL=2 python -m pip install '.[ouster]'
 ```
 
 For a single-sensor PCAP, place the matching metadata JSON beside the capture

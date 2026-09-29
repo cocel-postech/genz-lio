@@ -10,7 +10,8 @@ workspace for ROS 1 Noetic, ROS 2 Humble, and ROS 2 Jazzy.
 
 ### 1. Install dependencies
 
-Start with [ROS 1 Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) installed:
+Start with [ROS 1 Noetic](https://wiki.ros.org/noetic/Installation/Ubuntu) installed
+on Ubuntu 20.04:
 
 ```bash
 source /opt/ros/noetic/setup.bash
@@ -38,7 +39,7 @@ following its build instructions, then build
 source /opt/ros/noetic/setup.bash
 git clone https://github.com/Livox-SDK/livox_ros_driver.git ~/livox_ws/src
 cd ~/livox_ws
-catkin_make -DCMAKE_BUILD_TYPE=Release
+catkin_make -j2 -DCMAKE_BUILD_TYPE=Release
 source devel/setup.bash
 ```
 
@@ -54,13 +55,17 @@ mkdir -p ~/catkin_ws/src
 cd ~/catkin_ws/src
 git clone https://github.com/cocel-postech/genz-lio.git
 cd ~/catkin_ws
-catkin_make -DCMAKE_BUILD_TYPE=Release
+catkin_make -j2 -DCMAKE_BUILD_TYPE=Release
 source devel/setup.bash
 ```
 
+The build commands limit compilation to two parallel jobs to reduce peak memory
+use. This does not change `runtime.max_threads` during odometry.
+
 If using Livox CustomMsg, check that CMake reports
 `Livox CustomMsg support enabled`. If the driver was added after GenZ-LIO was
-built, source it and rebuild GenZ-LIO.
+built, source its workspace and rerun
+`catkin_make -j2 --force-cmake -DCMAKE_BUILD_TYPE=Release` from your GenZ-LIO workspace.
 
 ### 3. Run
 
@@ -82,8 +87,12 @@ Wait for the node to start, then play the recording in a second terminal:
 
 ```bash
 source ~/catkin_ws/devel/setup.bash
-rosbag play "{path_to_bag}/{NW_Handheld-A-01}.bag"
+rosbag play --delay 1 "{path_to_bag}/{NW_Handheld-A-01}.bag"
 ```
+
+`--delay 1` gives subscribers time to connect after each topic is advertised,
+helping preserve the first IMU samples used for initialization. Increase it if
+startup connections are slow.
 
 Replace the bag placeholders with the actual downloaded or prepared file.
 GenZ-LIO consumes PointCloud2 or supported Livox CustomMsg plus IMU messages;
@@ -255,7 +264,7 @@ ROS 1 can play both parts together without merging. Start GenZ-LIO with the
 matching YAML, then run this in the playback terminal:
 
 ```bash
-rosbag play "{path_to_bag}/{sequence}_0.bag" "{path_to_bag}/{sequence}_1.bag"
+rosbag play --delay 1 "{path_to_bag}/{sequence}_0.bag" "{path_to_bag}/{sequence}_1.bag"
 ```
 
 Replace the placeholders with the actual filenames; both parts are replayed
@@ -336,7 +345,7 @@ In the same Humble or Jazzy shell used above:
 mkdir -p ~/livox_ros2_ws/src
 git clone https://github.com/Livox-SDK/livox_ros_driver2.git ~/livox_ros2_ws/src/livox_ros_driver2
 cd ~/livox_ros2_ws/src/livox_ros_driver2
-bash build.sh "$ROS_DISTRO"
+MAKEFLAGS="-j2" bash build.sh "$ROS_DISTRO"
 source ~/livox_ros2_ws/install/setup.bash
 ```
 
@@ -353,13 +362,23 @@ mkdir -p ~/ros2_ws/src
 cd ~/ros2_ws/src
 git clone https://github.com/cocel-postech/genz-lio.git
 cd ~/ros2_ws
-colcon build --packages-select genz_lio --cmake-args -DCMAKE_BUILD_TYPE=Release
+MAKEFLAGS="-j2" colcon build --packages-select genz_lio --cmake-args -DCMAKE_BUILD_TYPE=Release
 source install/setup.bash
 ```
 
-If using Livox CustomMsg, check that CMake reports
+`MAKEFLAGS="-j2"` limits compilation to two parallel jobs to reduce peak memory
+use. This does not change `runtime.max_threads` during odometry.
+
+If using Livox CustomMsg, check `log/latest_build/genz_lio/stdout.log` for
 `Livox CustomMsg support enabled`. If the driver was added after GenZ-LIO was
-built, source it and rebuild GenZ-LIO.
+built, source its workspace and force CMake to detect it:
+
+```bash
+cd ~/ros2_ws
+MAKEFLAGS="-j2" colcon build --packages-select genz_lio --cmake-force-configure \
+    --cmake-args -DCMAKE_BUILD_TYPE=Release
+source install/setup.bash
+```
 
 ### 3. Run
 
@@ -381,8 +400,11 @@ Wait for the node to start, then play the recording in a second terminal:
 
 ```bash
 source ~/ros2_ws/install/setup.bash
-ros2 bag play "{path_to_rosbag2_recording}"
+ros2 bag play --delay 1 "{path_to_rosbag2_recording}"
 ```
+
+`--delay 1` allows discovery before playback starts, helping preserve the initial
+sensor messages. Increase it if discovery is slow.
 
 Use a rosbag2 recording of Handheld-A-01 with the original sensor topics,
 timestamps, and message fields. The command above expects a rosbag2 directory,
@@ -691,7 +713,7 @@ In a terminal sourced for your ROS 2 workspace, inspect and play the result:
 source ~/ros2_ws/install/setup.bash
 ros2 bag info "{path_to_output}/{sequence}_ros2"
 # Start GenZ-LIO in another terminal before playback.
-ros2 bag play "{path_to_output}/{sequence}_ros2"
+ros2 bag play --delay 1 "{path_to_output}/{sequence}_ros2"
 ```
 
 - **Raw packets:** conversion changes the bag format; it does not decode
@@ -790,6 +812,12 @@ data. Diagnostics are disabled when the variable is unset.
 ---
 
 ### ROS 2 transport setup
+
+For simultaneous experiments or different ROS 2 distributions on the same
+network, assign a different `ROS_DOMAIN_ID` to each experiment. For example, run
+`export ROS_DOMAIN_ID=10` in every terminal belonging to one experiment and use
+`11` for another. The node, bag player, recorder, and RViz within an experiment
+must share the same ID so that sensor streams from separate runs do not mix.
 
 DDS is the ROS 2 messaging middleware. When using Fast DDS, sourcing this
 workspace selects [fastdds_local.xml](config/dds/fastdds_local.xml) to adjust

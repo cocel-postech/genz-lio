@@ -20,6 +20,8 @@ docker run --rm -t \
 # ROS setup scripts reference unset variables, so no -u here.
 set -eo pipefail
 export DEBIAN_FRONTEND=noninteractive
+# Colcon otherwise starts one compiler per CPU, which can exhaust memory.
+export MAKEFLAGS=-j2
 apt-get update -qq
 apt-get install -y -qq --no-install-recommends \
     build-essential cmake \
