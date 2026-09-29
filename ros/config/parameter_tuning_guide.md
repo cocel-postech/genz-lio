@@ -45,8 +45,8 @@ Larger voxels group points over a wider spatial region, producing a coarser scan
 | `min_points` / `max_points` | `1000` / `4000` | Lower/upper endpoints of the point-count target; increasing an endpoint asks the controller to retain more scan detail in the corresponding scale regime |
 | `p_gain_min` / `p_gain_max` | `5e-6` / `5e-5` | Tunable lower/upper bounds on the proportional gain; larger gains strengthen the response to point-count error |
 | `d_gain_min` / `d_gain_max` | `5e-8` / `5e-7` | Tunable lower/upper bounds on the derivative gain; larger gains strengthen the response to changes in point-count error |
-| `error_sensitivity` | `0.1` | Error normalization for gain scheduling; use a positive value (no fixed upper bound). Larger values attenuate the normalized error factor, reducing its geometric mean with the normalized scale and thus the proportional-gain interpolation weight |
-| `error_rate_sensitivity` | `0.2` | Error-rate normalization for gain scheduling; use a positive value (no fixed upper bound). Larger values attenuate the normalized error-rate factor, reducing its geometric mean with the normalized scale and thus the derivative-gain interpolation weight |
+| `error_sensitivity` | `0.1` | Error normalization for gain scheduling; use a positive value (no fixed upper bound). Larger values attenuate the normalized error factor, reducing the proportional-gain interpolation weight in sensitivity-informed gain scheduling that uses the geometric mean |
+| `error_rate_sensitivity` | `0.2` | Error-rate normalization for gain scheduling; use a positive value (no fixed upper bound). Larger values attenuate the normalized error-rate factor, reducing the derivative-gain interpolation weight in sensitivity-informed gain scheduling that uses the geometric mean |
 
 Gain interpolation uses the geometric-mean weights `w_p = sqrt(s * e)` and
 `w_d = sqrt(s * r)`, where `s` is the normalized scale, `e` is the normalized
