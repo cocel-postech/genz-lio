@@ -32,8 +32,10 @@ It determines a target number of points between `min_points` and `max_points`;
 a PD controller adjusts the voxel size to track it.
 
 `mapping.down_sample_size` sets the initial adaptive voxel size in meters
-(`0.25` in the default templates). When `adaptive_voxelization.enable` is `false`,
-it sets the fixed voxel size used for scan downsampling throughout the sequence.
+(`0.25` in the default templates). With adaptation enabled, both the initial size
+and subsequent controller updates are clamped to **0.02–1.0 m**. When
+`adaptive_voxelization.enable` is `false`, `down_sample_size` sets the fixed voxel
+size used throughout the sequence, without this adaptive size limit.
 Larger voxels group points over a wider spatial region, producing a coarser scan.
 
 | Parameter under `adaptive_voxelization` | Starting value | Effect |
@@ -45,33 +47,46 @@ Larger voxels group points over a wider spatial region, producing a coarser scan
 | `min_points` / `max_points` | `1000` / `4000` | Lower/upper endpoints of the point-count target; increasing an endpoint asks the controller to retain more scan detail in the corresponding scale regime |
 | `p_gain_min` / `p_gain_max` | `5e-6` / `5e-5` | Tunable lower/upper bounds on the proportional gain; larger gains strengthen the response to point-count error |
 | `d_gain_min` / `d_gain_max` | `5e-8` / `5e-7` | Tunable lower/upper bounds on the derivative gain; larger gains strengthen the response to changes in point-count error |
-| `error_sensitivity` | `0.1` | Error normalization for gain scheduling; use a positive value (no fixed upper bound). Larger values attenuate the normalized error factor, reducing the proportional-gain interpolation weight in sensitivity-informed gain scheduling that uses the geometric mean |
-| `error_rate_sensitivity` | `0.2` | Error-rate normalization for gain scheduling; use a positive value (no fixed upper bound). Larger values attenuate the normalized error-rate factor, reducing the derivative-gain interpolation weight in sensitivity-informed gain scheduling that uses the geometric mean |
+| `error_sensitivity` | `0.1` | Positive error-normalization scale with no fixed upper bound; larger values can reduce the proportional-gain interpolation weight for the same error |
+| `error_rate_sensitivity` | `0.2` | Positive error-rate-normalization scale with no fixed upper bound; larger values can reduce the derivative-gain interpolation weight for the same error rate |
 
-Gain interpolation uses the geometric-mean weights `w_p = sqrt(s * e)` and
-`w_d = sqrt(s * r)`, where `s` is the normalized scale, `e` is the normalized
-absolute point-count error, and `r` is the normalized absolute error rate.
-Each factor is capped at `1`. The gains are then
-`K_p = p_gain_min + (p_gain_max - p_gain_min) * w_p` and
-`K_d = d_gain_min + (d_gain_max - d_gain_min) * w_d`.
+Let `s = min(scale_indicator / scale_threshold, 1)` be the normalized scale and
+`p = setpoint_exponent`. The point-count target is
+`N = min_points + (max_points - min_points) * (1 - (1 - s)^p)`.
+Increasing `p` raises the target at intermediate scales; `p > 1` gives a smooth
+approach to the maximum with zero slope at `s = 1`.
 
-The sensitivities scale the normalization denominators for `e` and `r`;
-they do not change the equal exponents in the geometric mean. For the same
-scale, target, and error, larger sensitivities reduce the corresponding weight
-once the error factor is below saturation. If that factor remains capped at `1`,
-the weight is unchanged.
+Sensitivity-informed gain scheduling uses the geometric mean of normalized
+scale and normalized error or error rate. With point-count error
+`E = downsampled_scan_count - N` and scan interval `dt`, the calculation is:
 
-The point-count error is the downsampled scan's count minus the target. The
-proportional term increases voxel size when this error is positive and decreases
-it when negative. The derivative term responds to how that error changes between
-scans, rather than to its magnitude alone.
+```text
+error_rate = (E - E_previous) / dt
+e = min(abs(E) / (N * error_sensitivity), 1)
+r = min(abs(error_rate) / (N * error_rate_sensitivity / dt), 1)
+w_p = sqrt(s * e)
+w_d = sqrt(s * r)
+K_p = p_gain_min + (p_gain_max - p_gain_min) * w_p
+K_d = d_gain_min + (d_gain_max - d_gain_min) * w_d
+```
 
-For normalized scale `t` between 0 and 1, interpolation uses `1 - (1 - t)^p`.
-Increasing `p` raises the target at intermediate scales and smooths its approach
-to the maximum for `p > 1`. If voxel size oscillates, inspect the scheduled gains
-and point-count error. Keep each gain's lower bound no greater than its upper
-bound, then replay a full transition sequence after tuning to check both tracking
-and computation time.
+The sensitivities appear in the normalization denominators. With other inputs
+fixed, increasing a sensitivity reduces the corresponding gain interpolation
+weight when the normalized error factor falls below saturation. If that factor
+remains capped at `1`, the weight is unchanged. The sensitivities do not change
+the equal exponents in the geometric mean.
+
+The proportional term increases voxel size when `E` is positive and decreases it
+when negative. The derivative term responds to how that error changes between
+scans, rather than to its magnitude alone. If voxel size oscillates, inspect the
+scheduled gains and point-count error, then replay a full transition sequence
+after tuning to check both tracking and computation time.
+
+Use a positive integer `window_size`, positive `scale_threshold`, and positive
+integer targets satisfying `min_points <= max_points`. Use a positive integer
+`setpoint_exponent` (`2` or greater for the smooth saturation described above).
+Keep gain bounds nonnegative, with each lower bound no greater than its upper
+bound, and both sensitivities positive.
 
 ## Map structure and correspondence budgets
 
@@ -79,7 +94,7 @@ and computation time.
 |---|---|
 | `mapping.voxel_size` | Root voxel edge length in meters; larger values group geometry over a wider region and increase point-to-point discretization covariance for the same candidate-voxel and neighbor counts |
 | `mapping.max_layer` | Maximum number of octree levels, including root level `0`; the deepest level is `max_layer - 1`, with cell edge `voxel_size / 2^(max_layer - 1)`. Larger values allow finer subdivision of non-planar cells |
-| `mapping.layer_point_size` | Point-count threshold that must be exceeded before initial plane fitting at each level; larger values require more supporting observations before classifying the cell |
+| `mapping.layer_point_size` | Per-level count threshold for initial plane fitting and, when mature-plane refitting is enabled, for accumulating observations outside the existing plane before refitting; larger values require more observations to trigger either operation |
 | `mapping.planar_threshold` | Upper threshold on the smallest point-distribution covariance eigenvalue, in m²; smaller values require a thinner distribution along the fitted normal for the cell to qualify as planar |
 | `mapping.max_points_size` | Accumulated-point threshold for stopping regular plane fitting and covariance updates; larger values let later observations continue refining the cell model |
 | `mapping.max_mature_points_size` | Accumulated-point limit for refitting a mature plane with observations outside the existing plane; setting it above `max_points_size` allows this adaptation after regular updates stop. Equal values disable this additional refitting |
@@ -88,8 +103,14 @@ and computation time.
 
 At level `l`, the candidate budget is
 `B_l = max(floor(max_points_per_voxel / reduction_ratio^l), 1)`.
-The minimum candidate spacing is `cell_edge / sqrt(B_l)`, so these parameters
-control both storage capacity and spatial coverage, not just search cost.
+When adding a candidate, the minimum spacing from existing candidates in the
+same cell is `cell_edge / sqrt(B_l)`. This spacing is not enforced between
+candidates in different cells. These parameters control both storage capacity
+and spatial coverage, not just search cost.
+
+Use a positive integer `max_layer` and provide at least `max_layer` entries in
+`layer_point_size`, ordered from root level `0` to level `max_layer - 1`.
+When increasing `max_layer`, extend the array as needed to cover every level.
 
 Tune `voxel_size`, `max_layer`, `max_points_per_voxel`, and `reduction_ratio`
 together. A smaller cell or deeper tree changes support density; aggressively
