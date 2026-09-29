@@ -298,7 +298,9 @@ class Visualizer:
     @staticmethod
     def _pixel_radii(points, camera_position, look_direction, fov_degrees, height, width):
         """Convert a pixel diameter to a world radius at each point's depth."""
-        depth = (points - camera_position) @ look_direction
+        # Three-component dot products do not benefit from a BLAS thread pool;
+        # its workers can contend with odometry as the displayed path grows.
+        depth = np.einsum('ij,j->i', points - camera_position, look_direction)
         return np.maximum(depth, 1.e-6) * np.tan(np.deg2rad(fov_degrees) * .5) * width / max(height, 1)
 
     def _update_screen_sizes(self):
