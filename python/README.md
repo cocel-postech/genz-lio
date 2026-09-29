@@ -1,5 +1,15 @@
 # GenZ-LIO Python
 
+<div align="center">
+
+<a href="../pictures/GenZ-LIO.gif" title="Open the 30-second GIF">
+  <img src="../pictures/GenZ-LIO_20s.webp" width="1000" alt="GenZ-LIO on NarrowWide Handheld-A-01" />
+</a>
+
+</div>
+
+[GenZ-LIO](https://arxiv.org/abs/2603.16273) is designed for robust and computationally efficient LiDAR-inertial odometry across confined spaces, open environments, and transitions between them.
+
 Process recorded data with an optional visualizer; no ROS installation is needed.
 
 ## 1. Install dependencies and get the source
@@ -716,3 +726,58 @@ The reader converts acceleration from g to m/s² and angular velocity from
 degrees/s to rad/s using sensor timestamps. Configure LiDAR/IMU extrinsics for
 the SDK's sensor coordinates, and split timestamp resets into separate recordings.
 The Ouster SDK extra requires glibc 2.28 or newer; the bag reader does not need it.
+
+## :pencil: Citation
+
+If you use GenZ-LIO, please cite our [paper](https://arxiv.org/abs/2603.16273).
+
+```bibtex
+@article{lee2026genzlio,
+  title={{GenZ-LIO: Generalizable LiDAR-Inertial Odometry Beyond Confined--Open Boundaries}},
+  author={Lee, Daehan and Lim, Hyungtae and Kim, Seongjun and Rho, Soonbin and Lee, Changhyeon and Park, Sanghyun and Hong, Junwoo and Choi, Eunseon and Jo, Hyunyoung and Han, Soohee},
+  journal={arXiv preprint arXiv:2603.16273},
+  year={2026}
+}
+```
+
+For LiDAR-only odometry, see [GenZ-ICP](https://github.com/cocel-postech/genz-icp)
+([arXiv](https://arxiv.org/abs/2411.06766), [IEEE *Xplore*](https://ieeexplore.ieee.org/document/10753079)).
+
+```bibtex
+@article{lee2024genzicp,
+  author={Lee, Daehan and Lim, Hyungtae and Han, Soohee},
+  title={{GenZ-ICP: Generalizable and Degeneracy-Robust LiDAR Odometry Using an Adaptive Weighting}},
+  journal={IEEE Robotics and Automation Letters (RA-L)},
+  year={2025},
+  volume={10},
+  number={1},
+  pages={152--159},
+  doi={10.1109/LRA.2024.3498779}
+}
+```
+
+## :sparkles: Contributors
+
+Bug reports, documentation improvements, and pull requests are always welcome.
+
+<a href="https://github.com/cocel-postech/genz-lio/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=cocel-postech/genz-lio" />
+</a>
+
+## :pray: Acknowledgments and license
+
+Many thanks to the [HKU-MARS Lab](https://github.com/hku-mars) and [PRBonn](https://github.com/PRBonn) for their open-source contributions to the robotics community.
+
+GenZ-LIO builds on [PV-LIO](https://github.com/HViktorTsoi/PV-LIO),
+[VoxelMap](https://github.com/hku-mars/VoxelMap),
+[FAST-LIO](https://github.com/hku-mars/FAST_LIO), and
+[IKFoM](https://github.com/hku-mars/IKFoM). We also thank the
+[KISS-ICP](https://github.com/PRBonn/kiss-icp) project.
+
+GenZ-LIO is distributed under [GPL-2.0](https://github.com/cocel-postech/genz-lio/blob/master/LICENSE); dependency modifications are listed in [PATCHES.md](https://github.com/cocel-postech/genz-lio/blob/master/cpp/genz_lio/3rdparty/PATCHES.md).
+
+## :mailbox: Contact
+
+For questions and bugs, open an
+[issue](https://github.com/cocel-postech/genz-lio/issues) or contact
+[Daehan Lee](https://github.com/Daehan2Lee) ( :envelope: daehanlee `at` postech `dot` ac `dot` kr)
