@@ -32,7 +32,7 @@ mapping:
     map_range: -1.0
 
     extrinsic_est_en: false
-    extrinsic_t: [0.04165, 0.02326, -0.0284]
+    extrinsic_t: [-0.017062, -0.003617, -0.019032]
     extrinsic_r: [1, 0, 0,
                   0, 1, 0,
                   0, 0, 1]
@@ -64,7 +64,7 @@ hybrid_metric:
 noise_model:
     ranging_cov: 0.02
     angle_cov: 0.05
-    acc_cov: 0.005
+    acc_cov: 0.01
     gyr_cov: 5.0e-05
     b_acc_cov: 1.0e-06
     b_gyr_cov: 1.0e-06
