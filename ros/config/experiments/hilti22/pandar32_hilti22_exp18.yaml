@@ -3,6 +3,8 @@
 # See ros/README.md and ros/config/parameter_tuning_guide.md.
 
 common:
+    time_sync_en: false
+    qos_depth: 1000
     lidar_topic: "/hesai/pandar"
     imu_topic: "/alphasense/imu"
 
@@ -20,18 +22,18 @@ preprocess:
 
 mapping:
     max_iteration: 4  # ESIKF iterations per scan
-    down_sample_size: 0.2
+    down_sample_size: 0.25
 
     # Root voxel edge length, d_root. Sets the octree root cell and feeds the
     # discretization variance of the point-to-point covariance.
-    voxel_size: 0.25
-    max_layer: 2
+    voxel_size: 0.5
+    max_layer: 4
     layer_point_size: [5, 5, 5, 5, 5]
-    planar_threshold: 0.0001
+    planar_threshold: 0.0005
     sigma_num: 2.5    # point-to-plane residual gate
-    max_points_size: 100
-    max_mature_points_size: 100
-    map_range: 100.0  # [m] drop voxels farther than this; <= 0 keeps all
+    max_points_size: 150
+    max_mature_points_size: 300
+    map_range: -1.0  # [m] drop voxels farther than this; <= 0 keeps all
 
     # LiDAR pose in the IMU body frame. Consult the sensor's datasheet; a wrong
     # extrinsic shows up as a rotation-dependent bias, not as noise.
@@ -47,14 +49,14 @@ adaptive_voxelization:
     window_size: 5          # N_w, scans the scale indicator averages over
     scale_threshold: 30.0   # tau_m [m], scale at which the setpoint saturates
     setpoint_exponent: 2    # p, must exceed 1 for a smooth approach to N_max
-    min_points: 1500        # N_min, setpoint in the most confined scenes
+    min_points: 1000        # N_min, setpoint in the most confined scenes
     max_points: 4000        # N_max, setpoint once the scene is open
     error_sensitivity: 0.1  # lambda_p, normalizes the tracking error
     error_rate_sensitivity: 0.2
-    p_gain_min: 1.0e-6
-    p_gain_max: 0.0001
-    d_gain_min: 1.0e-9
-    d_gain_max: 1.0e-7
+    p_gain_min: 5.0e-06
+    p_gain_max: 5.0e-05
+    d_gain_min: 5.0e-08
+    d_gain_max: 5.0e-07
 
 # Hybrid-metric state update (paper Sec. V-E).
 hybrid_metric:
@@ -63,14 +65,14 @@ hybrid_metric:
     # point-to-point covariance, which comes from a single correspondence,
     # against the point-to-plane one, fitted from many points. The single most
     # sensitive parameter in the system.
-    lambda_po: 0.1
-    sigma_num: 3.0  # point-to-point residual gate
+    lambda_po: 0.05
+    sigma_num: 4.2736  # point-to-point residual gate
     # How many points a root voxel keeps as candidates for the point-to-point
     # search. More candidates means a better match and a slower search.
-    max_points_per_voxel: 32
+    max_points_per_voxel: 64
     # Each time a voxel subdivides, a child keeps its parent's budget divided by
     # this, so the candidates thin out as the cells get smaller.
-    reduction_ratio: 4
+    reduction_ratio: 2
     # The point-to-point gate is scaled by each point's own range and widened by
     # the motion the filter has had to correct, so a distant return is judged
     # against a looser bound than a near one.
@@ -81,10 +83,10 @@ hybrid_metric:
 noise_model:
     ranging_cov: 0.01  # [m] LiDAR range noise
     angle_cov: 0.1     # [deg] LiDAR bearing noise
-    acc_cov: 0.5
-    gyr_cov: 0.25
-    b_acc_cov: 0.0043
-    b_gyr_cov: 0.000266
+    acc_cov: 0.01
+    gyr_cov: 0.0001
+    b_acc_cov: 1.1121e-06
+    b_gyr_cov: 1.0e-06
 
 publish:
     path_en: true

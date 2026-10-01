@@ -65,7 +65,7 @@ noise_model:
     ranging_cov: 0.08
     angle_cov: 0.2
     acc_cov: 0.01
-    gyr_cov: 0.0001
+    gyr_cov: 0.00030000000000000003
     b_acc_cov: 0.0043
     b_gyr_cov: 0.000266
 

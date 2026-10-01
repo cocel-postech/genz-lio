@@ -167,7 +167,9 @@ class Pipeline:
                 lidar_pose, alignment, snapshot = display
                 world_rotation = alignment @ lidar_pose[:3, :3]
                 world_translation = alignment @ lidar_pose[:3, 3]
-                world_points = result.deskewed @ world_rotation.T + world_translation
+                # This three-coordinate display transform does not benefit from
+                # a BLAS thread pool, which can compete with the next scan.
+                world_points = np.einsum("ij,kj->ik", result.deskewed, world_rotation) + world_translation
                 display_pose = pose.copy()
                 display_pose[:3, :3] = alignment @ pose[:3, :3]
                 display_pose[:3, 3] = alignment @ pose[:3, 3]

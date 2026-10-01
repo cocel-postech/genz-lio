@@ -181,8 +181,8 @@ Dataset information and download instructions are maintained in the NarrowWide r
 | Tracked-02 | [experiments/narrowwide/mid70_tracked_02.yaml](config/experiments/narrowwide/mid70_tracked_02.yaml) |
 | Handheld-A-01 | [experiments/narrowwide/vlp16_handheld_a_01.yaml](config/experiments/narrowwide/vlp16_handheld_a_01.yaml) |
 | Handheld-A-02 | [experiments/narrowwide/vlp16_handheld_a_02.yaml](config/experiments/narrowwide/vlp16_handheld_a_02.yaml) |
-| Handheld-B-01 | [experiments/narrowwide/avia_handheld_b.yaml](config/experiments/narrowwide/avia_handheld_b.yaml) |
-| Handheld-B-02 | [experiments/narrowwide/avia_handheld_b.yaml](config/experiments/narrowwide/avia_handheld_b.yaml) |
+| Handheld-B-01 | [experiments/narrowwide/avia_handheld_b_01.yaml](config/experiments/narrowwide/avia_handheld_b_01.yaml) |
+| Handheld-B-02 | [experiments/narrowwide/avia_handheld_b_02.yaml](config/experiments/narrowwide/avia_handheld_b_02.yaml) |
 
 </details>
 
@@ -501,8 +501,8 @@ Dataset information and download instructions are maintained in the NarrowWide r
 | Tracked-02 | [experiments/narrowwide/mid70_tracked_02.yaml](config/experiments/narrowwide/mid70_tracked_02.yaml) |
 | Handheld-A-01 | [experiments/narrowwide/vlp16_handheld_a_01.yaml](config/experiments/narrowwide/vlp16_handheld_a_01.yaml) |
 | Handheld-A-02 | [experiments/narrowwide/vlp16_handheld_a_02.yaml](config/experiments/narrowwide/vlp16_handheld_a_02.yaml) |
-| Handheld-B-01 | [experiments/narrowwide/avia_handheld_b.yaml](config/experiments/narrowwide/avia_handheld_b.yaml) |
-| Handheld-B-02 | [experiments/narrowwide/avia_handheld_b.yaml](config/experiments/narrowwide/avia_handheld_b.yaml) |
+| Handheld-B-01 | [experiments/narrowwide/avia_handheld_b_01.yaml](config/experiments/narrowwide/avia_handheld_b_01.yaml) |
+| Handheld-B-02 | [experiments/narrowwide/avia_handheld_b_02.yaml](config/experiments/narrowwide/avia_handheld_b_02.yaml) |
 
 </details>
 

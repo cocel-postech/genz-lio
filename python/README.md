@@ -87,7 +87,7 @@ done
 ```
 
 Run this in the directory where you will run the examples below. This copies all
-35 YAMLs unchanged and works with both source and wheel installations. Keep this
+36 YAMLs unchanged and works with both source and wheel installations. Keep this
 folder for subsequent runs; there is no need to export again per sequence.
 Exported YAMLs are editable. Re-running the export will not overwrite existing
 files or your changes.
@@ -371,7 +371,7 @@ genz_lio_pipeline run "{path_to_bag}/{NW_Handheld-A-02}.bag" \
 
 ```bash
 genz_lio_pipeline run "{path_to_bag}/{NW_Handheld-B-01}.bag" \
-    --config configs/experiments/narrowwide/avia_handheld_b.yaml \
+    --config configs/experiments/narrowwide/avia_handheld_b_01.yaml \
     --visualize --image-topic /camera/image_color/compressed \
     --output results/nw_handheld_b_01
 ```
@@ -380,7 +380,7 @@ genz_lio_pipeline run "{path_to_bag}/{NW_Handheld-B-01}.bag" \
 
 ```bash
 genz_lio_pipeline run "{path_to_bag}/{NW_Handheld-B-02}.bag" \
-    --config configs/experiments/narrowwide/avia_handheld_b.yaml \
+    --config configs/experiments/narrowwide/avia_handheld_b_02.yaml \
     --visualize --image-topic /camera/image_color/compressed \
     --output results/nw_handheld_b_02
 ```
@@ -642,8 +642,11 @@ From the repository root:
 ```bash
 CMAKE_BUILD_PARALLEL_LEVEL=2 python -m pip install -e '.[rosbag,viz]'
 python -m pip install pytest
-python -m pytest python/tests -q
+env -u PYTHONPATH python -m pytest python/tests -q
 ```
+
+Clearing `PYTHONPATH` for the test command prevents plugins from a sourced ROS
+workspace from loading into the Python virtual environment.
 
 ---
 

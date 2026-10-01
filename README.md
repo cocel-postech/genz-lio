@@ -92,7 +92,7 @@ done
 ```
 
 Run this in the directory where you will run the examples below. This copies all
-35 YAMLs unchanged and works with both source and wheel installations. Keep this
+36 YAMLs unchanged and works with both source and wheel installations. Keep this
 folder for subsequent runs; there is no need to export again per sequence.
 Exported YAMLs are editable. Re-running the export will not overwrite existing
 files or your changes.
@@ -376,7 +376,7 @@ genz_lio_pipeline run "{path_to_bag}/{NW_Handheld-A-02}.bag" \
 
 ```bash
 genz_lio_pipeline run "{path_to_bag}/{NW_Handheld-B-01}.bag" \
-    --config configs/experiments/narrowwide/avia_handheld_b.yaml \
+    --config configs/experiments/narrowwide/avia_handheld_b_01.yaml \
     --visualize --image-topic /camera/image_color/compressed \
     --output results/nw_handheld_b_01
 ```
@@ -385,7 +385,7 @@ genz_lio_pipeline run "{path_to_bag}/{NW_Handheld-B-01}.bag" \
 
 ```bash
 genz_lio_pipeline run "{path_to_bag}/{NW_Handheld-B-02}.bag" \
-    --config configs/experiments/narrowwide/avia_handheld_b.yaml \
+    --config configs/experiments/narrowwide/avia_handheld_b_02.yaml \
     --visualize --image-topic /camera/image_color/compressed \
     --output results/nw_handheld_b_02
 ```
@@ -818,8 +818,8 @@ Dataset information and download instructions are maintained in the NarrowWide r
 | Tracked-02 | [experiments/narrowwide/mid70_tracked_02.yaml](ros/config/experiments/narrowwide/mid70_tracked_02.yaml) |
 | Handheld-A-01 | [experiments/narrowwide/vlp16_handheld_a_01.yaml](ros/config/experiments/narrowwide/vlp16_handheld_a_01.yaml) |
 | Handheld-A-02 | [experiments/narrowwide/vlp16_handheld_a_02.yaml](ros/config/experiments/narrowwide/vlp16_handheld_a_02.yaml) |
-| Handheld-B-01 | [experiments/narrowwide/avia_handheld_b.yaml](ros/config/experiments/narrowwide/avia_handheld_b.yaml) |
-| Handheld-B-02 | [experiments/narrowwide/avia_handheld_b.yaml](ros/config/experiments/narrowwide/avia_handheld_b.yaml) |
+| Handheld-B-01 | [experiments/narrowwide/avia_handheld_b_01.yaml](ros/config/experiments/narrowwide/avia_handheld_b_01.yaml) |
+| Handheld-B-02 | [experiments/narrowwide/avia_handheld_b_02.yaml](ros/config/experiments/narrowwide/avia_handheld_b_02.yaml) |
 
 </details>
 
@@ -1144,8 +1144,8 @@ Dataset information and download instructions are maintained in the NarrowWide r
 | Tracked-02 | [experiments/narrowwide/mid70_tracked_02.yaml](ros/config/experiments/narrowwide/mid70_tracked_02.yaml) |
 | Handheld-A-01 | [experiments/narrowwide/vlp16_handheld_a_01.yaml](ros/config/experiments/narrowwide/vlp16_handheld_a_01.yaml) |
 | Handheld-A-02 | [experiments/narrowwide/vlp16_handheld_a_02.yaml](ros/config/experiments/narrowwide/vlp16_handheld_a_02.yaml) |
-| Handheld-B-01 | [experiments/narrowwide/avia_handheld_b.yaml](ros/config/experiments/narrowwide/avia_handheld_b.yaml) |
-| Handheld-B-02 | [experiments/narrowwide/avia_handheld_b.yaml](ros/config/experiments/narrowwide/avia_handheld_b.yaml) |
+| Handheld-B-01 | [experiments/narrowwide/avia_handheld_b_01.yaml](ros/config/experiments/narrowwide/avia_handheld_b_01.yaml) |
+| Handheld-B-02 | [experiments/narrowwide/avia_handheld_b_02.yaml](ros/config/experiments/narrowwide/avia_handheld_b_02.yaml) |
 
 </details>
 

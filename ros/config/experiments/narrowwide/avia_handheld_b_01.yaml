@@ -1,41 +1,41 @@
-# GenZ-LIO benchmark configuration: GD_Stairs.
+# GenZ-LIO benchmark configuration: NW_Handheld-B-01.
 # Load this complete YAML without a sensor overlay.
 # See ros/README.md and ros/config/parameter_tuning_guide.md.
 
 common:
-    lidar_topic: "/velodyne_points"
-    imu_topic: "/imu/data"
+    lidar_topic: "/livox/lidar"
+    imu_topic: "/livox/imu"
     qos_depth: 1000
 
 runtime:
     max_threads: 0
 
 preprocess:
-    lidar_type: velodyne
-    scan_line: 16
+    lidar_type: livox
+    scan_line: 6
     scan_rate: 10
-    blind_min: 0.5
-    blind_max: 120.0
+    blind_min: 0.1
+    blind_max: 200.0
     point_filter_num: 1
 
 mapping:
     max_iteration: 4
     down_sample_size: 0.25
 
-    voxel_size: 1.0
+    voxel_size: 0.5
     max_layer: 3
     layer_point_size: [5, 5, 5, 5, 5]
-    planar_threshold: 0.01
-    sigma_num: 2.5
-    max_points_size: 1000
-    max_mature_points_size: 1000
+    planar_threshold: 0.001
+    sigma_num: 4.0
+    max_points_size: 100
+    max_mature_points_size: 100
     map_range: -1.0
 
     extrinsic_est_en: false
-    extrinsic_t: [0.010965, -0.086864, 0.060426]
-    extrinsic_r: [0.9989892, 0.044487, -0.0064406,
-                  -0.0446353, 0.9986885, -0.0250789,
-                  0.0053164, 0.025341, 0.9996647]
+    extrinsic_t: [0.04165, 0.02326, -0.0284]
+    extrinsic_r: [1, 0, 0,
+                  0, 1, 0,
+                  0, 0, 1]
 
 adaptive_voxelization:
     enable: true
@@ -54,18 +54,18 @@ adaptive_voxelization:
 hybrid_metric:
     enable: true
     lambda_po: 0.05
-    sigma_num: 2.5
-    max_points_per_voxel: 32
+    sigma_num: 4.0
+    max_points_per_voxel: 64
     reduction_ratio: 2
     adaptive_threshold:
         initial_threshold: 0.5
         max_range_motion: 100.0
 
 noise_model:
-    ranging_cov: 0.04
+    ranging_cov: 0.02
     angle_cov: 0.05
-    acc_cov: 0.008
-    gyr_cov: 0.0001
+    acc_cov: 0.01
+    gyr_cov: 1.0e-05
     b_acc_cov: 1.0e-06
     b_gyr_cov: 1.0e-06
 
@@ -76,7 +76,7 @@ publish:
     scan_bodyframe_pub_en: false
     scan_semantic_publish_en: true
     voxel_map_en: false
-    voxel_map_max_layer: 1
+    voxel_map_max_layer: 2
 
 pcd_save:
     enable: false

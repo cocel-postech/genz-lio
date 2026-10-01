@@ -1,4 +1,4 @@
-# GenZ-LIO benchmark configuration: NW_Handheld-B-01, NW_Handheld-B-02.
+# GenZ-LIO benchmark configuration: NW_Handheld-B-02.
 # Load this complete YAML without a sensor overlay.
 # See ros/README.md and ros/config/parameter_tuning_guide.md.
 
@@ -65,7 +65,7 @@ noise_model:
     ranging_cov: 0.02
     angle_cov: 0.05
     acc_cov: 0.01
-    gyr_cov: 1.0e-05
+    gyr_cov: 1.5e-05
     b_acc_cov: 1.0e-06
     b_gyr_cov: 1.0e-06
 
