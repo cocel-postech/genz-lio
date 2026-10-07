@@ -10,7 +10,7 @@
 [![ROS 2](https://img.shields.io/badge/ROS%202-Humble%20%7C%20Jazzy-orange)](ros/README.md)
 [![License](https://img.shields.io/badge/License-GPL%20v2-red.svg)](LICENSE)
 
-[Demo](https://www.youtube.com/watch?v=EyTJbdC_AA4)
+[Demo](https://youtu.be/jrUT97huwNE)
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 [Paper](https://arxiv.org/abs/2603.16273)
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>

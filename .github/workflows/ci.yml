@@ -9,7 +9,13 @@ env:
 on:
   push:
     branches: [master]
+    paths-ignore:
+      - "**/*.md"
+      - "pictures/**"
   pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "pictures/**"
   workflow_dispatch:
 
 jobs:
@@ -24,8 +30,15 @@ jobs:
     steps:
       - name: Install README dependencies
         run: |
-          apt-get update
-          DEBIAN_FRONTEND=noninteractive apt-get install -y \
+          # Use Ubuntu's Azure mirror to avoid archive.ubuntu.com connection failures.
+          for apt_source in /etc/apt/sources.list /etc/apt/sources.list.d/ubuntu.sources; do
+            if [ -f "$apt_source" ]; then
+              sed -i -e 's|http://archive.ubuntu.com/ubuntu|http://azure.archive.ubuntu.com/ubuntu|g' \
+                -e 's|http://security.ubuntu.com/ubuntu|http://azure.archive.ubuntu.com/ubuntu|g' "$apt_source"
+            fi
+          done
+          apt-get -o Acquire::Retries=5 -o APT::Update::Error-Mode=any update
+          DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=5 install -y \
             git build-essential cmake libeigen3-dev libboost-dev \
             python3-dev python3-venv libgl1
       - uses: actions/checkout@v4
@@ -58,8 +71,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libeigen3-dev libboost-dev libyaml-cpp-dev ninja-build
+          sudo apt-get -o Acquire::Retries=5 -o APT::Update::Error-Mode=any update
+          sudo apt-get -o Acquire::Retries=5 install -y libeigen3-dev libboost-dev libyaml-cpp-dev ninja-build
       - name: Configure
         run: cmake -S cpp/genz_lio -B build -G Ninja -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
       - name: Build
@@ -77,8 +90,8 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          apt-get update
-          apt-get install -y --no-install-recommends \
+          apt-get -o Acquire::Retries=5 -o APT::Update::Error-Mode=any update
+          apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
             git build-essential cmake libeigen3-dev libboost-dev libyaml-cpp-dev \
             ros-noetic-pcl-ros ros-noetic-pcl-conversions ros-noetic-tf
       - name: Build
@@ -109,8 +122,8 @@ jobs:
       - name: Install dependencies
         shell: bash
         run: |
-          apt-get update
-          apt-get install -y --no-install-recommends \
+          apt-get -o Acquire::Retries=5 -o APT::Update::Error-Mode=any update
+          apt-get -o Acquire::Retries=5 install -y --no-install-recommends \
             git build-essential cmake libeigen3-dev libboost-dev libyaml-cpp-dev libpcl-dev \
             ros-${{ matrix.distro }}-pcl-conversions \
             ros-${{ matrix.distro }}-tf2-ros \
@@ -142,8 +155,8 @@ jobs:
         with: { python-version: "${{ matrix.python }}" }
       - name: Install dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libeigen3-dev libboost-dev libgl1
+          sudo apt-get -o Acquire::Retries=5 -o APT::Update::Error-Mode=any update
+          sudo apt-get -o Acquire::Retries=5 install -y libeigen3-dev libboost-dev libgl1
           python -m pip install --upgrade pip pytest Pillow rosbags build twine
       - name: Build and install
         run: |
