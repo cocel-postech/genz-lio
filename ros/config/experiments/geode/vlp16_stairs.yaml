@@ -22,7 +22,7 @@ mapping:
     max_iteration: 4
     down_sample_size: 0.25
 
-    voxel_size: 0.5
+    voxel_size: 1.0
     max_layer: 3
     layer_point_size: [5, 5, 5, 5, 5]
     planar_threshold: 0.01
@@ -63,7 +63,7 @@ hybrid_metric:
 
 noise_model:
     ranging_cov: 0.04
-    angle_cov: 0.05
+    angle_cov: 0.03
     acc_cov: 0.008
     gyr_cov: 0.0001
     b_acc_cov: 1.0e-06
