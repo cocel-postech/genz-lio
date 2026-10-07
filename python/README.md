@@ -25,6 +25,7 @@
 <a href="../pictures/GenZ-LIO.gif" title="Open the 30-second GIF">
   <img src="../pictures/GenZ-LIO_20s.webp" width="1100" alt="GenZ-LIO on NarrowWide Handheld-A-01" />
 </a>
+<br />
 
 <p align="center">
   <strong>(October 7, 2026)</strong> pip installation is now live:
