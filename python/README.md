@@ -22,8 +22,8 @@
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 [ROS](https://github.com/cocel-postech/genz-lio/blob/master/ros/README.md)
 
-<a href="https://raw.githubusercontent.com/cocel-postech/genz-lio/master/pictures/GenZ-LIO.gif" title="Open the 30-second GIF">
-  <img src="https://raw.githubusercontent.com/cocel-postech/genz-lio/master/pictures/GenZ-LIO_20s.webp" width="1100" alt="GenZ-LIO on NarrowWide Handheld-A-01" />
+<a href="../pictures/GenZ-LIO.gif" title="Open the 30-second GIF">
+  <img src="../pictures/GenZ-LIO_20s.webp" width="1100" alt="GenZ-LIO on NarrowWide Handheld-A-01" />
 </a>
 
 </div>
