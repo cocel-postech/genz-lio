@@ -27,8 +27,10 @@
 </a>
 
 <p align="center">
+  <strong>(October 7, 2026)</strong> pip installation is now live:
+  <br />
   <a href="https://pypi.org/project/genz-lio/">
-    <img src="https://readme-typing-svg.demolab.com?background=0D1117&amp;color=22C55E&amp;font=Fira+Code&amp;size=22&amp;duration=2500&amp;pause=800&amp;center=true&amp;vCenter=true&amp;multiline=false&amp;width=420&amp;height=56&amp;lines=%24+pip+install+genz-lio" width="420" height="56" alt="$ pip install genz-lio" />
+    <img src="https://readme-typing-svg.demolab.com?background=0D1117&amp;color=22C55E&amp;font=Fira+Code&amp;size=18&amp;duration=2500&amp;pause=800&amp;center=true&amp;vCenter=true&amp;multiline=false&amp;width=320&amp;height=30&amp;lines=%24+pip+install+genz-lio" width="320" height="30" alt="$ pip install genz-lio" />
   </a>
 </p>
 
