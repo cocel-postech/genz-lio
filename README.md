@@ -1311,6 +1311,6 @@ GenZ-LIO is distributed under [GPL-2.0](https://github.com/cocel-postech/genz-li
 
 ## :mailbox: Contact
 
-For questions and bugs, open an
+For questions or issues, open an
 [issue](https://github.com/cocel-postech/genz-lio/issues) or contact
 [Daehan Lee](https://github.com/Daehan2Lee) ( :envelope: daehanlee `at` postech `dot` ac `dot` kr)
