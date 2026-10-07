@@ -4,11 +4,11 @@
 
 **Generalizable LiDAR-Inertial Odometry Beyond Confined–Open Boundaries**
 
-[![C++](https://img.shields.io/badge/C%2B%2B-17-blue)](../cpp/genz_lio)
-[![Python](https://img.shields.io/badge/Python-3.8--3.12-yellow)](README.md)
-[![ROS 1](https://img.shields.io/badge/ROS%201-Noetic-green)](../ros/README.md)
-[![ROS 2](https://img.shields.io/badge/ROS%202-Humble%20%7C%20Jazzy-orange)](../ros/README.md)
-[![License](https://img.shields.io/badge/License-GPL%20v2-red.svg)](../LICENSE)
+[![C++](https://img.shields.io/badge/C%2B%2B-17-blue)](https://github.com/cocel-postech/genz-lio/tree/master/cpp/genz_lio)
+[![Python](https://img.shields.io/badge/Python-3.8--3.12-yellow)](https://github.com/cocel-postech/genz-lio/blob/master/python/README.md)
+[![ROS 1](https://img.shields.io/badge/ROS%201-Noetic-green)](https://github.com/cocel-postech/genz-lio/blob/master/ros/README.md)
+[![ROS 2](https://img.shields.io/badge/ROS%202-Humble%20%7C%20Jazzy-orange)](https://github.com/cocel-postech/genz-lio/blob/master/ros/README.md)
+[![License](https://img.shields.io/badge/License-GPL%20v2-red.svg)](https://github.com/cocel-postech/genz-lio/blob/master/LICENSE)
 
 [Demo](https://www.youtube.com/watch?v=EyTJbdC_AA4)
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
@@ -16,59 +16,44 @@
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
 [Dataset](https://github.com/cocel-postech/NarrowWide)
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-[Install](#1-install-dependencies-and-get-the-source)
+[Install](#1-prepare-the-environment)
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-[Python](README.md)
+[Python](https://github.com/cocel-postech/genz-lio/blob/master/python/README.md)
 <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
-[ROS](../ros/README.md)
+[ROS](https://github.com/cocel-postech/genz-lio/blob/master/ros/README.md)
 
-<a href="../pictures/GenZ-LIO.gif" title="Open the 30-second GIF">
-  <img src="../pictures/GenZ-LIO_20s.webp" width="1100" alt="GenZ-LIO on NarrowWide Handheld-A-01" />
+<a href="https://raw.githubusercontent.com/cocel-postech/genz-lio/master/pictures/GenZ-LIO.gif" title="Open the 30-second GIF">
+  <img src="https://raw.githubusercontent.com/cocel-postech/genz-lio/master/pictures/GenZ-LIO_20s.webp" width="1100" alt="GenZ-LIO on NarrowWide Handheld-A-01" />
 </a>
 
 </div>
 
 [GenZ-LIO](https://arxiv.org/abs/2603.16273) is designed for robust and computationally efficient LiDAR-inertial odometry across confined spaces, open environments, and transitions between them.
 
-## 1. Install dependencies and get the source
+## 1. Prepare the environment
 
-Use Linux with Python 3.8–3.12. Ubuntu 20.04, 22.04, and 24.04 provide Python
-3.8, 3.10, and 3.12, respectively. Until the PyPI release is published, install
-from this repository:
+Use Linux x86-64 with Python 3.8–3.12. Ubuntu 20.04, 22.04, and 24.04 provide
+Python 3.8, 3.10, and 3.12, respectively.
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
-    python3-dev python3-venv libgl1
-git clone https://github.com/cocel-postech/genz-lio.git
-cd genz-lio
+sudo apt-get install -y python3-venv libgl1
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 ```
 
-## 2. Build and install
+## 2. Install
 
-Pip builds the C++ extension and installs rosbag and visualization dependencies:
+Install all optional readers (rosbag and Ouster PCAP) and the visualizer:
 
 ```bash
-CMAKE_BUILD_PARALLEL_LEVEL=2 python -m pip install '.[rosbag,viz]'
+python -m pip install 'genz-lio[all]'
 ```
 
-The build uses two parallel compile jobs to limit memory use; increase
-`CMAKE_BUILD_PARALLEL_LEVEL` if your machine has sufficient memory. This does not
-change the odometry thread setting.
-
-If the system Eigen is older than 3.4, CMake downloads it during the build;
-network access is required for that step.
-
-After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will replace
-the source build above. A compatible wheel needs no local C++ build; plain
-`pip install genz-lio` installs only the core and CLI.
-
-For all optional readers and visualization, use
-`CMAKE_BUILD_PARALLEL_LEVEL=2 python -m pip install '.[all]'`
-(or `python -m pip install 'genz-lio[all]'` after the PyPI release).
+The published wheels include the compiled C++ extension; no local C++ build or
+ROS installation is required. Plain `pip install genz-lio` installs the core and
+CLI.
 
 ## 3. Prepare configurations
 
@@ -635,15 +620,29 @@ Parameter tuning guidance is available in the [parameter guide](https://github.c
 
 ### Development: rebuild after C++ changes
 
-An editable install tracks Python source changes, but C++ changes require
-rebuilding the extension. A catkin/colcon build does not update it.
-From the repository root:
+To build from source, install the build dependencies and get the repository
+in your activated virtual environment:
 
 ```bash
-CMAKE_BUILD_PARALLEL_LEVEL=2 python -m pip install -e '.[rosbag,viz]'
+sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev python3-dev
+git clone https://github.com/cocel-postech/genz-lio.git
+cd genz-lio
+```
+
+An editable install tracks Python source changes, but C++ changes require
+rebuilding the extension. A catkin/colcon build does not update it.
+Run the installation command below again after changing C++ code:
+
+```bash
+CMAKE_BUILD_PARALLEL_LEVEL=2 python -m pip install -e '.[all]'
 python -m pip install pytest
 env -u PYTHONPATH python -m pytest python/tests -q
 ```
+
+The build uses two parallel compile jobs to limit memory use; increase
+`CMAKE_BUILD_PARALLEL_LEVEL` if your machine has sufficient memory. This does not
+change the odometry thread setting. If the system Eigen is older than 3.4,
+CMake downloads it during the build, requiring network access.
 
 Clearing `PYTHONPATH` for the test command prevents plugins from a sourced ROS
 workspace from loading into the Python virtual environment.
@@ -739,10 +738,10 @@ Split recordings containing sensor-time rewinds into monotonic runs.
 
 ### Ouster PCAP input
 
-From the repository root, install the Ouster reader:
+Install the Ouster reader:
 
 ```bash
-CMAKE_BUILD_PARALLEL_LEVEL=2 python -m pip install '.[ouster]'
+python -m pip install 'genz-lio[ouster]'
 ```
 
 For a single-sensor PCAP, place the matching metadata JSON beside the capture

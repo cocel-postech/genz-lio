@@ -37,43 +37,32 @@
 Process recorded data with an optional visualizer; no ROS installation is needed.
 
 <details>
-<summary>Install, build, and run (Linux, Python 3.8–3.12)</summary>
+<summary>Install and run (Linux x86-64, Python 3.8–3.12)</summary>
 
-### 1. Install dependencies and get the source
+### 1. Prepare the environment
 
-Use Linux with Python 3.8–3.12. Ubuntu 20.04, 22.04, and 24.04 provide Python
-3.8, 3.10, and 3.12, respectively. Until the PyPI release is published, install
-from this repository:
+Use Linux x86-64 with Python 3.8–3.12. Ubuntu 20.04, 22.04, and 24.04 provide
+Python 3.8, 3.10, and 3.12, respectively.
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y git build-essential cmake libeigen3-dev libboost-dev \
-    python3-dev python3-venv libgl1
-git clone https://github.com/cocel-postech/genz-lio.git
-cd genz-lio
+sudo apt-get install -y python3-venv libgl1
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
 ```
 
-### 2. Build and install
+### 2. Install
 
-Pip builds the C++ extension and installs rosbag and visualization dependencies:
+Install all optional readers (rosbag and Ouster PCAP) and the visualizer:
 
 ```bash
-CMAKE_BUILD_PARALLEL_LEVEL=2 python -m pip install '.[rosbag,viz]'
+python -m pip install 'genz-lio[all]'
 ```
 
-The build uses two parallel compile jobs to limit memory use; increase
-`CMAKE_BUILD_PARALLEL_LEVEL` if your machine has sufficient memory. This does not
-change the odometry thread setting.
-
-If the system Eigen is older than 3.4, CMake downloads it during the build;
-network access is required for that step.
-
-After the PyPI release, `python -m pip install 'genz-lio[rosbag,viz]'` will replace
-the source build above. A compatible wheel needs no local C++ build; plain
-`pip install genz-lio` installs only the core and CLI.
+The published wheels include the compiled C++ extension; no local C++ build or
+ROS installation is required. Plain `pip install genz-lio` installs the core and
+CLI.
 
 ### 3. Prepare configurations
 
