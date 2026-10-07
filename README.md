@@ -25,8 +25,12 @@
 <a href="pictures/GenZ-LIO.gif" title="Open the 30-second GIF">
   <img src="pictures/GenZ-LIO_20s.webp" width="1000" alt="GenZ-LIO on NarrowWide Handheld-A-01" />
 </a>
-<br />
-<br />
+
+<p align="center">
+  <a href="https://pypi.org/project/genz-lio/">
+    <img src="https://readme-typing-svg.demolab.com?background=0D1117&amp;color=22C55E&amp;font=Fira+Code&amp;size=22&amp;duration=2500&amp;pause=800&amp;center=true&amp;vCenter=true&amp;multiline=false&amp;width=420&amp;height=56&amp;lines=%24+pip+install+genz-lio" width="420" height="56" alt="$ pip install genz-lio" />
+  </a>
+</p>
 
 </div>
 
